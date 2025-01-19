@@ -2,8 +2,8 @@ import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Github from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
-import { User } from "./models/user.model";
 import { compare } from "bcryptjs";
+import { getUserByEmail } from "./lib/actions/user.actions";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -32,7 +32,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new CredentialsSignin("Please provide both email & Password.");
         }
 
-        const user = await User.findOne({ email }).select("+password +role");
+        const user = await getUserByEmail(email);
 
         if (!user) {
           throw new CredentialsSignin("Invalid email or password");
@@ -49,7 +49,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         const userData = {
-          id: user._id,
+          id: user.id,
           name: user.name,
           username: user.username,
           email: user.email,

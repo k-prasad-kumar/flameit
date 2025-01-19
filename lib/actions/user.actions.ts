@@ -1,22 +1,26 @@
 "use server";
 
+import { PrismaClient } from "@prisma/client";
 import { signIn } from "@/auth";
-import { User } from "@/models/user.model";
 import { RegisterInterface, SocialLoginInterface } from "@/types/types";
 import { hash } from "bcryptjs";
 import { CredentialsSignin } from "next-auth";
 import { redirect } from "next/navigation";
 
+const prisma = new PrismaClient();
+
 export const createUser = async (formData: RegisterInterface) => {
   try {
-    const user = await User.findOne({ email: formData.email as string });
+    const user = await prisma.user.findUnique({
+      where: { email: formData.email as string },
+    });
 
     if (user) {
       return { error: "User already exists" };
     }
 
-    const username = await User.findOne({
-      username: formData.username as string,
+    const username = await prisma.user.findUnique({
+      where: { username: formData.username as string },
     });
 
     if (username) {
@@ -25,12 +29,14 @@ export const createUser = async (formData: RegisterInterface) => {
 
     const hashedPassword: string = await hash(formData.password as string, 10);
 
-    await User.create({
-      name: formData.name as string,
-      username: formData.username as string,
-      email: formData.email as string,
-      password: hashedPassword,
-      profilePicture: "",
+    await prisma.user.create({
+      data: {
+        name: formData.name as string,
+        username: formData.username as string,
+        email: formData.email as string,
+        password: hashedPassword,
+        profilePicture: "",
+      },
     });
     return { success: "Registered successfully" };
   } catch (error) {
@@ -43,7 +49,9 @@ export const login = async (email: string, password: string) => {
     await signIn("credentials", {
       email,
       password,
+      redirectTo: "/",
     });
+    redirect("/");
   } catch (error) {
     const someError = error as CredentialsSignin;
     return {
@@ -52,13 +60,16 @@ export const login = async (email: string, password: string) => {
         someError.message.indexOf(".") + 1
       ) as string,
     };
+  } finally {
+    redirect("/");
   }
-  redirect("/");
 };
 
 export const socialLogin = async (formData: SocialLoginInterface) => {
   try {
-    const user = await User.findOne({ email: formData.email as string });
+    const user = await prisma.user.findUnique({
+      where: { email: formData.email as string },
+    });
 
     if (user) {
       return null;
@@ -67,14 +78,14 @@ export const socialLogin = async (formData: SocialLoginInterface) => {
     const str = formData.email.slice(0, formData.email.indexOf("@") + 1);
     const lower = str.toLowerCase();
     const username = lower.replace(/[^A-Za-z0-9-_]/g, "");
-    console.log(formData.email);
-    console.log(username);
 
-    await User.create({
-      name: formData.name as string,
-      username: username as string,
-      email: formData.email as string,
-      profilePicture: formData.profilePicture as string,
+    await prisma.user.create({
+      data: {
+        name: formData.name as string,
+        username: username as string,
+        email: formData.email as string,
+        profilePicture: formData.profilePicture as string,
+      },
     });
 
     return { success: "Created successfully" };
@@ -86,18 +97,17 @@ export const socialLogin = async (formData: SocialLoginInterface) => {
 
 export const updateUsername = async (email: string, username: string) => {
   try {
-    const existingUsername = await User.findOne({
-      username: username as string,
+    const existingUsername = await prisma.user.findUnique({
+      where: { username: username as string },
     });
 
     if (existingUsername) {
       return { error: `The Username ${username} is not avalable` };
     }
-
-    await User.findOneAndUpdate(
-      { email: email as string },
-      { username: username as string }
-    );
+    await prisma.user.update({
+      where: { email: email as string },
+      data: { username: username as string },
+    });
 
     return { success: "Logged in successfully" };
   } catch (error) {
@@ -108,7 +118,7 @@ export const updateUsername = async (email: string, username: string) => {
 
 export const getUserById = async (id: string) => {
   try {
-    const user = await User.findById(id);
+    const user = await prisma.user.findUnique({ where: { id: id as string } });
     return user;
   } catch (error) {
     console.log(error);
@@ -117,7 +127,9 @@ export const getUserById = async (id: string) => {
 
 export const getUserByEmail = async (email: string) => {
   try {
-    const user = await User.findOne({ email });
+    const user = await prisma.user.findUnique({
+      where: { email: email },
+    });
     return user;
   } catch (error) {
     console.log(error);

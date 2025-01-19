@@ -4,7 +4,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
 import "./globals.css";
-import { connectToDB } from "@/lib/connect-db";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +25,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  await connectToDB();
   return (
     <html lang="en" suppressHydrationWarning>
       <body

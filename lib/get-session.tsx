@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
-import { User } from "@/models/user.model";
 import { cache } from "react";
+import { getUserByEmail } from "./actions/user.actions";
 
 export const getSession = cache(async () => {
   const session = await auth();
@@ -9,6 +9,6 @@ export const getSession = cache(async () => {
 
 export const getCurrentUser = cache(async () => {
   const session = await getSession();
-  const user = await User.findOne({ email: session?.user?.email });
+  const user = await getUserByEmail(session?.user?.email as string);
   return user;
 });
