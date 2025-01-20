@@ -9,6 +9,8 @@ export const getSession = cache(async () => {
 
 export const getCurrentUser = cache(async () => {
   const session = await getSession();
-  const user = await getUserByEmail(session?.user?.email as string);
+  console.log(session);
+  // const user = await getUserByEmail(session?.user?.email as string);
+  const user = await getUserByEmail("prasadkumar1431234@gmail.com");
   return user;
 });

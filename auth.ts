@@ -4,8 +4,11 @@ import Github from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import { compare } from "bcryptjs";
 import { getUserByEmail } from "./lib/actions/user.actions";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { prisma } from "@/lib/prisma";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  adapter: PrismaAdapter(prisma),
   providers: [
     Github({
       clientId: process.env.GITHUB_CLIENT_ID,
@@ -35,17 +38,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const user = await getUserByEmail(email);
 
         if (!user) {
-          throw new CredentialsSignin("Invalid email or password");
+          throw new CredentialsSignin("Invalid email or password.");
         }
 
         if (!user.password) {
-          throw new CredentialsSignin("Invalid email or password");
+          throw new CredentialsSignin("Invalid email or password.");
         }
 
         const isMatched = await compare(password, user.password);
 
         if (!isMatched) {
-          throw new CredentialsSignin("Invalid email or password");
+          throw new CredentialsSignin("Invalid email or password.");
         }
 
         const userData = {
@@ -53,7 +56,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: user.name,
           username: user.username,
           email: user.email,
-          profilePicture: user.profilePicture,
+          image: user.image,
         };
 
         return userData;
@@ -62,5 +65,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   pages: {
     signIn: "/login",
+  },
+  events: {
+    async linkAccount({ user }) {
+      const str = user.email!.slice(0, user.email!.indexOf("@") + 1);
+      const lower = str.toLowerCase();
+      const username = lower.replace(/[^A-Za-z0-9-_]/g, "");
+
+      await prisma.user.update({
+        where: { email: user.email as string },
+        data: { username: username as string },
+      });
+    },
   },
 });

@@ -32,7 +32,7 @@ const Register = () => {
             className="w-full"
             action={async () => {
               "use server";
-              await signIn("google", { redirectTo: "/login/social" });
+              await signIn("google", { redirectTo: "/" });
             }}
           >
             <Button variant={"outline"} type="submit" className="w-full">
@@ -70,7 +70,7 @@ const Register = () => {
             className="w-full"
             action={async () => {
               "use server";
-              await signIn("github", { redirectTo: "/login/social" });
+              await signIn("github", { redirectTo: "/" });
             }}
           >
             <Button variant={"outline"} type="submit" className="w-full">

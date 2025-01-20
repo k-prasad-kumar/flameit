@@ -2,7 +2,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import { signIn } from "@/auth";
-import { RegisterInterface, SocialLoginInterface } from "@/types/types";
+import { RegisterInterface } from "@/types/types";
 import { hash } from "bcryptjs";
 import { CredentialsSignin } from "next-auth";
 import { redirect } from "next/navigation";
@@ -35,7 +35,6 @@ export const createUser = async (formData: RegisterInterface) => {
         username: formData.username as string,
         email: formData.email as string,
         password: hashedPassword,
-        profilePicture: "",
       },
     });
     return { success: "Registered successfully" };
@@ -49,9 +48,9 @@ export const login = async (email: string, password: string) => {
     await signIn("credentials", {
       email,
       password,
-      redirectTo: "/",
+      redirect: false,
+      callbackUrl: "/",
     });
-    redirect("/");
   } catch (error) {
     const someError = error as CredentialsSignin;
     return {
@@ -60,39 +59,8 @@ export const login = async (email: string, password: string) => {
         someError.message.indexOf(".") + 1
       ) as string,
     };
-  } finally {
-    redirect("/");
   }
-};
-
-export const socialLogin = async (formData: SocialLoginInterface) => {
-  try {
-    const user = await prisma.user.findUnique({
-      where: { email: formData.email as string },
-    });
-
-    if (user) {
-      return null;
-    }
-
-    const str = formData.email.slice(0, formData.email.indexOf("@") + 1);
-    const lower = str.toLowerCase();
-    const username = lower.replace(/[^A-Za-z0-9-_]/g, "");
-
-    await prisma.user.create({
-      data: {
-        name: formData.name as string,
-        username: username as string,
-        email: formData.email as string,
-        profilePicture: formData.profilePicture as string,
-      },
-    });
-
-    return { success: "Created successfully" };
-  } catch (error) {
-    console.log(error);
-    return { error: "Something went wrong" };
-  }
+  redirect("/");
 };
 
 export const updateUsername = async (email: string, username: string) => {

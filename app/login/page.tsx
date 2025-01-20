@@ -7,7 +7,6 @@ import Loading from "@/app/login/loading";
 const LoginPage = async () => {
   const session = await getSession();
   const user = session?.user;
-
   if (user) redirect("/");
   return (
     <Suspense fallback={<Loading />}>
