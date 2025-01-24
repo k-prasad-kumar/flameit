@@ -1,5 +1,6 @@
 import { signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
+import { LockIcon } from "lucide-react";
 
 const Logout = () => {
   return (
@@ -9,7 +10,15 @@ const Logout = () => {
         await signOut();
       }}
     >
-      <Button type="submit">Logout</Button>
+      <Button
+        type="submit"
+        variant={"link"}
+        className="border cursor-pointer w-full"
+      >
+        <span className="flex gap-2">
+          <LockIcon /> Logout
+        </span>
+      </Button>
     </form>
   );
 };

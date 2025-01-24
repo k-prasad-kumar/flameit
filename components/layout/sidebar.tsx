@@ -1,8 +1,7 @@
-import { HomeIcon, MessageCircle, SearchIcon } from "lucide-react";
+import { HomeIcon, MessageCircle, PlusIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { ProfileAvatar } from "../avatar";
-import { getCurrentUser } from "@/lib/get-session";
-import CreatePost from "@/components/post/create-post";
+import { getCurrentUser } from "@/lib/current-user-data";
 
 const Sidebar = async () => {
   const user = await getCurrentUser();
@@ -21,7 +20,12 @@ const Sidebar = async () => {
         <SearchIcon size={28} />
       </Link>
       <div className="hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg flex items-center justify-center">
-        <CreatePost />
+        <Link
+          href={`${user?.username}/create-post`}
+          className="hover:bg-gray-100 dark:hover:bg-gray-800 py-2 px-3 rounded-lg"
+        >
+          <PlusIcon size={28} />
+        </Link>
       </div>
       <Link
         href="/inbox"

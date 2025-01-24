@@ -9,8 +9,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL")
+  provider  = "mongodb"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
 }
 
 
@@ -22,16 +23,21 @@ model User {
   username        String?  @unique 
   emailVerified   DateTime?
   image           String?
+  imagePublicId   String?
   accounts        Account[]
   sessions        Session[]
-  bio             String   @default("Update bio...")     
+  bio             String   @default("Update bio...")
   gender          String?    
   followersCount  Int      @default(0) 
   followingCount  Int      @default(0) 
   postsCount      Int      @default(0) 
-  posts           Post[]   
-  saved           Saved[]   
-  tagged          Tagged[]
+  followers       Follower[]  @relation("UserFollowers") // Users who follow this user
+  following       Follower[]  @relation("UserFollowing") // Users this user follows
+  posts           Post[]  
+  likes           Like[]   // likes by the user
+  comments        Comment[]  // Comments made by the user
+  saved           SavedPost[] 
+  taggedPosts     TaggedPost[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -94,28 +100,90 @@ model VerificationToken {
 //   @@unique([userId, credentialID])
 // }
 
+model Follower {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  follower   User     @relation("UserFollowing", fields: [followerId], references: [id]) // The user who is following
+  followerId String   @db.ObjectId
+  following  User     @relation("UserFollowers", fields: [followingId], references: [id]) // The user being followed
+  followingId String  @db.ObjectId
+  createdAt  DateTime @default(now()) // Timestamp for when the relationship was created
 
-model Saved{
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  user            User     @relation(fields: [userId], references: [id])
-  userId          String   @db.ObjectId   
+  @@index([followerId]) // Optimize queries by follower
+  @@index([followingId]) // Optimize queries by following
 }
-
-model Tagged{
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  user            User     @relation(fields: [userId], references: [id])
-  userId          String   @db.ObjectId   
-}
-
-// model UserFol{
-//   id              String   @id @default(auto()) @map("_id") @db.ObjectId
-//   user            User     @relation(fields: [userId], references: [id])
-//   userId          String   @unique @db.ObjectId   
-// }
 
 
 model Post{
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  user            User     @relation(fields: [userId], references: [id])
-  userId          String   @db.ObjectId   
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String   @db.ObjectId  
+  images          Image[]  
+  caption         String?
+  likesCount      Int      @default(0)
+  likes           Like[]
+  commentsCount   Int      @default(0)
+  comments        Comment[]
+  savedBy         SavedPost[] 
+  taggedUsers     TaggedPost[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+type Image {
+  url        String
+  public_id  String
+}
+
+
+model Like {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  user     User     @relation(fields: [userId], references: [id]) // User who liked the post
+  userId   String   @db.ObjectId
+  post     Post     @relation(fields: [postId], references: [id]) // Liked post
+  postId   String   @db.ObjectId
+  createdAt DateTime @default(now()) // Timestamp of the like action
+
+  @@unique([userId, postId]) // Ensure a user can like a post only once
+  @@index([postId])          // Optimize queries for likes on a specific post
+}
+
+
+model Comment {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  text      String     // The comment text
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade) // User who made the comment
+  userId    String     @db.ObjectId
+  post      Post       @relation(fields: [postId], references: [id], onDelete: Cascade) // Post on which the comment was made
+  postId    String     @db.ObjectId
+  parent    Comment?   @relation("CommentReplies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  parentId  String?    @db.ObjectId
+  replies   Comment[]  @relation("CommentReplies") // Replies to this comment
+  
+  createdAt DateTime   @default(now()) // Timestamp of comment creation
+  updatedAt DateTime   @updatedAt     // Timestamp of comment update
+
+  @@index([postId]) // Optimize queries for comments on a specific post
+  @@index([parentId]) // Optimize queries for nested replies
+}
+
+
+
+
+model SavedPost {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  user       User     @relation(fields: [userId], references: [id]) // User who saved the post
+  userId     String   @db.ObjectId
+  post       Post     @relation(fields: [postId], references: [id]) // Post being saved
+  postId     String   @db.ObjectId
+  createdAt  DateTime @default(now()) 
+}
+
+
+model TaggedPost {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  user       User     @relation(fields: [userId], references: [id]) // User who is tagged
+  userId     String   @db.ObjectId
+  post       Post     @relation(fields: [postId], references: [id]) // Post in which the user is tagged
+  postId     String   @db.ObjectId
+  createdAt  DateTime @default(now()) // Timestamp for tagging
 }

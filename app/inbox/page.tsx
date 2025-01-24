@@ -4,14 +4,13 @@ import { ProfileAvatar } from "@/components/avatar";
 import { Input } from "@/components/ui/input";
 import { SearchIcon } from "lucide-react";
 import Link from "next/link";
-import { getCurrentUser, getSession } from "@/lib/get-session";
+import { getCurrentUser } from "@/lib/current-user-data";
 import { redirect } from "next/navigation";
 
 const Inbox = async () => {
-  const session = await getSession();
-  if (!session) redirect("/login");
-
   const user = await getCurrentUser();
+  if (!user) redirect("/login");
+
   const username: string = user?.username as string;
   return (
     <Suspense fallback={<Loading />}>

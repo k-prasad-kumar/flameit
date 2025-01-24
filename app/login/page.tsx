@@ -1,12 +1,11 @@
 import Login from "@/components/auth/login";
-import { getSession } from "@/lib/get-session";
+import { getCurrentUser } from "@/lib/current-user-data";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import Loading from "@/app/login/loading";
 
 const LoginPage = async () => {
-  const session = await getSession();
-  const user = session?.user;
+  const user = await getCurrentUser();
   if (user) redirect("/");
   return (
     <Suspense fallback={<Loading />}>

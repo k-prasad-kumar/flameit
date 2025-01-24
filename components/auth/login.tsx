@@ -20,7 +20,7 @@ const Login = () => {
       <CardHeader>
         <CardTitle className="text-center text-lg flex flex-col items-center justify-center py-2">
           <FlameIcon size={64} />
-          Login to Socio
+          Login to FlameIt
         </CardTitle>
         <CardDescription className="text-center">
           Welcome back! Please login in to continue

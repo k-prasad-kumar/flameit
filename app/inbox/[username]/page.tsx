@@ -7,14 +7,13 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/get-session";
+import { getCurrentUser } from "@/lib/current-user-data";
 
 const Chat = async () => {
-  const session = await getSession();
-  if (!session) redirect("/login");
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
 
-  // temp
-  const username = "Prasad Kumar";
+  const username: string = user?.username as string;
   return (
     <Suspense fallback={<Loading />}>
       <div className="w-full max-w-screen-sm mx-auto mt-16 md:mt-10">

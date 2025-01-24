@@ -15,3 +15,26 @@ export const LoginSchema = z.object({
 export const MissingSchema = z.object({
   username: z.string().min(4, "Username is required"),
 });
+
+export const EditProfileSchema = z.object({
+  name: z.string().min(4, "Full Name is required"),
+  username: z.string().min(4, "Username is required"),
+  bio: z.string().optional(),
+  gender: z.string().optional(),
+});
+
+export const ChangePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(4, "Current Password is required"),
+    newPassword: z.string().min(4, "New Password is required"),
+    confirmPassword: z.string().min(4, "confirm Password is required"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords doesn't match",
+    path: ["confirmPassword"], // path of error
+  })
+  .refine((data) => data.currentPassword !== data.newPassword, {
+    message:
+      "New password cannot be the same as the current password. Please choose a different password.",
+    path: ["newPassword"], // path of error
+  });

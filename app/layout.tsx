@@ -4,7 +4,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
 import "./globals.css";
-import { getSession } from "@/lib/get-session";
+import { getCurrentUser } from "@/lib/current-user-data";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +27,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getSession();
+  const user = await getCurrentUser();
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -40,7 +41,8 @@ export default async function RootLayout({
         >
           <Header />
           {children}
-          {session && <Sidebar />}
+          {user && <Sidebar />}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

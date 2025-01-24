@@ -6,9 +6,11 @@ import { compare } from "bcryptjs";
 import { getUserByEmail } from "./lib/actions/user.actions";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
+import { Adapter } from "next-auth/adapters";
+// import { v4 as uuidv4 } from "uuid";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
     Github({
       clientId: process.env.GITHUB_CLIENT_ID,
@@ -76,6 +78,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         where: { email: user.email as string },
         data: { username: username as string },
       });
+    },
+  },
+  session: {
+    strategy: "jwt",
+  },
+  callbacks: {
+    async session({ session, token }) {
+      if (token?.sub && token?.username) {
+        session.user.id = token.sub;
+      }
+      return session;
     },
   },
 });

@@ -3,14 +3,14 @@ import { Suspense } from "react";
 import Loading from "./loading";
 import ProfileCard from "@/components/profile/profile";
 import Link from "next/link";
-import { getCurrentUser, getSession } from "@/lib/get-session";
+import { getCurrentUser } from "@/lib/current-user-data";
 import { redirect } from "next/navigation";
+import Image from "next/image";
+import Footer from "@/components/layout/footer";
 
 const Tagged = async () => {
-  const session = await getSession();
-  if (!session) redirect("/login");
-
   const user = await getCurrentUser();
+  if (!user) redirect("/login");
   const username: string = user?.username as string;
   return (
     <Suspense fallback={<Loading />}>
@@ -36,13 +36,38 @@ const Tagged = async () => {
             <Contact2Icon size={16} /> <span>Tagged</span>
           </Link>
         </div>
-        <div className="w-full flex flex-col justify-center items-center space-y-4 mt-14 p-2">
-          <div className="border w-20 h-20 p-4 rounded-full flex  items-center justify-center">
-            <Contact2Icon size={40} strokeWidth={1} />
+
+        {user?.tagged.length === 0 && (
+          <div className="w-full flex flex-col justify-center items-center space-y-4 mt-14 p-2">
+            <div className="border w-20 h-20 p-4 rounded-full flex  items-center justify-center">
+              <Contact2Icon size={40} strokeWidth={1} />
+            </div>
+            <h1 className="text-2xl font-bold">Photos of you</h1>
+            <p>When people tag you in photos, they &apos; ll appear here.</p>
           </div>
-          <h1 className="text-2xl font-bold">Photos of you</h1>
-          <p>When people tag you in photos, they &apos; ll appear here.</p>
+        )}
+
+        <div className="w-full grid grid-cols-3 gap-1 mb-5">
+          {user?.tagged.length > 0 &&
+            user?.saved.map((post, index) => (
+              <Link
+                href={`/p/${post?.postId}`}
+                key={index}
+                className="relative group"
+              >
+                <Image
+                  src={post?.image}
+                  width={100}
+                  height={100}
+                  sizes="100%"
+                  loading="lazy"
+                  className="w-full h-[180px] md:h-[300px] object-cover"
+                  alt="post"
+                />
+              </Link>
+            ))}
         </div>
+        <Footer />
       </div>
     </Suspense>
   );

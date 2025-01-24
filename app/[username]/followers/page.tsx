@@ -5,12 +5,12 @@ import { SearchIcon, X } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import Loading from "./loading";
-import { getSession } from "@/lib/get-session";
+import { getCurrentUser } from "@/lib/current-user-data";
 import { redirect } from "next/navigation";
 
 const Followers = async () => {
-  const session = await getSession();
-  if (!session) redirect("/login");
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
   return (
     <Suspense fallback={<Loading />}>
       <div className="w-full h-screen max-w-screen-sm mx-auto mt-14 md:mt-10">

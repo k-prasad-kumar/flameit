@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { getCurrentUser } from "@/lib/get-session";
+import { getCurrentUser } from "@/lib/current-user-data";
 import Link from "next/link";
 
 const ProfileCard = async () => {
@@ -10,6 +10,7 @@ const ProfileCard = async () => {
   const image: string = user?.image as string;
   const fullName: string = user?.name as string;
   const bio: string = user?.bio as string;
+
   return (
     <>
       <div className="w-full mx-auto">
@@ -19,7 +20,7 @@ const ProfileCard = async () => {
               className={`max-w-20 max-h-20 w-20 h-20 md:max-w-36 md:max-h-36 md:w-36 md:h-36`}
             >
               <AvatarImage
-                src={image}
+                src={image ? image : "https://github.com/shadcn.png"}
                 alt="profile"
                 className="w-full h-auto"
               />
