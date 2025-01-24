@@ -38,6 +38,7 @@ import PostComment from "./post-comment";
 import DeleleComment from "./delete-comment";
 import CommentReplay from "./comment-reply";
 import CommentReplies from "./comment-replies";
+import { getRelativeTime } from "@/lib/relative-time";
 
 const PostsCard = ({
   posts,
@@ -136,7 +137,7 @@ const PostsCard = ({
                   <ScrollArea className="w-full h-[50vh] max-h-[50vh] md:h-[50vh] md:max-h-[50vh] py-2">
                     {post?.likes?.map((like) => (
                       <div
-                        className="flex items-center justify-between"
+                        className="flex items-center justify-between mb-5"
                         key={like.id}
                       >
                         <div className="flex items-center space-x-3 max-w-4/6">
@@ -160,7 +161,7 @@ const PostsCard = ({
                             </p>
                           </div>
                         </div>
-                        <Button variant={"blue"} className="ml-4 w-2/6">
+                        <Button variant={"blue"} className="ml-4">
                           Follow
                         </Button>
                         <Button variant={"secondary"} className="hidden">
@@ -187,7 +188,7 @@ const PostsCard = ({
                   <ScrollArea className="w-full h-[90vh] max-h-[90vh] my-3">
                     {post?.likes?.map((like) => (
                       <div
-                        className="flex items-center justify-between px-4"
+                        className="flex items-center justify-between px-4 mb-5"
                         key={like.id}
                       >
                         <div className="flex items-center space-x-3 max-w-4/6">
@@ -279,6 +280,9 @@ const PostsCard = ({
                               />
                             </div>
                             <div className="flex space-x-4 items-center mt-2">
+                              <p className="text-xs opacity-65">
+                                {getRelativeTime(new Date(comment?.createdAt))}
+                              </p>
                               <p className="text-sm opacity-65 cursor-pointer">
                                 <CommentReplay
                                   userId={userId}
@@ -287,6 +291,7 @@ const PostsCard = ({
                                   parentCommentId={comment.id}
                                 />
                               </p>
+
                               {userId === comment?.userId && (
                                 <p className="text-sm opacity-65 cursor-pointer">
                                   <Dialog>

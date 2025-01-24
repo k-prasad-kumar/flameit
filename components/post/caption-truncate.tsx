@@ -5,7 +5,7 @@ import React, { useState } from "react";
 const TruncateCaption = ({
   username,
   text,
-  maxLength = 100,
+  maxLength = 100 as number,
 }: {
   username: string;
   text: string;
@@ -28,8 +28,11 @@ const TruncateCaption = ({
 
   return (
     <p>
-      <span className="text-sm font-semibold pr-2">{username}</span>
-      <span> {showFull ? text : `${text.slice(0, maxLength)}... `}</span>
+      <span className="text-sm font-semibold pr-1">{username}</span>
+      <span className="opacity-80 text-sm">
+        {" "}
+        {showFull ? text : `${text.slice(0, maxLength)}... `}
+      </span>
 
       <span onClick={handleToggle} className="opacity-60 cursor-pointer">
         {showFull ? " ...showless" : "more"}

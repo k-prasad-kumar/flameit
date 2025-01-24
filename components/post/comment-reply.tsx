@@ -47,7 +47,7 @@ const CommentReplay = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button>Reply</button>
+        <button className="text-xs">Reply</button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px]">

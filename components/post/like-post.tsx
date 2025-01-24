@@ -3,6 +3,7 @@
 import { updatePostLikes } from "@/lib/actions/post.actions";
 import { Like } from "@/types/types";
 import { HeartIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const LikePost = ({
@@ -17,6 +18,7 @@ const LikePost = ({
   const [isLiked, setIsLiked] = useState<boolean>(
     likes?.find((like) => like.userId === userId) ? true : false
   );
+  const router = useRouter();
 
   const updateLikeOnPost = async (isVal: boolean) => {
     setIsLiked(!isLiked);
@@ -26,6 +28,7 @@ const LikePost = ({
     } else {
       await updatePostLikes(userId, postId, "remove");
     }
+    router.refresh();
   };
   return (
     <div className="flex items-center space-x-1">

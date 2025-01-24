@@ -55,7 +55,6 @@ export const updatePostLikes = async (
   postId: string,
   type: string
 ) => {
-  console.log(userId, postId, type);
   try {
     if (type === "add") {
       await prisma.like.create({
