@@ -30,7 +30,17 @@ const DeleleComment = ({ id, postId }: { id: string; postId: string }) => {
       onClick={() => deleteCommentHandler(id)}
       disabled={isPending}
     >
-      Delete
+      {isPending ? (
+        <span
+          className={`justify-center items-center ${
+            isPending ? "flex" : "hidden"
+          }`}
+        >
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
+        </span>
+      ) : (
+        <span>Delete</span>
+      )}
     </Button>
   );
 };

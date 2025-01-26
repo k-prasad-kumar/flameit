@@ -21,7 +21,7 @@ const Sidebar = async () => {
       </Link>
       <div className="hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg flex items-center justify-center">
         <Link
-          href={`${user?.username}/create-post`}
+          href={`/create-post`}
           className="hover:bg-gray-100 dark:hover:bg-gray-800 py-2 px-3 rounded-lg"
         >
           <PlusIcon size={28} />

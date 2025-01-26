@@ -11,22 +11,41 @@ import {
 import ProfileCard from "@/components/profile/profile";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getUserByUsername } from "@/lib/actions/user.actions";
+import { getloginUserId, getUserByUsername } from "@/lib/actions/user.actions";
 import { auth } from "@/auth";
 import Image from "next/image";
-import Footer from "@/components/layout/footer";
+import NotFound from "../not-found";
+import { UserProfileInterface } from "@/types/types";
 
 const Profile = async ({ params }: { params: { username: string } }) => {
   const session = await auth();
   if (!session) redirect("/login");
 
+  const loginUser = await getloginUserId(session?.user?.email as string);
+
   const { username } = await params;
-  const user = await getUserByUsername(username);
+
+  const user: UserProfileInterface | undefined = (await getUserByUsername(
+    username
+  )) as UserProfileInterface;
+
+  if (!user) return <NotFound />;
+  if (username !== user?.username) return <NotFound />;
 
   return (
     <Suspense fallback={<Loading />}>
       <div className="w-full max-w-screen-sm mx-auto mt-16 md:mt-10">
-        <ProfileCard />
+        <ProfileCard
+          userId={user?.id as string}
+          username={user?.username as string}
+          image={user?.image as string}
+          fullName={user?.name as string}
+          bio={user?.bio as string}
+          followersCount={user?.followersCount as number}
+          followingCount={user?.followingCount as number}
+          postsCount={user?.postsCount as number}
+          loginUserId={loginUser?.id as string}
+        />
         <div className="w-full flex justify-center items-center border-t space-x-10 md:space-x-20">
           <Link
             href={`/${username}`}
@@ -56,41 +75,42 @@ const Profile = async ({ params }: { params: { username: string } }) => {
             <p>When you post photos, they &apos; ll appear here.</p>
           </div>
         )}
-        <div className="w-full grid grid-cols-3 gap-1 mb-5">
-          {user?.posts &&
-            user?.posts.map((post) => (
-              <Link
-                href={`/p/${post?.id}`}
-                key={post?.id}
-                className="relative group"
-              >
-                <Image
-                  src={post?.images[0]?.url}
-                  width={100}
-                  height={100}
-                  sizes="100%"
-                  loading="lazy"
-                  className="w-full h-[180px] md:h-[300px] object-cover"
-                  alt="post"
-                />
-                <div className="absolute top-0 right-0 w-full h-full  justify-center items-center gap-8 bg-black/40 hidden group-hover:flex">
-                  <p className="flex items-center text-white gap-2 font-semibold">
-                    <HeartIcon color="white" fill="white" />{" "}
-                    <span>{post?.likesCount}</span>
-                  </p>
-                  <p className="flex items-center text-white gap-2 font-semibold">
-                    <MessageCircleCode
-                      color="white"
-                      fill="white"
-                      className="-rotate-90"
-                    />{" "}
-                    <span>{post?.likesCount}</span>
-                  </p>
-                </div>
-              </Link>
-            ))}
-        </div>
-        <Footer />
+        {user?.postsCount !== 0 && (
+          <div className="w-full grid grid-cols-3 gap-1 mb-5">
+            {user?.posts &&
+              user?.posts.map((post) => (
+                <Link
+                  href={`/p/${post?.id}`}
+                  key={post?.id}
+                  className="relative group"
+                >
+                  <Image
+                    src={post?.images[0]?.url}
+                    width={100}
+                    height={100}
+                    sizes="100%"
+                    loading="lazy"
+                    className="w-full h-[180px] md:h-[300px] object-cover"
+                    alt="post"
+                  />
+                  <div className="absolute top-0 right-0 w-full h-full  justify-center items-center gap-8 bg-black/40 hidden group-hover:flex">
+                    <p className="flex items-center text-white gap-2 font-semibold">
+                      <HeartIcon color="white" fill="white" />{" "}
+                      <span>{post?.likesCount}</span>
+                    </p>
+                    <p className="flex items-center text-white gap-2 font-semibold">
+                      <MessageCircleCode
+                        color="white"
+                        fill="white"
+                        className="-rotate-90"
+                      />{" "}
+                      <span>{post?.likesCount}</span>
+                    </p>
+                  </div>
+                </Link>
+              ))}
+          </div>
+        )}
       </div>
     </Suspense>
   );

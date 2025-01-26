@@ -1,6 +1,6 @@
 "use server";
 
-import { PostInterface } from "@/types/types";
+import { PostFormInterface } from "@/types/types";
 import { revalidatePath } from "next/cache";
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
@@ -8,7 +8,7 @@ import { deleteImageCloudinary } from "./delete.image.actions";
 
 const prisma = new PrismaClient().$extends(withAccelerate());
 
-export const createPost = async (post: PostInterface) => {
+export const createPost = async (post: PostFormInterface) => {
   try {
     await prisma.post.create({
       data: {
@@ -34,7 +34,7 @@ export const createPost = async (post: PostInterface) => {
   }
 };
 
-export const updatePostCaption = async (id: string, caption: string) => {
+export const updatePost = async (id: string, caption: string) => {
   try {
     await prisma.post.update({
       where: {
@@ -186,15 +186,36 @@ export const deleteComment = async (id: string, postId: string) => {
   }
 };
 
-export const deletePost = async (
-  id: string,
-  images: { url: string; public_id: string }[]
-) => {
+export const deletePost = async (id: string) => {
   try {
-    images?.map((image) => deleteImageCloudinary(image.public_id));
+    // delete images from cloudinary before deleting post
+    const images = await prisma.post.findUnique({
+      where: {
+        id: id as string,
+      },
+      select: {
+        images: true,
+      },
+    });
+
+    images?.images?.map(async (image) => {
+      await deleteImageCloudinary(image.public_id);
+    });
+
     await prisma.post.delete({
       where: {
         id: id as string,
+      },
+    });
+
+    await prisma.user.update({
+      where: {
+        id: id as string,
+      },
+      data: {
+        postsCount: {
+          decrement: 1,
+        },
       },
     });
     return { success: "Post deleted successfully" };

@@ -13,7 +13,7 @@ const FollowersSkeleton = () => {
           <Skeleton className="w-full h-10"></Skeleton>
         </div>
         <div className="flex flex-col mx-4">
-          <Skeleton className="my-4 w-1/2 h-4"></Skeleton>
+          {/* <Skeleton className="my-4 w-1/2 h-4"></Skeleton> */}
           <FollowerCardSkeleton />
           <FollowerCardSkeleton />
           <FollowerCardSkeleton />

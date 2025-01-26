@@ -92,9 +92,22 @@ export const updateProfileImage = async (
 
 export const updateUser = async (
   id: string,
-  editProfile: EditProfileInterface
+  editProfile: EditProfileInterface,
+  currentUsername: string
 ) => {
   try {
+    if (editProfile?.username === currentUsername) {
+      const user = await prisma.user.update({
+        where: { id: id as string },
+        data: {
+          name: editProfile?.name as string,
+          bio: editProfile?.bio as string,
+          gender: editProfile?.gender as string,
+        },
+      });
+      return { success: "user updated successfully", username: user?.username };
+    }
+
     const existingUsername = await prisma.user.findFirst({
       where: { username: editProfile?.username as string },
     });
@@ -153,6 +166,130 @@ export const changePassword = async (
   }
 };
 
+export const updateSavedPost = async (
+  userId: string,
+  postId: string,
+  type: string
+) => {
+  try {
+    if (type === "add") {
+      await prisma.savedPost.create({
+        data: {
+          userId: userId as string,
+          postId: postId as string,
+        },
+      });
+      return { success: "Post saved successfully" };
+    }
+
+    if (type === "remove") {
+      await prisma.savedPost.deleteMany({
+        where: {
+          userId: userId as string,
+          postId: postId as string,
+        },
+      });
+      return { success: "Post removed successfully" };
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const addFollower = async (followerId: string, followingId: string) => {
+  try {
+    await prisma.follower.create({
+      data: {
+        followerId, // The user who is following
+        followingId, // The user being followed
+      },
+    });
+
+    await prisma.user.update({
+      where: {
+        id: followingId, // The user being followed
+      },
+      data: {
+        followersCount: {
+          increment: 1,
+        },
+      },
+    });
+
+    await prisma.user.update({
+      where: {
+        id: followerId, // The user who is following
+      },
+      data: {
+        followingCount: {
+          increment: 1,
+        },
+      },
+    });
+
+    return { success: "Followed successfully" };
+  } catch (error) {
+    console.error("Error adding follower:", error);
+  }
+};
+
+export const removeFollower = async (
+  followerId: string,
+  followingId: string
+) => {
+  try {
+    await prisma.follower.deleteMany({
+      where: {
+        followerId,
+        followingId,
+      },
+    });
+
+    await prisma.user.update({
+      where: {
+        id: followingId, // The user being followed
+      },
+      data: {
+        followersCount: {
+          decrement: 1,
+        },
+      },
+    });
+
+    await prisma.user.update({
+      where: {
+        id: followerId, // The user who is following
+      },
+      data: {
+        followingCount: {
+          decrement: 1,
+        },
+      },
+    });
+
+    return { success: "Unfollowed successfully" };
+  } catch (error) {
+    console.error("Error removing follower:", error);
+  }
+};
+
+export const isFollowing = async (followerId: string, followingId: string) => {
+  try {
+    const relationship = await prisma.follower.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId,
+          followingId,
+        },
+      },
+    });
+    return !!relationship; // Returns true if the relationship exists
+  } catch (error) {
+    console.error("Error checking following relationship:", error);
+    return false;
+  }
+};
+
 export const getUserById = async (id: string) => {
   try {
     const user = await prisma.user.findFirst({ where: { id: id as string } });
@@ -186,31 +323,121 @@ export const getUserByUsername = async (username: string) => {
   }
 };
 
-export const updateSavedPost = async (
-  userId: string,
-  postId: string,
-  type: string
-) => {
+export const getUserSavedPosts = async (username: string) => {
   try {
-    if (type === "add") {
-      await prisma.savedPost.create({
-        data: {
-          userId: userId as string,
-          postId: postId as string,
+    const user = await prisma.user.findFirst({
+      where: { username: username },
+      include: {
+        saved: {
+          select: {
+            post: { select: { id: true, images: true } },
+          },
         },
-      });
-      return { success: "Post saved successfully" };
-    }
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return user;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
 
-    if (type === "remove") {
-      await prisma.savedPost.deleteMany({
-        where: {
-          userId: userId as string,
-          postId: postId as string,
+export const getUserTaggedPosts = async (username: string) => {
+  try {
+    const user = await prisma.user.findFirst({
+      where: { username: username },
+      include: {
+        tagged: {
+          select: {
+            post: { select: { id: true, images: true } },
+          },
         },
-      });
-      return { success: "Post removed successfully" };
-    }
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return user;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
+
+export const getFollowCount = async (username: string) => {
+  try {
+    const user = await prisma.user.findFirst({
+      where: { username: username },
+      select: {
+        id: true,
+        followersCount: true,
+        followingCount: true,
+      },
+    });
+    return user;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// need to check later
+export const getFollowers = async (userId: string) => {
+  try {
+    const followers = await prisma.follower.findMany({
+      where: {
+        followingId: userId as string, // The user being followed
+      },
+      include: {
+        follower: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            image: true,
+          },
+        }, // Include details about the follower
+      },
+    });
+    return followers;
+  } catch (error) {
+    console.error("Error fetching followers:", error);
+    return [];
+  }
+};
+
+export const getFollowing = async (userId: string) => {
+  try {
+    const following = await prisma.follower.findMany({
+      where: {
+        followerId: userId as string, // The user who is following
+      },
+      include: {
+        following: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            image: true,
+          },
+        }, // Include details about the follower
+      },
+    });
+    return following;
+  } catch (error) {
+    console.error("Error fetching following:", error);
+    return [];
+  }
+};
+
+export const getloginUserId = async (email: string) => {
+  try {
+    const user = await prisma.user.findFirst({
+      where: { email: email },
+      select: {
+        id: true,
+        username: true,
+      },
+    });
+    return user;
   } catch (error) {
     console.log(error);
   }

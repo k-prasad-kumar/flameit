@@ -3,19 +3,40 @@ import { Suspense } from "react";
 import Loading from "./loading";
 import ProfileCard from "@/components/profile/profile";
 import Link from "next/link";
-import { getCurrentUser } from "@/lib/current-user-data";
 import { redirect } from "next/navigation";
 import Image from "next/image";
-import Footer from "@/components/layout/footer";
+import { auth } from "@/auth";
+import { getloginUserId, getUserTaggedPosts } from "@/lib/actions/user.actions";
+import { UserTaggedInterface } from "@/types/types";
+import NotFound from "@/app/not-found";
 
-const Tagged = async () => {
-  const user = await getCurrentUser();
-  if (!user) redirect("/login");
-  const username: string = user?.username as string;
+const Tagged = async ({ params }: { params: { username: string } }) => {
+  const session = await auth();
+  if (!session) redirect("/login");
+
+  const loginUser = await getloginUserId(session?.user?.email as string);
+
+  const { username } = await params;
+
+  const user: UserTaggedInterface | undefined = (await getUserTaggedPosts(
+    username
+  )) as UserTaggedInterface;
+
+  if (!user) return <NotFound />;
   return (
     <Suspense fallback={<Loading />}>
       <div className="w-full max-w-screen-sm mx-auto mt-16 md:mt-10">
-        <ProfileCard />
+        <ProfileCard
+          loginUserId={loginUser?.id as string}
+          userId={user?.id as string}
+          username={user?.username as string}
+          image={user?.image as string}
+          fullName={user?.name as string}
+          bio={user?.bio as string}
+          followersCount={user?.followersCount as number}
+          followingCount={user?.followingCount as number}
+          postsCount={user?.postsCount as number}
+        />
         <div className="w-full flex justify-center items-center border-t space-x-10 md:space-x-20">
           <Link
             href={`/${username}`}
@@ -49,14 +70,14 @@ const Tagged = async () => {
 
         <div className="w-full grid grid-cols-3 gap-1 mb-5">
           {user?.tagged.length > 0 &&
-            user?.saved.map((post, index) => (
+            user?.tagged.map((tagged, index) => (
               <Link
-                href={`/p/${post?.postId}`}
+                href={`/p/${tagged?.post?.id}`}
                 key={index}
                 className="relative group"
               >
                 <Image
-                  src={post?.image}
+                  src={tagged?.post?.images[0].url as string}
                   width={100}
                   height={100}
                   sizes="100%"
@@ -67,7 +88,6 @@ const Tagged = async () => {
               </Link>
             ))}
         </div>
-        <Footer />
       </div>
     </Suspense>
   );

@@ -77,11 +77,15 @@ const EditProfile = ({
 
   const handleEditProfile = (values: z.infer<typeof EditProfileSchema>) => {
     startTransition(() => {
-      updateUser(userId, {
-        ...values,
-        bio: values.bio!,
-        gender: values.gender!,
-      })
+      updateUser(
+        userId,
+        {
+          ...values,
+          bio: values.bio!,
+          gender: values.gender!,
+        },
+        editProfile.username
+      )
         .then((data) => {
           if (data?.error) {
             setError(data?.error);

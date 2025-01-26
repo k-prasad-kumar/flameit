@@ -33,7 +33,7 @@ const Inbox = async () => {
           </div>
           <div className="flex flex-col mx-4">
             <Link
-              href={`/inbox/${username}`}
+              href={`/inbox/chat`}
               className="flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2"
             >
               <div className="flex items-center space-x-4 h-fit">
@@ -50,7 +50,7 @@ const Inbox = async () => {
               </div>
             </Link>
             <Link
-              href={`/inbox/${username}`}
+              href={`/inbox/chat`}
               className="flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2"
             >
               <div className="flex items-center space-x-4 h-fit">

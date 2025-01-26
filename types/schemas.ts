@@ -17,8 +17,14 @@ export const MissingSchema = z.object({
 });
 
 export const EditProfileSchema = z.object({
-  name: z.string().min(4, "Full Name is required"),
-  username: z.string().min(4, "Username is required"),
+  name: z
+    .string()
+    .min(4, "Full Name is required")
+    .max(20, "Full name too long max 20 character(s)"),
+  username: z
+    .string()
+    .min(4, "Username is required")
+    .max(20, "Username too long max 20 character(s)"),
   bio: z.string().optional(),
   gender: z.string().optional(),
 });

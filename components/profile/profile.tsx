@@ -1,16 +1,30 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { getCurrentUser } from "@/lib/current-user-data";
 import Link from "next/link";
+import CopyProfileLink from "./share-profile";
+import HandleProfileFollow from "./handle-follow";
 
-const ProfileCard = async () => {
-  const user = await getCurrentUser();
-
-  const username: string = user?.username as string;
-  const image: string = user?.image as string;
-  const fullName: string = user?.name as string;
-  const bio: string = user?.bio as string;
-
+const ProfileCard = async ({
+  loginUserId,
+  userId,
+  username,
+  image,
+  fullName,
+  bio,
+  followersCount,
+  followingCount,
+  postsCount,
+}: {
+  loginUserId: string;
+  userId: string;
+  username: string;
+  image: string;
+  fullName: string;
+  bio: string;
+  followersCount: number;
+  followingCount: number;
+  postsCount: number;
+}) => {
   return (
     <>
       <div className="w-full mx-auto">
@@ -29,15 +43,14 @@ const ProfileCard = async () => {
             <div className="flex flex-col items-center justify-center">
               <div className="flex space-x-2 md:space-x-4 text-center md:text-left py-4 w-full">
                 <p>
-                  <span className="font-semibold">{user?.postsCount}</span>{" "}
-                  posts
+                  <span className="font-semibold">{postsCount}</span> posts
                 </p>
-                <Link href="/profile/followers">
-                  <span className="font-semibold">{user?.followersCount}</span>{" "}
+                <Link href={`${username}/followers`}>
+                  <span className="font-semibold">{followersCount}</span>{" "}
                   followers
                 </Link>
-                <Link href="/profile/following">
-                  <span className="font-semibold">{user?.followingCount}</span>{" "}
+                <Link href={`${username}/following`}>
+                  <span className="font-semibold">{followingCount}</span>{" "}
                   following
                 </Link>
               </div>
@@ -53,12 +66,27 @@ const ProfileCard = async () => {
             <p>@{username}</p>
             <p>{bio ? bio : "Update your bio..."}</p>
           </div>
-          <div className="w-full my-8 md:mx-0 flex justify-around gap-4">
-            <Link href={`/${username}/edit`} className="w-full ml-4 md:ml-0">
-              <Button className="w-full">Edit profile</Button>
-            </Link>
-            <Button className="w-full mr-4 md:mr-0">Share profile</Button>
-          </div>
+
+          {loginUserId !== userId && (
+            <div className="w-full my-8 md:mx-0 flex justify-around gap-4">
+              <HandleProfileFollow userId={loginUserId} isUserId={userId} />
+              <Link href={`/${username}/edit`} className="w-full mr-4 md:ml-0">
+                <Button variant={"secondary"} className="w-full">
+                  Message
+                </Button>
+              </Link>
+            </div>
+          )}
+          {loginUserId === userId && (
+            <div className="w-full my-8 md:mx-0 flex justify-around gap-4">
+              <Link href={`/${username}/edit`} className="w-full ml-4 md:ml-0">
+                <Button className="w-full">Edit profile</Button>
+              </Link>
+              <CopyProfileLink
+                text={`${process.env.NEXT_PUBLIC_URL}/${username}`}
+              />
+            </div>
+          )}
         </div>
       </div>
     </>

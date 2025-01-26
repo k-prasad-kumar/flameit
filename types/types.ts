@@ -43,16 +43,64 @@ export interface UserProfileInterface {
   followersCount: number;
   followingCount: number;
   postsCount: number;
-  followers: string[];
-  following: string[];
   posts: PostResponseInterface[];
-  saved: string[];
-  tagged: string[];
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface PostInterface {
+export interface UserSavedInterface {
+  id: string;
+  name: string | null;
+  email: string | null;
+  username: string | null;
+  password: string | null;
+  image: string | null;
+  imagePublicId: string | null;
+  emailVerified: Date | null;
+  bio: string | null;
+  gender: string | null;
+  followersCount: number;
+  followingCount: number;
+  postsCount: number;
+  saved: SavedInterface[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UserTaggedInterface {
+  id: string;
+  name: string | null;
+  email: string | null;
+  username: string | null;
+  password: string | null;
+  image: string | null;
+  imagePublicId: string | null;
+  emailVerified: Date | null;
+  bio: string | null;
+  gender: string | null;
+  followersCount: number;
+  followingCount: number;
+  postsCount: number;
+  tagged: TaggedInterface[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface SavedInterface {
+  post: {
+    id: string;
+    images: Image[];
+  };
+}
+
+export interface TaggedInterface {
+  post: {
+    id: string;
+    images: Image[];
+  };
+}
+
+export interface PostFormInterface {
   userId: string;
   images: Image[];
   caption: string;
@@ -138,4 +186,19 @@ export interface EditProfileInterface {
 export interface ChangePasswordInterface {
   currentPassword: string;
   newPassword: string;
+}
+
+export interface FollowerInterface {
+  id: string;
+  followerId: string;
+  followingId: string;
+  createdAt: Date;
+  follower: UserInfo;
+}
+export interface FollowingInterface {
+  id: string;
+  followerId: string;
+  followingId: string;
+  createdAt: Date;
+  following: UserInfo;
 }

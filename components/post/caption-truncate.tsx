@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import React, { useState } from "react";
 
 const TruncateCaption = ({
@@ -20,7 +21,12 @@ const TruncateCaption = ({
   if (text.length <= maxLength) {
     return (
       <p>
-        <span className="text-sm font-semibold pr-2">{username}</span>
+        <Link
+          href={`/${username}`}
+          className="text-sm font-semibold pr-2 opacity-80"
+        >
+          {username}
+        </Link>
         {text}
       </p>
     );
@@ -28,7 +34,12 @@ const TruncateCaption = ({
 
   return (
     <p>
-      <span className="text-sm font-semibold pr-1">{username}</span>
+      <Link
+        href={`/${username}`}
+        className="text-sm font-semibold pr-1 opacity-80"
+      >
+        {username}
+      </Link>
       <span className="opacity-80 text-sm">
         {" "}
         {showFull ? text : `${text.slice(0, maxLength)}... `}

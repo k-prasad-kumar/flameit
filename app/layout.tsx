@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Socio",
-  description: "Socio: The Social Media Platform for Connection and Creativity",
+  title: "FlameIt.",
+  description: "A place to share your thoughts",
 };
 
 export default async function RootLayout({

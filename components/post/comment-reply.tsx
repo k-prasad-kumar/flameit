@@ -13,23 +13,21 @@ import {
 
 const CommentReplay = ({
   userId,
-  username,
   postId,
   parentCommentId,
 }: {
   userId: string;
-  username: string;
   postId: string;
   parentCommentId: string;
 }) => {
   const [isPending, startTransition] = useTransition();
-  const [replay, setReplay] = useState<string>(`@${username} `);
+  const [replay, setReplay] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+    if (!replay) return;
     startTransition(() => {
       replayComment(replay, userId, postId, parentCommentId)
         .then((data) => {
@@ -60,7 +58,7 @@ const CommentReplay = ({
             <input
               type="text"
               className="w-full px-4 py-3 placeholder:text-sm outline-none border-none"
-              placeholder="Add a comment..."
+              placeholder="Add a reply..."
               onChange={(e) => setReplay(e.target.value)}
               value={replay}
             />{" "}
@@ -68,7 +66,17 @@ const CommentReplay = ({
               className="flex px-3 items-center text-blue-500"
               disabled={isPending}
             >
-              Post
+              {isPending ? (
+                <span
+                  className={`justify-center items-center ${
+                    isPending ? "flex" : "hidden"
+                  }`}
+                >
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
+                </span>
+              ) : (
+                <span>Reply</span>
+              )}
             </button>
           </form>
         </div>
