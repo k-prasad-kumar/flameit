@@ -46,7 +46,7 @@ const LikePost = ({
           isAnimating ? "animate-pop" : ""
         }`}
         strokeWidth={isLiked ? 0 : 1.5}
-        size={isLiked ? 28 : 26}
+        size={isLiked ? 30 : 28}
         onClick={() => updateLikeOnPost(!isLiked)}
         id="heart"
       />

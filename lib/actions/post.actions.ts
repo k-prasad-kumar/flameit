@@ -305,12 +305,81 @@ export const getPosts = async () => {
 
 export const getPostById = async (id: string) => {
   try {
-    const posts = await prisma.post.findFirst({
-      where: { id: id as string },
-      include: { user: true, comments: true },
+    const post = await prisma.post.findFirst({
+      where: {
+        id: id as string,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            image: true,
+          },
+        },
+        likes: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+              },
+            },
+          },
+        },
+        comments: {
+          where: {
+            parentId: null, // Fetch only top-level comments
+          },
+          orderBy: {
+            createdAt: "desc", // Order comments by createdAt in descending order
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+              },
+            },
+            replies: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    username: true,
+                    image: true, // Include user details for replies
+                  },
+                },
+              },
+              orderBy: {
+                createdAt: "asc", // Order replies by creation time
+              },
+            },
+          },
+
+          // take: 5, // Optionally limit the number of comments per post
+        },
+        // taggedUsers: {
+        //   select: {
+        //     userId: true,
+        //   },
+        // },
+        savedBy: true,
+      },
+      orderBy: {
+        createdAt: "desc", // Sort by newest posts first
+      },
+      skip: 0, // Offset for pagination
+      take: 10, // Number of posts to fetch per page
     });
 
-    return posts;
+    return post;
   } catch (error) {
     console.log(error);
   }

@@ -10,13 +10,18 @@ import { getloginUserId, getUserTaggedPosts } from "@/lib/actions/user.actions";
 import { UserTaggedInterface } from "@/types/types";
 import NotFound from "@/app/not-found";
 
-const Tagged = async ({ params }: { params: { username: string } }) => {
+const Tagged = async ({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}) => {
   const session = await auth();
   if (!session) redirect("/login");
 
   const loginUser = await getloginUserId(session?.user?.email as string);
 
-  const { username } = await params;
+  const username = (await params).username;
+  if (!username) return <NotFound />;
 
   const user: UserTaggedInterface | undefined = (await getUserTaggedPosts(
     username

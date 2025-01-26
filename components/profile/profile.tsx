@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import CopyProfileLink from "./share-profile";
 import HandleProfileFollow from "./handle-follow";
+import Followers from "./followers";
+import Following from "./following";
 
 const ProfileCard = async ({
   loginUserId,
@@ -45,14 +47,22 @@ const ProfileCard = async ({
                 <p>
                   <span className="font-semibold">{postsCount}</span> posts
                 </p>
-                <Link href={`${username}/followers`}>
-                  <span className="font-semibold">{followersCount}</span>{" "}
-                  followers
-                </Link>
-                <Link href={`${username}/following`}>
-                  <span className="font-semibold">{followingCount}</span>{" "}
-                  following
-                </Link>
+                <div>
+                  <Followers
+                    userId={userId}
+                    loginUserId={loginUserId}
+                    username={username}
+                    followersCount={followersCount}
+                  />
+                </div>
+                <div>
+                  <Following
+                    userId={userId}
+                    loginUserId={loginUserId}
+                    username={username}
+                    followingCount={followingCount}
+                  />
+                </div>
               </div>
               <div className="hidden md:flex flex-col w-full px-4 md:px-0 text-sm">
                 <h1 className="font-semibold py-2">{fullName}</h1>

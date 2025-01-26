@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import Loading from "@/app/[username]/loading";
 import {
   BookmarkIcon,
@@ -16,20 +15,27 @@ import { auth } from "@/auth";
 import Image from "next/image";
 import NotFound from "../not-found";
 import { UserProfileInterface } from "@/types/types";
+import { Suspense } from "react";
 
-const Profile = async ({ params }: { params: { username: string } }) => {
+const Profile = async ({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}) => {
   const session = await auth();
   if (!session) redirect("/login");
 
   const loginUser = await getloginUserId(session?.user?.email as string);
 
-  const { username } = await params;
+  const username = (await params).username;
+  if (!username) return <NotFound />;
 
   const user: UserProfileInterface | undefined = (await getUserByUsername(
     username
   )) as UserProfileInterface;
 
   if (!user) return <NotFound />;
+
   if (username !== user?.username) return <NotFound />;
 
   return (

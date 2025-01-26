@@ -112,7 +112,7 @@ const PostsCard = ({
               )}
             </Carousel>
             <div className="flex items-center justify-between space-x-5 my-4 px-3 md:px-0">
-              <div className="flex items-center space-x-5">
+              <div className="flex items-center space-x-1 md:space-x-4">
                 <div className="flex items-center space-x-1">
                   <LikePost
                     postId={post?.id}
@@ -121,10 +121,257 @@ const PostsCard = ({
                   />
                 </div>
                 <div className="flex items-center space-x-1">
-                  <MessageCircle strokeWidth={1.5} size={26} />
+                  <div className="hidden md:block">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <p className="cursor-pointer">
+                          <MessageCircle strokeWidth={1.5} size={26} />
+                        </p>
+                      </DialogTrigger>
+                      <DialogContent className="w-full sm:max-w-[500px]">
+                        <DialogHeader>
+                          <DialogTitle className="flex justify-center w-full">
+                            Comments
+                          </DialogTitle>
+                        </DialogHeader>
+                        <Separator />
+                        <ScrollArea className="w-full h-[70vh] max-h-[70vh] md:h-[70vh] md:max-h-[70vh] py-2 mb-8">
+                          {post?.commentsCount === 0 && (
+                            <div className="flex flex-col justify-center items-center w-full h-[70vh] max-h-[70vh] md:h-[70vh] md:max-h-[65vh]">
+                              <p className="text-center text-xl pb-2 font-semibold font-sans">
+                                No comments yet
+                              </p>
+                              <p className="text-sm">Start the conversation</p>
+                            </div>
+                          )}
+                          {post?.comments?.map((comment) => (
+                            <div key={comment.id} className="mb-5">
+                              <div className="flex justify-between">
+                                <Link
+                                  href={`/${comment?.user?.username}`}
+                                  className="flex justify-start items-start space-x-3"
+                                >
+                                  <ProfileAvatar
+                                    image={comment?.user?.image as string}
+                                    alt="profile"
+                                    width="10"
+                                    height="10"
+                                  />
+                                </Link>
+                                <div className="w-full flex flex-col items-start justify-start pl-4">
+                                  <div className="flex gap-2 items-center">
+                                    <TruncateCaption
+                                      username={
+                                        comment?.user?.username as string
+                                      }
+                                      text={comment?.text as string}
+                                      maxLength={50}
+                                    />
+                                  </div>
+                                  <div className="flex space-x-4 items-center mt-2">
+                                    <p className="text-xs opacity-65">
+                                      {getRelativeTime(
+                                        new Date(comment?.createdAt)
+                                      )}
+                                    </p>
+                                    <p className="text-sm opacity-65 cursor-pointer">
+                                      <CommentReplay
+                                        userId={userId}
+                                        postId={post?.id}
+                                        parentCommentId={comment.id}
+                                      />
+                                    </p>
+
+                                    {userId === comment?.userId && (
+                                      <p className="text-sm opacity-65 cursor-pointer">
+                                        <Dialog>
+                                          <DialogTrigger asChild>
+                                            <span className="cursor-pointer">
+                                              {" "}
+                                              <TrashIcon size={14} />
+                                            </span>
+                                          </DialogTrigger>
+                                          <DialogContent className="w-full sm:max-w-[500px]">
+                                            <DialogHeader>
+                                              <DialogTitle className="flex justify-center w-full">
+                                                Delete Comment
+                                              </DialogTitle>
+                                            </DialogHeader>
+                                            <Separator />
+                                            <div className="flex flex-col items-center justify-between">
+                                              <p>
+                                                Are you sure you want to delete
+                                                this comment?
+                                              </p>
+                                              <div className="flex items-center space-x-2 mt-5">
+                                                <DialogClose asChild>
+                                                  <Button
+                                                    variant={"secondary"}
+                                                    className="w-full"
+                                                  >
+                                                    Cancel
+                                                  </Button>
+                                                </DialogClose>
+                                                <DeleleComment
+                                                  id={comment.id}
+                                                  postId={post?.id}
+                                                />
+                                              </div>
+                                            </div>
+                                          </DialogContent>
+                                        </Dialog>
+                                      </p>
+                                    )}
+                                  </div>
+                                  {comment?.replies?.length > 0 && (
+                                    <div className="flex text-xs items-center cursor-pointer">
+                                      <CommentReplies
+                                        replies={comment?.replies}
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex justify-end pl-2 pt-2">
+                                  {/* <HeartIcon size={14} /> */}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </ScrollArea>
+                        <div className="fixed bottom-0 left-0 w-full">
+                          <Separator />
+                          <PostComment userId={userId} postId={post?.id} />
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+
+                  <div className="px-3 md:px-0 md:hidden flex items-center">
+                    <Drawer>
+                      <DrawerTrigger>
+                        <p className="cursor-pointer">
+                          <MessageCircle strokeWidth={1.5} size={28} />
+                        </p>
+                      </DrawerTrigger>
+                      <DrawerContent className="max-h-[80vh] min-h-[80vh]">
+                        <DrawerTitle>
+                          <p className="text-center mt-6 mb-2">Comments</p>
+                        </DrawerTitle>
+                        <Separator />
+                        <ScrollArea className="w-full h-[80vh] max-h-[80vh] md:h-[80vh] md:max-h-[80vh] py-2 mb-8">
+                          {post?.commentsCount === 0 && (
+                            <div className="flex flex-col justify-center items-center w-full h-[70vh] max-h-[70vh] md:h-[70vh] md:max-h-[65vh]">
+                              <p className="text-center text-xl pb-2 font-semibold font-sans">
+                                No comments yet
+                              </p>
+                              <p className="text-sm">Start the conversation</p>
+                            </div>
+                          )}
+                          {post?.comments?.map((comment) => (
+                            <div key={comment.id} className="mb-5 px-3 md:px-0">
+                              <div className="flex justify-between">
+                                <Link
+                                  href={`/${comment?.user?.username}`}
+                                  className="flex justify-start items-start space-x-3"
+                                >
+                                  <ProfileAvatar
+                                    image={comment?.user?.image as string}
+                                    alt="profile"
+                                    width="10"
+                                    height="10"
+                                  />
+                                </Link>
+                                <div className="w-full flex flex-col items-start justify-start pl-4">
+                                  <div className="flex gap-2 items-center">
+                                    <TruncateCaption
+                                      username={
+                                        comment?.user?.username as string
+                                      }
+                                      text={comment?.text as string}
+                                      maxLength={50}
+                                    />
+                                  </div>
+                                  <div className="flex space-x-4 items-center mt-2">
+                                    <p className="text-xs opacity-65">
+                                      {getRelativeTime(
+                                        new Date(comment?.createdAt)
+                                      )}
+                                    </p>
+                                    <p className="text-sm opacity-65 cursor-pointer">
+                                      <CommentReplay
+                                        userId={userId}
+                                        postId={post?.id}
+                                        parentCommentId={comment.id}
+                                      />
+                                    </p>
+
+                                    {userId === comment?.userId && (
+                                      <p className="text-sm opacity-65 cursor-pointer">
+                                        <Dialog>
+                                          <DialogTrigger asChild>
+                                            <span className="cursor-pointer">
+                                              {" "}
+                                              <TrashIcon size={14} />
+                                            </span>
+                                          </DialogTrigger>
+                                          <DialogContent className="w-full sm:max-w-[500px]">
+                                            <DialogHeader>
+                                              <DialogTitle className="flex justify-center w-full">
+                                                Delete Comment
+                                              </DialogTitle>
+                                            </DialogHeader>
+                                            <Separator />
+                                            <div className="flex flex-col items-center justify-between">
+                                              <p>
+                                                Are you sure you want to delete
+                                                this comment?
+                                              </p>
+                                              <div className="flex items-center space-x-2 mt-5">
+                                                <DialogClose asChild>
+                                                  <Button
+                                                    variant={"secondary"}
+                                                    className="w-full"
+                                                  >
+                                                    Cancel
+                                                  </Button>
+                                                </DialogClose>
+                                                <DeleleComment
+                                                  id={comment.id}
+                                                  postId={post?.id}
+                                                />
+                                              </div>
+                                            </div>
+                                          </DialogContent>
+                                        </Dialog>
+                                      </p>
+                                    )}
+                                  </div>
+                                  {comment?.replies?.length > 0 && (
+                                    <div className="flex text-xs items-center cursor-pointer">
+                                      <CommentReplies
+                                        replies={comment?.replies}
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex justify-end pl-2 pt-2">
+                                  {/* <HeartIcon size={14} /> */}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </ScrollArea>
+                        <div className="fixed bottom-0 left-0 w-full">
+                          <Separator />
+                          <PostComment userId={userId} postId={post?.id} />
+                        </div>
+                        <DrawerFooter></DrawerFooter>
+                      </DrawerContent>
+                    </Drawer>
+                  </div>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <SendIcon strokeWidth={1.5} size={26} />
+                  <SendIcon strokeWidth={1.5} size={28} />
                 </div>
               </div>
               <div className="cursor-pointer">
@@ -400,40 +647,109 @@ const PostsCard = ({
                       <p className="text-center mt-6 mb-2">Comments</p>
                     </DrawerTitle>
                     <Separator />
-                    <ScrollArea className="w-full h-[90vh] max-h-[90vh] my-3">
-                      {post?.likes?.map((like) => (
-                        <div
-                          className="flex items-center justify-between px-4"
-                          key={like.id}
-                        >
-                          <div className="flex items-center space-x-3 max-w-4/6">
-                            <ProfileAvatar
-                              image={like?.user?.image as string}
-                              alt="profile"
-                              width="10"
-                              height="10"
-                            />
-                            <div className="flex flex-col">
-                              <p className="truncate max-w-[180px] sm:max-w-[280px]">
-                                {like?.user?.username}
-                              </p>
-                              <p className="truncate max-w-[180px] sm:max-w-[280px] text-xs opacity-65">
-                                {like?.user?.name}
-                              </p>
+                    <ScrollArea className="w-full h-[80vh] max-h-[80vh] md:h-[80vh] md:max-h-[80vh] py-2 mb-8">
+                      {post?.commentsCount === 0 && (
+                        <div className="flex flex-col justify-center items-center w-full h-[70vh] max-h-[70vh] md:h-[70vh] md:max-h-[65vh]">
+                          <p className="text-center text-xl pb-2 font-semibold font-sans">
+                            No comments yet
+                          </p>
+                          <p className="text-sm">Start the conversation</p>
+                        </div>
+                      )}
+                      {post?.comments?.map((comment) => (
+                        <div key={comment.id} className="mb-5 px-3 md:px-0">
+                          <div className="flex justify-between">
+                            <Link
+                              href={`/${comment?.user?.username}`}
+                              className="flex justify-start items-start space-x-3"
+                            >
+                              <ProfileAvatar
+                                image={comment?.user?.image as string}
+                                alt="profile"
+                                width="10"
+                                height="10"
+                              />
+                            </Link>
+                            <div className="w-full flex flex-col items-start justify-start pl-4">
+                              <div className="flex gap-2 items-center">
+                                <TruncateCaption
+                                  username={comment?.user?.username as string}
+                                  text={comment?.text as string}
+                                  maxLength={50}
+                                />
+                              </div>
+                              <div className="flex space-x-4 items-center mt-2">
+                                <p className="text-xs opacity-65">
+                                  {getRelativeTime(
+                                    new Date(comment?.createdAt)
+                                  )}
+                                </p>
+                                <p className="text-sm opacity-65 cursor-pointer">
+                                  <CommentReplay
+                                    userId={userId}
+                                    postId={post?.id}
+                                    parentCommentId={comment.id}
+                                  />
+                                </p>
+
+                                {userId === comment?.userId && (
+                                  <p className="text-sm opacity-65 cursor-pointer">
+                                    <Dialog>
+                                      <DialogTrigger asChild>
+                                        <span className="cursor-pointer">
+                                          {" "}
+                                          <TrashIcon size={14} />
+                                        </span>
+                                      </DialogTrigger>
+                                      <DialogContent className="w-full sm:max-w-[500px]">
+                                        <DialogHeader>
+                                          <DialogTitle className="flex justify-center w-full">
+                                            Delete Comment
+                                          </DialogTitle>
+                                        </DialogHeader>
+                                        <Separator />
+                                        <div className="flex flex-col items-center justify-between">
+                                          <p>
+                                            Are you sure you want to delete this
+                                            comment?
+                                          </p>
+                                          <div className="flex items-center space-x-2 mt-5">
+                                            <DialogClose asChild>
+                                              <Button
+                                                variant={"secondary"}
+                                                className="w-full"
+                                              >
+                                                Cancel
+                                              </Button>
+                                            </DialogClose>
+                                            <DeleleComment
+                                              id={comment.id}
+                                              postId={post?.id}
+                                            />
+                                          </div>
+                                        </div>
+                                      </DialogContent>
+                                    </Dialog>
+                                  </p>
+                                )}
+                              </div>
+                              {comment?.replies?.length > 0 && (
+                                <div className="flex text-xs items-center cursor-pointer">
+                                  <CommentReplies replies={comment?.replies} />
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex justify-end pl-2 pt-2">
+                              {/* <HeartIcon size={14} /> */}
                             </div>
                           </div>
-                          <Button
-                            variant={"blue"}
-                            className="ml-4 w-2/6 sm:w-1/6"
-                          >
-                            Follow
-                          </Button>
-                          <Button variant={"secondary"} className="hidden">
-                            Following
-                          </Button>
                         </div>
                       ))}
                     </ScrollArea>
+                    <div className="fixed bottom-0 left-0 w-full">
+                      <Separator />
+                      <PostComment userId={userId} postId={post?.id} />
+                    </div>
                     <DrawerFooter></DrawerFooter>
                   </DrawerContent>
                 </Drawer>
