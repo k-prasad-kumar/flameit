@@ -224,7 +224,7 @@ export const deletePost = async (id: string) => {
   }
 };
 
-export const getPosts = async () => {
+export const getPosts = async (skip?: number, take?: number) => {
   try {
     const posts = await prisma.post.findMany({
       include: {
@@ -293,8 +293,8 @@ export const getPosts = async () => {
       orderBy: {
         createdAt: "desc", // Sort by newest posts first
       },
-      skip: 0, // Offset for pagination
-      take: 10, // Number of posts to fetch per page
+      skip: skip, // Offset for pagination
+      take: take, // Number of posts to fetch per page
     });
 
     return posts;

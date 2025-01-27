@@ -17,7 +17,7 @@ const Chat = async () => {
   return (
     <Suspense fallback={<Loading />}>
       <div className="w-full max-w-screen-sm mx-auto mt-16 md:mt-10">
-        <div className="px-0 md:px-4 lg:px-14 pt-0 md:pt-6 flex flex-col items-between mx-4 md:mx-0">
+        <div className="px-0 md:px-4 lg:px-14 pt-0 md:pt-6 flex flex-col items-between mx-4 md:mx-0 relative">
           <div className="w-full flex justify-between items-center">
             <div className="flex items-center space-x-5">
               <Link href={"/inbox"}>
@@ -43,7 +43,7 @@ const Chat = async () => {
             </div>
             <Phone size={24} strokeWidth={1} className="mr-3" />
           </div>
-          <ScrollArea className="w-full h-[75vh] max-h-[75vh] md:h-[80vh] md:max-h-[80vh] py-4">
+          <ScrollArea className="w-full h-[75vh] max-h-[75vh] md:h-[80vh] md:max-h-[80vh] py-2 mb-12">
             <div className="space-y-2 py-2 w-full h-full flex gap-2 flex-col">
               <p className="w-full text-center text-xs">Sun 2:30 PM</p>
               <div className="flex space-x-2 w-3/4">
@@ -102,7 +102,7 @@ const Chat = async () => {
               </div>
             </div>
           </ScrollArea>
-          <div className="w-full flex items-center gap-2">
+          <div className="w-full max-w-screen-sm mx-auto flex items-center gap-2 mb-12 md:mb-0 fixed bottom-0 left-0 right-0 p-2 bg-background px-3 md:px-4 lg:px-14">
             <Input type="text" placeholder="Type a message..." />
             <Button variant={"blue"}>
               <SendIcon size={24} strokeWidth={1} />

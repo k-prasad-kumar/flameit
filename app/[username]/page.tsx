@@ -1,21 +1,14 @@
 import Loading from "@/app/[username]/loading";
-import {
-  BookmarkIcon,
-  Contact2Icon,
-  HeartIcon,
-  ImagesIcon,
-  LayoutDashboardIcon,
-  MessageCircleCode,
-} from "lucide-react";
+import { BookmarkIcon, Contact2Icon, LayoutDashboardIcon } from "lucide-react";
 import ProfileCard from "@/components/profile/profile";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getloginUserId, getUserByUsername } from "@/lib/actions/user.actions";
 import { auth } from "@/auth";
-import Image from "next/image";
 import NotFound from "../not-found";
 import { UserProfileInterface } from "@/types/types";
 import { Suspense } from "react";
+import UserPosts from "@/components/profile/posts";
 
 const Profile = async ({
   params,
@@ -72,51 +65,7 @@ const Profile = async ({
             <Contact2Icon size={16} /> <span>Tagged</span>
           </Link>
         </div>
-        {user?.postsCount === 0 && (
-          <div className="w-full flex flex-col justify-center items-center space-y-4 mt-14 p-2">
-            <div className="border w-20 h-20 p-4 rounded-full flex  items-center justify-center">
-              <ImagesIcon size={40} strokeWidth={1} />
-            </div>
-            <h1 className="text-2xl font-bold">Posts of you</h1>
-            <p>When you post photos, they &apos; ll appear here.</p>
-          </div>
-        )}
-        {user?.postsCount !== 0 && (
-          <div className="w-full grid grid-cols-3 gap-1 mb-5">
-            {user?.posts &&
-              user?.posts.map((post) => (
-                <Link
-                  href={`/p/${post?.id}`}
-                  key={post?.id}
-                  className="relative group"
-                >
-                  <Image
-                    src={post?.images[0]?.url}
-                    width={100}
-                    height={100}
-                    sizes="100%"
-                    loading="lazy"
-                    className="w-full h-[180px] md:h-[300px] object-cover"
-                    alt="post"
-                  />
-                  <div className="absolute top-0 right-0 w-full h-full  justify-center items-center gap-8 bg-black/40 hidden group-hover:flex">
-                    <p className="flex items-center text-white gap-2 font-semibold">
-                      <HeartIcon color="white" fill="white" />{" "}
-                      <span>{post?.likesCount}</span>
-                    </p>
-                    <p className="flex items-center text-white gap-2 font-semibold">
-                      <MessageCircleCode
-                        color="white"
-                        fill="white"
-                        className="-rotate-90"
-                      />{" "}
-                      <span>{post?.likesCount}</span>
-                    </p>
-                  </div>
-                </Link>
-              ))}
-          </div>
-        )}
+        <UserPosts userId={user?.id as string} />
       </div>
     </Suspense>
   );

@@ -33,8 +33,8 @@ const Sidebar = async () => {
       >
         <MessageCircle size={28} />
       </Link>
-      <div className="hover:bg-gray-100 dark:hover:bg-gray-800 py-2 px-3 rounded-lg cursor-pointer">
-        <Link href={`/${user?.username}`}>
+      <Link href={`/${user?.username}`}>
+        <div className="hover:bg-gray-100 dark:hover:bg-gray-800 py-2 px-3 rounded-lg cursor-pointer">
           <ProfileAvatar
             image={`${
               user?.image ? user?.image : "https://github.com/shadcn.png"
@@ -43,8 +43,8 @@ const Sidebar = async () => {
             width="8"
             height="8"
           />
-        </Link>
-      </div>
+        </div>
+      </Link>
     </div>
   );
 };

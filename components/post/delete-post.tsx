@@ -48,12 +48,12 @@ const DeletePost = ({ postId }: { postId: string }) => {
       <DialogContent className="w-full sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex justify-center w-full">
-            Delete Comment
+            Delete post
           </DialogTitle>
         </DialogHeader>
         <Separator />
         <div className="flex flex-col items-center justify-between">
-          <p>Are you sure you want to delete this comment?</p>
+          <p>Are you sure you want to delete this post?</p>
           <div className="flex items-center space-x-2 mt-5">
             <DialogClose asChild>
               <Button variant={"secondary"} className="w-full">

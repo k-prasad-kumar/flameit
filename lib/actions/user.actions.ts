@@ -314,8 +314,6 @@ export const getUserByUsername = async (username: string) => {
   try {
     const user = await prisma.user.findFirst({
       where: { username: username },
-      include: { posts: true },
-      orderBy: { createdAt: "desc" },
     });
     return user;
   } catch (error) {
@@ -323,37 +321,78 @@ export const getUserByUsername = async (username: string) => {
   }
 };
 
-export const getUserSavedPosts = async (username: string) => {
+export const getUserPosts = async (
+  userId: string,
+  skip: number,
+  take: number
+) => {
   try {
-    const user = await prisma.user.findFirst({
-      where: { username: username },
+    const posts = await prisma.post.findMany({
+      where: { userId: userId },
+
+      select: {
+        id: true,
+        images: true,
+        likesCount: true,
+        commentsCount: true,
+      },
+      take: take,
+      skip: skip,
+      orderBy: { createdAt: "desc" },
+    });
+    return posts;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getUserSavedPosts = async (
+  userId: string,
+  skip: number,
+  take: number
+) => {
+  try {
+    const savedPosts = await prisma.savedPost.findMany({
+      where: {
+        userId: userId as string,
+      },
       include: {
-        saved: {
+        post: {
           select: {
-            post: { select: { id: true, images: true } },
+            id: true,
+            images: true,
           },
         },
       },
+      take: take,
+      skip: skip,
       orderBy: { createdAt: "desc" },
     });
-    return user;
+    return savedPosts;
   } catch (error) {
     console.log(error);
     return [];
   }
 };
 
-export const getUserTaggedPosts = async (username: string) => {
+export const getUserTaggedPosts = async (
+  userId: string,
+  skip: number,
+  take: number
+) => {
   try {
-    const user = await prisma.user.findFirst({
-      where: { username: username },
+    const user = await prisma.taggedPost.findMany({
+      where: { userId: userId },
       include: {
-        tagged: {
+        post: {
           select: {
-            post: { select: { id: true, images: true } },
+            id: true,
+            images: true,
           },
         },
       },
+      take: take,
+      skip: skip,
       orderBy: { createdAt: "desc" },
     });
     return user;

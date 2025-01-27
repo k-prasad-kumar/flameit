@@ -116,7 +116,7 @@ const CreatePost = ({
                 },
               ]);
             }}
-            className="px-4 py-2 flex items-center space-x-2 text-[#777777]"
+            className="px-4 py-2 flex items-center space-x-2 text-[#777777] cursor-pointer hover:bg-gray-100 rounded"
           >
             <ImageIcon size={18} />
             <p>

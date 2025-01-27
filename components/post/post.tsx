@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { ProfileAvatar } from "../avatar";
 import { MessageCircle, SendIcon, TrashIcon } from "lucide-react";
@@ -41,6 +43,8 @@ import CommentReplies from "./comment-replies";
 import { getRelativeTime } from "@/lib/relative-time";
 import PostOptions from "./post-options";
 import HandleProfileFollow from "../profile/handle-follow";
+import { useEffect, useState } from "react";
+import { getPosts } from "@/lib/actions/post.actions";
 
 const PostsCard = ({
   posts,
@@ -49,10 +53,40 @@ const PostsCard = ({
   posts: PostResponseInterface[];
   userId: string;
 }) => {
+  const [loading, setLoading] = useState(false);
+  const [postsData, setPostsData] = useState(posts);
+  const [page, setPage] = useState(1);
+
+  const loadMoreData = async () => {
+    setLoading(true);
+    console.log("end page");
+
+    const posts: PostResponseInterface[] | undefined = await getPosts(
+      page * 10,
+      10
+    );
+    setPostsData([...postsData, ...posts!]);
+    setPage(page + 1);
+    setLoading(false);
+  };
+  const onScroll = async () => {
+    if (
+      window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 &&
+      !loading
+    ) {
+      await loadMoreData();
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, page]);
   return (
     <div>
-      {posts.length > 0 &&
-        posts.map((post) => (
+      {postsData.length > 0 &&
+        postsData.map((post) => (
           <div className="w-full pb-4 md:pb-5" key={post?.id}>
             <div className="w-full py-2 md:py-3 px-3 md:px-0 flex justify-between items-center">
               <Link
@@ -762,6 +796,11 @@ const PostsCard = ({
             <Separator className="mt-10 mb-4" />
           </div>
         ))}
+      {loading && (
+        <div className="w-full flex justify-center items-center mt-4">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+        </div>
+      )}
     </div>
   );
 };

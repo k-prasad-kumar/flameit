@@ -4,11 +4,11 @@ import Loading from "./loading";
 import ProfileCard from "@/components/profile/profile";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import Image from "next/image";
 import { auth } from "@/auth";
-import { getloginUserId, getUserSavedPosts } from "@/lib/actions/user.actions";
-import { UserSavedInterface } from "@/types/types";
+import { getloginUserId, getUserByUsername } from "@/lib/actions/user.actions";
+import { UserProfileInterface } from "@/types/types";
 import NotFound from "@/app/not-found";
+import SavedPosts from "@/components/profile/saved";
 
 const Saved = async ({ params }: { params: Promise<{ username: string }> }) => {
   const session = await auth();
@@ -19,9 +19,9 @@ const Saved = async ({ params }: { params: Promise<{ username: string }> }) => {
   const username = (await params).username;
   if (!username) return <NotFound />;
 
-  const user: UserSavedInterface | undefined = (await getUserSavedPosts(
+  const user: UserProfileInterface | undefined = (await getUserByUsername(
     username
-  )) as UserSavedInterface;
+  )) as UserProfileInterface;
 
   if (!user) return <NotFound />;
 
@@ -59,38 +59,7 @@ const Saved = async ({ params }: { params: Promise<{ username: string }> }) => {
             <Contact2Icon size={16} /> <span>Tagged</span>
           </Link>
         </div>
-
-        {user?.saved.length === 0 && (
-          <div className="w-full flex flex-col justify-center items-center space-y-4 mt-14 p-2">
-            <div className="border w-20 h-20 p-4 rounded-full flex  items-center justify-center">
-              <BookmarkIcon size={40} strokeWidth={1} />
-            </div>
-            <h1 className="text-2xl font-bold">Saved Posts of you</h1>
-            <p>When you save posts, they &apos; ll appear here.</p>
-          </div>
-        )}
-
-        <div className="w-full grid grid-cols-3 gap-1 mb-5">
-          {user?.saved &&
-            user?.saved.length > 0 &&
-            user?.saved.map((post, index) => (
-              <Link
-                href={`/p/${post?.post?.id}`}
-                key={index}
-                className="relative group"
-              >
-                <Image
-                  src={post?.post?.images[0] ? post?.post?.images[0].url : ""}
-                  width={100}
-                  height={100}
-                  sizes="100%"
-                  loading="lazy"
-                  className="w-full h-[180px] md:h-[300px] object-cover"
-                  alt="post"
-                />
-              </Link>
-            ))}
-        </div>
+        <SavedPosts userId={user?.id as string} />
       </div>
     </Suspense>
   );

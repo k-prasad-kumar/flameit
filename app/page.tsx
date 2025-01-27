@@ -14,7 +14,7 @@ export default async function Home() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const posts: PostResponseInterface[] | undefined = await getPosts();
+  const posts: PostResponseInterface[] | undefined = await getPosts(0, 10);
 
   if (!posts || posts.length === 0) {
     return (
@@ -37,10 +37,6 @@ export default async function Home() {
         <div className="px-0 md:px-4 lg:px-14 pt-0 md:pt-5">
           <PostsCard posts={posts!} userId={user?.id as string} />
         </div>
-        <div className="w-full flex justify-center items-center mt-4">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-        </div>
-
         <Footer />
       </div>
     </Suspense>

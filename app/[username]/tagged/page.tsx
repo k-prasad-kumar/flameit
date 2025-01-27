@@ -4,11 +4,11 @@ import Loading from "./loading";
 import ProfileCard from "@/components/profile/profile";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import Image from "next/image";
 import { auth } from "@/auth";
-import { getloginUserId, getUserTaggedPosts } from "@/lib/actions/user.actions";
-import { UserTaggedInterface } from "@/types/types";
+import { getloginUserId, getUserByUsername } from "@/lib/actions/user.actions";
+import { UserProfileInterface } from "@/types/types";
 import NotFound from "@/app/not-found";
+import TaggedPosts from "@/components/profile/tagged";
 
 const Tagged = async ({
   params,
@@ -23,11 +23,12 @@ const Tagged = async ({
   const username = (await params).username;
   if (!username) return <NotFound />;
 
-  const user: UserTaggedInterface | undefined = (await getUserTaggedPosts(
+  const user: UserProfileInterface | undefined = (await getUserByUsername(
     username
-  )) as UserTaggedInterface;
+  )) as UserProfileInterface;
 
   if (!user) return <NotFound />;
+
   return (
     <Suspense fallback={<Loading />}>
       <div className="w-full max-w-screen-sm mx-auto mt-16 md:mt-10">
@@ -63,36 +64,7 @@ const Tagged = async ({
           </Link>
         </div>
 
-        {user?.tagged.length === 0 && (
-          <div className="w-full flex flex-col justify-center items-center space-y-4 mt-14 p-2">
-            <div className="border w-20 h-20 p-4 rounded-full flex  items-center justify-center">
-              <Contact2Icon size={40} strokeWidth={1} />
-            </div>
-            <h1 className="text-2xl font-bold">Photos of you</h1>
-            <p>When people tag you in photos, they &apos; ll appear here.</p>
-          </div>
-        )}
-
-        <div className="w-full grid grid-cols-3 gap-1 mb-5">
-          {user?.tagged.length > 0 &&
-            user?.tagged.map((tagged, index) => (
-              <Link
-                href={`/p/${tagged?.post?.id}`}
-                key={index}
-                className="relative group"
-              >
-                <Image
-                  src={tagged?.post?.images[0].url as string}
-                  width={100}
-                  height={100}
-                  sizes="100%"
-                  loading="lazy"
-                  className="w-full h-[180px] md:h-[300px] object-cover"
-                  alt="post"
-                />
-              </Link>
-            ))}
-        </div>
+        <TaggedPosts userId={user?.id as string} />
       </div>
     </Suspense>
   );

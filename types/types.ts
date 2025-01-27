@@ -43,61 +43,33 @@ export interface UserProfileInterface {
   followersCount: number;
   followingCount: number;
   postsCount: number;
-  posts: PostResponseInterface[];
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface UserSavedInterface {
+export interface UserPostsInterface {
   id: string;
-  name: string | null;
-  email: string | null;
-  username: string | null;
-  password: string | null;
-  image: string | null;
-  imagePublicId: string | null;
-  emailVerified: Date | null;
-  bio: string | null;
-  gender: string | null;
-  followersCount: number;
-  followingCount: number;
-  postsCount: number;
-  saved: SavedInterface[];
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface UserTaggedInterface {
-  id: string;
-  name: string | null;
-  email: string | null;
-  username: string | null;
-  password: string | null;
-  image: string | null;
-  imagePublicId: string | null;
-  emailVerified: Date | null;
-  bio: string | null;
-  gender: string | null;
-  followersCount: number;
-  followingCount: number;
-  postsCount: number;
-  tagged: TaggedInterface[];
-  createdAt: Date;
-  updatedAt: Date;
+  images: { url: string; public_id: string }[];
+  likesCount: number;
+  commentsCount: number;
 }
 
 export interface SavedInterface {
+  id: string;
   post: {
     id: string;
     images: Image[];
   };
+  createdAt: Date;
 }
 
 export interface TaggedInterface {
+  id: string;
   post: {
     id: string;
     images: Image[];
   };
+  createdAt: Date;
 }
 
 export interface PostFormInterface {
