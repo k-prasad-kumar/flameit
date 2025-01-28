@@ -6,12 +6,12 @@
 
 generator client {
   provider = "prisma-client-js"
+  engineType    = "library"
 }
 
 datasource db {
-  provider  = "mongodb"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_DATABASE_URL")
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 
@@ -26,7 +26,7 @@ model User {
   imagePublicId   String?
   accounts        Account[]
   sessions        Session[]
-  bio             String   @default("Update bio...")
+  bio             String   @default("Update your bio...")
   gender          String?    
   followersCount  Int      @default(0) 
   followingCount  Int      @default(0) 

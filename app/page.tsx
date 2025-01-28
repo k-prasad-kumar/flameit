@@ -31,6 +31,7 @@ export default async function Home() {
       </div>
     );
   }
+
   return (
     <Suspense fallback={<Loading />}>
       <div className="w-full max-w-screen-sm mx-auto mt-14 md:mt-10">

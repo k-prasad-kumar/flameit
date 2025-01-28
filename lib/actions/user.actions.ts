@@ -6,15 +6,11 @@ import {
   EditProfileInterface,
   RegisterInterface,
 } from "@/types/types";
-import { compare, hash } from "bcryptjs";
 import { CredentialsSignin } from "next-auth";
 import { redirect } from "next/navigation";
-
-import { PrismaClient } from "@prisma/client/edge";
-import { withAccelerate } from "@prisma/extension-accelerate";
 import { revalidatePath } from "next/cache";
-
-const prisma = new PrismaClient().$extends(withAccelerate());
+import { prisma } from "@/lib/prisma";
+import { compare, hash } from "bcryptjs";
 
 export const createUser = async (formData: RegisterInterface) => {
   try {
@@ -27,11 +23,13 @@ export const createUser = async (formData: RegisterInterface) => {
     }
 
     const username = await prisma.user.findFirst({
-      where: { username: formData.username as string },
+      where: { username: formData.username.toLowerCase() as string },
     });
 
     if (username) {
-      return { error: `The Username ${formData.username} is not avalable` };
+      return {
+        error: `The Username ${formData.username.toLowerCase()} is not avalable`,
+      };
     }
 
     const hashedPassword: string = await hash(formData.password as string, 10);
@@ -39,7 +37,7 @@ export const createUser = async (formData: RegisterInterface) => {
     await prisma.user.create({
       data: {
         name: formData.name as string,
-        username: formData.username as string,
+        username: formData.username.toLowerCase() as string,
         email: formData.email as string,
         password: hashedPassword,
       },
@@ -119,7 +117,7 @@ export const updateUser = async (
       where: { id: id as string },
       data: {
         name: editProfile?.name as string,
-        username: editProfile?.username as string,
+        username: editProfile?.username.toLowerCase() as string,
         bio: editProfile?.bio as string,
         gender: editProfile?.gender as string,
       },
@@ -418,7 +416,6 @@ export const getFollowCount = async (username: string) => {
   }
 };
 
-// need to check later
 export const getFollowers = async (userId: string) => {
   try {
     const followers = await prisma.follower.findMany({
@@ -479,5 +476,30 @@ export const getloginUserId = async (email: string) => {
     return user;
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const fetchUsers = async (q: string, skip: number, take: number) => {
+  try {
+    const users = await prisma.user.findMany({
+      where: {
+        OR: [
+          { username: { contains: q, mode: "insensitive" } },
+          { name: { contains: q, mode: "insensitive" } },
+        ],
+      },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        image: true,
+      },
+      skip: skip,
+      take: take,
+      orderBy: { createdAt: "desc" },
+    });
+    return users;
+  } catch (error) {
+    console.log("fetch users : ", error);
   }
 };

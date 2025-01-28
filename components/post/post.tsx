@@ -159,7 +159,11 @@ const PostsCard = ({
                     <Dialog>
                       <DialogTrigger asChild>
                         <p className="cursor-pointer">
-                          <MessageCircle strokeWidth={1.5} size={26} />
+                          <MessageCircle
+                            strokeWidth={1.5}
+                            size={26}
+                            aria-description="Like post"
+                          />
                         </p>
                       </DialogTrigger>
                       <DialogContent className="w-full sm:max-w-[500px]">
@@ -284,7 +288,11 @@ const PostsCard = ({
                     <Drawer>
                       <DrawerTrigger>
                         <p className="cursor-pointer">
-                          <MessageCircle strokeWidth={1.5} size={28} />
+                          <MessageCircle
+                            strokeWidth={1.5}
+                            size={28}
+                            aria-description="comment post"
+                          />
                         </p>
                       </DrawerTrigger>
                       <DrawerContent className="max-h-[80vh] min-h-[80vh]">
@@ -405,7 +413,11 @@ const PostsCard = ({
                   </div>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <SendIcon strokeWidth={1.5} size={28} />
+                  <SendIcon
+                    strokeWidth={1.5}
+                    size={28}
+                    aria-description="Share post"
+                  />
                 </div>
               </div>
               <div className="cursor-pointer">

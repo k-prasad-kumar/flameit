@@ -76,7 +76,7 @@ const TaggedPosts = ({ userId }: { userId: string }) => {
 
   return (
     <div>
-      {!postsData && !loading ? (
+      {postsData.length === 0 && !loading ? (
         <div className="w-full flex flex-col justify-center items-center space-y-4 mt-14 p-2">
           <div className="border w-20 h-20 p-4 rounded-full flex  items-center justify-center">
             <Contact2Icon size={40} strokeWidth={1} />

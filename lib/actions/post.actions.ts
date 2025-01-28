@@ -2,11 +2,8 @@
 
 import { PostFormInterface } from "@/types/types";
 import { revalidatePath } from "next/cache";
-import { PrismaClient } from "@prisma/client/edge";
-import { withAccelerate } from "@prisma/extension-accelerate";
 import { deleteImageCloudinary } from "./delete.image.actions";
-
-const prisma = new PrismaClient().$extends(withAccelerate());
+import { prisma } from "@/lib/prisma";
 
 export const createPost = async (post: PostFormInterface) => {
   try {

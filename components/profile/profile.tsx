@@ -5,6 +5,8 @@ import CopyProfileLink from "./share-profile";
 import HandleProfileFollow from "./handle-follow";
 import Followers from "./followers";
 import Following from "./following";
+import { AtSignIcon } from "lucide-react";
+import TruncateBio from "./bio-truncate";
 
 const ProfileCard = async ({
   loginUserId,
@@ -30,19 +32,21 @@ const ProfileCard = async ({
   return (
     <>
       <div className="w-full mx-auto">
-        <div className="px-0 md:px-4 pt-0 md:pt-6">
-          <div className="flex items-center justify-between md:justify-evenly space-x-14 w-full px-4 md:px-0">
-            <Avatar
-              className={`max-w-20 max-h-20 w-20 h-20 md:max-w-36 md:max-h-36 md:w-36 md:h-36`}
-            >
-              <AvatarImage
-                src={image ? image : "https://github.com/shadcn.png"}
-                alt="profile"
-                className="w-full h-auto"
-              />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col items-center justify-center">
+        <div className="px-0 md:px-4 pt-0 md:pt-6 w-full">
+          <div className="flex items-center justify-between md:justify-evenly space-x-14 px-4 md:px-0">
+            <div className="w-1/4 md:w-2/5 flex justify-center items-center">
+              <Avatar
+                className={`max-w-20 max-h-20 w-20 h-20 md:max-w-36 md:max-h-36 md:w-36 md:h-36`}
+              >
+                <AvatarImage
+                  src={image ? image : "https://github.com/shadcn.png"}
+                  alt="profile"
+                  className="w-full h-auto"
+                />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+            </div>
+            <div className="flex flex-col items-center justify-center w-3/4 md:w-3/5">
               <div className="flex space-x-2 md:space-x-4 text-center md:text-left py-4 w-full">
                 <p>
                   <span className="font-semibold">{postsCount}</span> posts
@@ -66,15 +70,25 @@ const ProfileCard = async ({
               </div>
               <div className="hidden md:flex flex-col w-full px-4 md:px-0 text-sm">
                 <h1 className="font-semibold py-2">{fullName}</h1>
-                <p className="py-1">@{username}</p>
-                <p>{bio ? bio : "Update your bio..."}</p>
+                <TruncateBio text={bio} maxLength={90} />
+                <p className="font-semibold px-4 py-1 rounded bg-gray-100 dark:bg-gray-800 w-fit mt-3 flex items-center">
+                  <span className="h-full border mr-1">
+                    <AtSignIcon size={16} />
+                  </span>{" "}
+                  <span>{username}</span>
+                </p>
               </div>
             </div>
           </div>
           <div className="flex flex-col w-full px-4 md:px-0 text-sm md:text-base md:hidden">
-            <h1 className="font-semibold py-2">Prasad Kumar</h1>
-            <p>@{username}</p>
-            <p>{bio ? bio : "Update your bio..."}</p>
+            <h1 className="font-semibold py-2">{fullName}</h1>
+            <TruncateBio text={bio} maxLength={70} />
+            <p className="font-semibold px-4 py-1 rounded bg-gray-100 dark:bg-gray-800 w-fit mt-3 flex items-center">
+              <span className="h-full mr-1">
+                <AtSignIcon size={16} />
+              </span>{" "}
+              <span>{username}</span>
+            </p>
           </div>
 
           {loginUserId !== userId && (

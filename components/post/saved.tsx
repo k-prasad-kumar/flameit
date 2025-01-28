@@ -44,6 +44,7 @@ const Saved = ({
         strokeWidth={1.5}
         size={26}
         fill={isSaved ? "black" : "none"}
+        aria-description="Save post"
       />
     </button>
   );

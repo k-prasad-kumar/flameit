@@ -49,6 +49,7 @@ const LikePost = ({
         size={isLiked ? 30 : 28}
         onClick={() => updateLikeOnPost(!isLiked)}
         id="heart"
+        aria-description="Like post"
       />
     </div>
   );
