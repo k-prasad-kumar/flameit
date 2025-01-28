@@ -2,7 +2,6 @@
 
 import {
   EllipsisIcon,
-  ExternalLinkIcon,
   LinkIcon,
   PencilIcon,
   TrashIcon,
@@ -124,14 +123,14 @@ const UserPostOptions = ({
               </div>
             </div>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          {/* <DropdownMenuItem>
             <Link href={`/p/${postId}`} className="cursor-pointer">
               <p className="flex items-center gap-3">
                 <ExternalLinkIcon size={18} strokeWidth={1.5} />
                 <span>Go to post</span>
               </p>
             </Link>
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
           {userId === postUserId && (
             <>
               <DropdownMenuItem>

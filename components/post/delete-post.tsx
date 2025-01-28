@@ -1,30 +1,32 @@
 "use client";
 
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogHeader,
-  DialogTrigger,
-  DialogClose,
-} from "@/components/ui/dialog";
 import { deletePost } from "@/lib/actions/post.actions";
 import { Button } from "../ui/button";
-import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { TrashIcon } from "lucide-react";
-import { Separator } from "../ui/separator";
+import { toast } from "sonner";
+import { useTransition } from "react";
+import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
-const DeletePost = ({ postId }: { postId: string }) => {
+const DeletePost = ({
+  postId,
+  username,
+  userId,
+}: {
+  postId: string;
+  username: string;
+  userId: string;
+}) => {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   const deletePostHandler = async (id: string) => {
     startTransition(() => {
-      deletePost(id)
+      deletePost(id, userId)
         .then((data) => {
           if (data?.success) {
-            router.refresh();
+            toast.success(data?.success);
+            router.push(`/${username}`);
           }
         })
         .catch((err) => {
@@ -33,33 +35,21 @@ const DeletePost = ({ postId }: { postId: string }) => {
     });
   };
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <span className="cursor-pointer">
-          {" "}
-          <div className="cursor-pointer">
-            <p className="flex items-center gap-3 text-red-500">
-              <TrashIcon size={18} strokeWidth={1.5} />
-              <span>Delete</span>
-            </p>
-          </div>
-        </span>
-      </DialogTrigger>
-      <DialogContent className="w-full sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle className="flex justify-center w-full">
-            Delete post
-          </DialogTitle>
-        </DialogHeader>
-        <Separator />
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-center text-lg flex flex-col items-center justify-center py-2">
+          Delete Post
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
         <div className="flex flex-col items-center justify-between">
           <p>Are you sure you want to delete this post?</p>
           <div className="flex items-center space-x-2 mt-5">
-            <DialogClose asChild>
+            <Link href={`/p/${postId}`}>
               <Button variant={"secondary"} className="w-full">
                 Cancel
               </Button>
-            </DialogClose>
+            </Link>
             <Button
               variant={"destructive"}
               className="w-full"
@@ -81,8 +71,8 @@ const DeletePost = ({ postId }: { postId: string }) => {
             </Button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </CardContent>
+    </Card>
   );
 };
 export default DeletePost;

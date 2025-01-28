@@ -40,19 +40,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const user = await getUserByEmail(email);
 
         if (!user) {
-          console.log("user not found");
           throw new CredentialsSignin("Invalid email or password.");
         }
 
         if (!user.password) {
-          console.log("user pass not got");
           throw new CredentialsSignin("Invalid email or password.");
         }
 
         const isMatched = await compare(password, user.password);
 
         if (!isMatched) {
-          console.log("user pass notmatched");
           throw new CredentialsSignin("Invalid email or password.");
         }
         console.log("user pass matched");

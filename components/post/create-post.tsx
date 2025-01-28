@@ -124,14 +124,17 @@ const CreatePost = ({
             </p>
           </CldUploadButton>
           <Button type="submit" onClick={handleSubmit}>
-            <span
-              className={`justify-center items-center ${
-                isPending ? "flex" : "hidden"
-              }`}
-            >
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
-            </span>
-            Post
+            {isPending ? (
+              <span
+                className={`justify-center items-center ${
+                  isPending ? "flex" : "hidden"
+                }`}
+              >
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
+              </span>
+            ) : (
+              <span>Post</span>
+            )}
           </Button>
         </div>
       </CardContent>

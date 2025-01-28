@@ -41,6 +41,7 @@ export const updatePost = async (id: string, caption: string) => {
         caption: caption as string,
       },
     });
+    revalidatePath(`/p/${id}`);
     return { success: "Post updated successfully" };
   } catch (error) {
     console.log(error);
@@ -183,7 +184,7 @@ export const deleteComment = async (id: string, postId: string) => {
   }
 };
 
-export const deletePost = async (id: string) => {
+export const deletePost = async (id: string, userId: string) => {
   try {
     // delete images from cloudinary before deleting post
     const images = await prisma.post.findUnique({
@@ -207,7 +208,7 @@ export const deletePost = async (id: string) => {
 
     await prisma.user.update({
       where: {
-        id: id as string,
+        id: userId as string,
       },
       data: {
         postsCount: {
@@ -215,6 +216,7 @@ export const deletePost = async (id: string) => {
         },
       },
     });
+
     return { success: "Post deleted successfully" };
   } catch (error) {
     console.log(error);

@@ -1,14 +1,5 @@
 "use client";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
-import { PencilIcon } from "lucide-react";
-import { ScrollArea } from "../ui/scroll-area";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ProfileAvatar } from "../avatar";
@@ -16,6 +7,7 @@ import Image from "next/image";
 import { Button } from "../ui/button";
 import { updatePost } from "@/lib/actions/post.actions";
 import { toast } from "sonner";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 const UpdatePost = ({
   username,
@@ -31,7 +23,6 @@ const UpdatePost = ({
   caption: string;
 }) => {
   const [text, setText] = useState<string>(caption);
-  const [open, setOpen] = useState<boolean>(false);
 
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -40,69 +31,65 @@ const UpdatePost = ({
     startTransition(() => {
       updatePost(postId, text).then((data) => {
         if (data?.success) {
-          setOpen(false);
           toast.success("Post updated successfully");
-          router.refresh();
+          router.push(`/p/${postId}`);
         }
       });
     });
   };
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <div className="cursor-pointer">
-          <p className="flex items-center gap-3">
-            <PencilIcon size={18} strokeWidth={1.5} />
-            <span>Edit</span>
-          </p>
-        </div>
-      </DialogTrigger>
-      <DialogContent className="w-full sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle className="flex justify-center w-full">
-            Edit Post
-          </DialogTitle>
-        </DialogHeader>
-        <ScrollArea className="w-full h-[75vh] max-h-[75vh] md:h-[80vh] md:max-h-[80vh]">
-          <div className="flex space-x-3 font-semibold items-center">
-            <ProfileAvatar
-              image={image ? image : "https://github.com/shadcn.png"}
-              alt="profile"
-              width="10"
-              height="10"
-            />
-            <div className="flex flex-col w-full">
-              <h2>{username}</h2>
-            </div>
-          </div>
-          <div className="flex aspect-square items-center justify-center mt-1">
-            <Image
-              src={`${postImage}`}
-              width={100}
-              height={100}
-              sizes="100%"
-              loading="lazy"
-              className="w-auto h-[450px] object-cover"
-              alt="post"
-            />
-          </div>
-          <textarea
-            rows={8}
-            placeholder="What's on your mind?"
-            className="border-none outline-none text-sm bg-transparent w-full mt-1"
-            onChange={(e) => setText(e.target.value)}
-            value={text}
+    <Card>
+      <CardHeader>
+        <CardTitle>Update Post</CardTitle>
+      </CardHeader>
+
+      <CardContent>
+        <div className="flex space-x-3 font-semibold items-center">
+          <ProfileAvatar
+            image={image ? image : "https://github.com/shadcn.png"}
+            alt="profile"
+            width="10"
+            height="10"
           />
-        </ScrollArea>
-        <Button onClick={handleSubmit}>
-          {isPending ? (
-            <span className="loading loading-spinner"></span>
-          ) : (
-            "Save"
-          )}
-        </Button>
-      </DialogContent>
-    </Dialog>
+          <div className="flex flex-col w-full">
+            <h2>{username}</h2>
+          </div>
+        </div>
+        <div className="flex aspect-square items-center justify-center mt-1">
+          <Image
+            src={`${postImage}`}
+            width={100}
+            height={100}
+            sizes="100%"
+            loading="lazy"
+            className="w-auto h-[450px] object-cover"
+            alt="post"
+          />
+        </div>
+        <textarea
+          rows={8}
+          placeholder="What's on your mind?"
+          className="border-none outline-none text-sm bg-transparent w-full mt-1"
+          onChange={(e) => setText(e.target.value)}
+          value={text}
+        />
+        <div className="flex justify-end w-full">
+          <Button onClick={handleSubmit}>
+            {isPending ? (
+              <span
+                className={`justify-center items-center ${
+                  isPending ? "flex" : "hidden"
+                }`}
+              >
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
+              </span>
+            ) : (
+              <span>Save</span>
+            )}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 export default UpdatePost;

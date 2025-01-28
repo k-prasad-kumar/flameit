@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-// import { Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
@@ -7,7 +7,7 @@ import "./globals.css";
 import { getCurrentUser } from "@/lib/current-user-data";
 import { Toaster } from "sonner";
 
-// const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "FlameIt.",
@@ -22,7 +22,7 @@ export default async function RootLayout({
   const user = await getCurrentUser();
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={` antialiased`}>
+      <body className={`${inter.className} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

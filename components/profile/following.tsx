@@ -62,11 +62,12 @@ const Following = async ({
                     <UsersRoundIcon size={40} strokeWidth={1} />
                   </div>
                   <h1 className="text-2xl opacity-90 mt-5">
-                    Invite Friends to Follow You
+                    You&apos;re Not Following Anyone Yet
                   </h1>
                   <p className="text-sm opacity-90 text-center">
-                    Reach out and connect with people to grow your follower
-                    list.
+                    Discover and connect with amazing people! Start following
+                    users to see their latest posts and updates here. Explore
+                    trending content and grow your network today.
                   </p>
                 </div>
               )}
@@ -171,11 +172,12 @@ const Following = async ({
                     <UsersRoundIcon size={40} strokeWidth={1} />
                   </div>
                   <h1 className="text-2xl opacity-90 mt-5">
-                    Invite Friends to Follow You
+                    You&apos;re Not Following Anyone Yet
                   </h1>
                   <p className="text-sm opacity-90 text-center">
-                    Reach out and connect with people to grow your follower
-                    list.
+                    Discover and connect with amazing people! Start following
+                    users to see their latest posts and updates here. Explore
+                    trending content and grow your network today.
                   </p>
                 </div>
               )}
