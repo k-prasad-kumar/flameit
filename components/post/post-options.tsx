@@ -75,12 +75,12 @@ const UserPostOptions = ({
   };
 
   return (
-    <div className="px-5">
+    <div>
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <EllipsisIcon strokeWidth={1.5} />
+          <EllipsisIcon strokeWidth={2} />
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent className="mr-2">
           {userId !== postUserId && (
             <DropdownMenuItem>
               {loading ? (
@@ -112,7 +112,7 @@ const UserPostOptions = ({
               )}
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem>
+          <DropdownMenuItem className="hidden lg:block">
             <div className="cursor-pointer">
               <div className="flex items-center gap-3">
                 <LinkIcon size={18} strokeWidth={1.5} />

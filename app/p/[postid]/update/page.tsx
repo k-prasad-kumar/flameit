@@ -20,7 +20,7 @@ const page = async ({ params }: { params: Promise<{ postid: string }> }) => {
 
   return (
     <div className="w-full max-w-screen-sm mx-auto mt-14 md:mt-10">
-      <div className="px-0 md:px-4 lg:px-14 pt-0 md:pt-6">
+      <div className="px-0 md:px-4 lg:px-14 pt-0 md:pt-6 mb-14">
         <UpdatePost
           username={post?.user?.username as string}
           image={post?.user?.image as string}

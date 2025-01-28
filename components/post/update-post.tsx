@@ -40,7 +40,7 @@ const UpdatePost = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Update Post</CardTitle>
+        <CardTitle className="text-center">Update Post</CardTitle>
       </CardHeader>
 
       <CardContent>

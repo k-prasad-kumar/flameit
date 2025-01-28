@@ -16,7 +16,7 @@ import PostInfo from "./post-info";
 import { PostResponseInterface } from "@/types/types";
 import { Suspense } from "react";
 import PostSkeleton from "../skeletons/post-skeleton";
-import UserPostOptions from "./user-post-options";
+import UserPostOptions from "./post-options";
 
 const PostsCard = async ({
   post,
@@ -47,11 +47,7 @@ const PostsCard = async ({
             <UserPostOptions
               userId={userId}
               postUserId={post?.user?.id as string}
-              username={post?.user?.username as string}
-              image={post?.user?.image as string}
               postId={post?.id}
-              postImage={post?.images[0]?.url as string}
-              caption={post?.caption as string}
             />
           </div>
           <Carousel
