@@ -191,7 +191,7 @@ export interface ConversationInterface {
 export type Participant = {
   userId: string;
   username: string;
-  image: string;
+  image: string | null;
 };
 
 export interface MessageInterface {
