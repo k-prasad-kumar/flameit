@@ -6,6 +6,7 @@ import Sidebar from "@/components/layout/sidebar";
 import "./globals.css";
 import { getCurrentUser } from "@/lib/current-user-data";
 import { Toaster } from "sonner";
+import { SocketProvider } from "@/context/use.socket";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,9 +30,11 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
-          {children}
-          {user && <Sidebar />}
+          <SocketProvider userId={user?.id as string}>
+            <Header userId={user?.id as string} />
+            {children}
+            {user && <Sidebar />}
+          </SocketProvider>
           <Toaster />
         </ThemeProvider>
       </body>

@@ -7,8 +7,9 @@ import Followers from "./followers";
 import Following from "./following";
 import { AtSignIcon } from "lucide-react";
 import TruncateBio from "./bio-truncate";
+import AddConversation from "./add-conversation";
 
-const ProfileCard = async ({
+const ProfileCard = ({
   loginUserId,
   userId,
   username,
@@ -90,17 +91,6 @@ const ProfileCard = async ({
               <span>{username}</span>
             </p>
           </div>
-
-          {loginUserId !== userId && (
-            <div className="w-full my-8 md:mx-0 flex justify-around gap-4">
-              <HandleProfileFollow userId={loginUserId} isUserId={userId} />
-              <Link href={`/${username}/edit`} className="w-full mr-4 md:ml-0">
-                <Button variant={"secondary"} className="w-full">
-                  Message
-                </Button>
-              </Link>
-            </div>
-          )}
           {loginUserId === userId && (
             <div className="w-full my-8 md:mx-0 flex justify-around gap-4">
               <Link href={`/${username}/edit`} className="w-full ml-4 md:ml-0">
@@ -109,6 +99,13 @@ const ProfileCard = async ({
               <CopyProfileLink
                 text={`${process.env.NEXT_PUBLIC_URL}/${username}`}
               />
+            </div>
+          )}
+
+          {loginUserId !== userId && (
+            <div className="w-full my-8 md:mx-0 flex justify-around gap-4">
+              <HandleProfileFollow userId={loginUserId} isUserId={userId} />
+              <AddConversation loginUserId={loginUserId} userId={userId} />
             </div>
           )}
         </div>

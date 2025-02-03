@@ -38,6 +38,9 @@ model User {
   comments        Comment[]  // Comments made by the user
   saved           SavedPost[] 
   tagged          TaggedPost[]
+  conversations   Conversation[] @relation("ConversationOwner")
+  messages        Message[]      @relation("MessageSender")
+  notifications   Notification[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -55,7 +58,6 @@ model Account {
   scope             String?
   id_token          String? @db.String
   session_state     String?
- 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
  
@@ -105,7 +107,7 @@ model Follower {
   follower    User     @relation("UserFollowing", fields: [followerId], references: [id]) // The user who is following
   followerId  String   @db.ObjectId
   following   User     @relation("UserFollowers", fields: [followingId], references: [id]) // The user being followed
-  followingId String  @db.ObjectId
+  followingId String   @db.ObjectId
   createdAt   DateTime @default(now()) // Timestamp for when the relationship was created
 
   @@unique([followerId, followingId])
@@ -188,3 +190,52 @@ model TaggedPost {
   postId     String   @db.ObjectId
   createdAt  DateTime @default(now()) // Timestamp for tagging
 }
+
+
+model Conversation {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?     // Name for group chats, null for private chats
+  isGroup       Boolean     @default(false) // True if it's a group chat
+  owner         User        @relation(name:"ConversationOwner", fields: [ownerId], references: [id])
+  ownerId       String      @db.ObjectId
+  participants  Participant[]    // Stores user IDs for all participants
+  messages      Message[]
+  lastMessage   String?
+  lastMessageAt DateTime    @default(now())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+type Participant{
+  userId    String
+  username  String
+  image     String?
+}
+
+model Message {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String       @db.ObjectId
+  sender         User         @relation(name: "MessageSender", fields: [senderId], references: [id])
+  senderId       String       @db.ObjectId
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  text           String       
+  seenBy         String[]     // Stores user IDs who have seen the message
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId]) // Optimizes queries
+}
+
+model Notification {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  user           User         @relation( fields: [userId], references: [id], onDelete: Cascade)
+  userId         String       @db.ObjectId
+  recipientId    String       @db.ObjectId
+  postImage      String?
+  postId         String?
+  text           String       
+  isSeen         Boolean  
+  type           String    
+  expiresAt      DateTime     @map("expireAt") 
+  createdAt      DateTime     @default(now())
+}
+

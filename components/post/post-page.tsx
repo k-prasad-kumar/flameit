@@ -21,9 +21,11 @@ import UserPostOptions from "./post-options";
 const PostsCard = async ({
   post,
   userId,
+  username,
 }: {
   post: PostResponseInterface;
   userId: string;
+  username: string;
 }) => {
   return (
     <Suspense fallback={<PostSkeleton />}>
@@ -67,7 +69,7 @@ const PostsCard = async ({
                           height={100}
                           sizes="100%"
                           loading="lazy"
-                          className="w-auto h-[550px] object-cover"
+                          className="w-full h-[500px] md:h-[640px] object-cover"
                           alt="post"
                         />
                       </div>
@@ -82,7 +84,7 @@ const PostsCard = async ({
               </>
             )}
           </Carousel>
-          <PostInfo post={post} userId={userId} />
+          <PostInfo post={post} userId={userId} username={username} />
           <p className="opacity-60 text-xs mt-2 px-3 md:px-0">
             {getRelativeTime(post?.createdAt)}
           </p>

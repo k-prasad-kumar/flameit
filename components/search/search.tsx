@@ -107,7 +107,7 @@ const SearchPage = () => {
           usersData.map((user) => (
             <Link
               href={`/${user.username}`}
-              className="flex flex-col px-4 rounded hover:bg-gray-200"
+              className="flex flex-col px-4 rounded hover:bg-gray-200 dark:hover:bg-gray-900"
               key={user.id}
             >
               <div className="flex items-center justify-between my-2">

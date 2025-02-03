@@ -23,9 +23,11 @@ import PostInfo from "./post-info";
 const PostsCard = ({
   posts,
   userId,
+  username,
 }: {
   posts: PostResponseInterface[];
   userId: string;
+  username: string;
 }) => {
   const [loading, setLoading] = useState(false);
   const [postsData, setPostsData] = useState(posts);
@@ -99,7 +101,7 @@ const PostsCard = ({
                             height={100}
                             sizes="100%"
                             loading="lazy"
-                            className="w-auto h-[550px] object-cover"
+                            className="w-full h-[500px] md:h-[640px] object-cover"
                             alt="post"
                           />
                         </div>
@@ -114,7 +116,11 @@ const PostsCard = ({
                 </>
               )}
             </Carousel>
-            <PostInfo post={post} userId={userId} />
+            <PostInfo
+              post={post}
+              userId={userId}
+              username={username as string}
+            />
             <p className="opacity-60 text-xs mt-2 px-3 md:px-0">
               {getRelativeTime(post?.createdAt)}
             </p>

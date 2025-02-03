@@ -11,6 +11,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { compare, hash } from "bcryptjs";
+import { createNotification, deleteNotification } from "./notification.actions";
 
 export const createUser = async (formData: RegisterInterface) => {
   try {
@@ -203,6 +204,15 @@ export const addFollower = async (followerId: string, followingId: string) => {
       },
     });
 
+    const data = {
+      userId: followerId as string,
+      recipientId: followingId as string,
+      text: "started following you.",
+      isSeen: false,
+      type: "FOLLOW",
+    };
+    await createNotification(data);
+
     await prisma.user.update({
       where: {
         id: followingId, // The user being followed
@@ -264,6 +274,8 @@ export const removeFollower = async (
         },
       },
     });
+
+    await deleteNotification(followerId, followingId, "FOLLOW");
 
     return { success: "Unfollowed successfully" };
   } catch (error) {

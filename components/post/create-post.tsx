@@ -12,6 +12,9 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { createPost } from "@/lib/actions/post.actions";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { useSocket } from "@/context/use.socket";
+import { getFollowers } from "@/lib/actions/user.actions";
+import { FollowerInterface } from "@/types/types";
 
 const CreatePost = ({
   userId,
@@ -28,6 +31,7 @@ const CreatePost = ({
   );
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const socket = useSocket();
 
   const removeImage = (idx: number) => {
     deleteImageCloudinary(images[idx].public_id);
@@ -36,11 +40,28 @@ const CreatePost = ({
     setImages(res);
   };
 
+  const sendNotifications = async () => {
+    if (!socket) return;
+
+    const followers: FollowerInterface[] = await getFollowers(userId);
+    const recivers = followers?.filter((follower) => follower.id);
+
+    if (socket && socket.connected) {
+      socket.emit("notification", {
+        recivers: recivers,
+        text: `${username} shared a post.`,
+      });
+    } else {
+      console.log("socket not connected");
+    }
+  };
+
   const handleSubmit = () => {
     if (images.length === 0) return toast.error("Please upload a photo");
     startTransition(() => {
-      createPost({ userId, images, caption }).then((data) => {
+      createPost({ userId, images, caption }).then(async (data) => {
         if (data?.success) {
+          await sendNotifications();
           setImages([]);
           setCaption("");
           router.push(`/`);
@@ -116,7 +137,7 @@ const CreatePost = ({
                 },
               ]);
             }}
-            className="px-4 py-2 flex items-center space-x-2 text-[#777777] cursor-pointer hover:bg-gray-100 rounded"
+            className="px-4 py-2 flex items-center space-x-2 text-[#777777] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-900 rounded"
           >
             <ImageIcon size={18} />
             <p>

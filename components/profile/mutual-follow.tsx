@@ -10,6 +10,7 @@ import { useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Loader2, X } from "lucide-react";
+import { addConversation } from "@/lib/actions/realtime.actions";
 
 const FollowActions = ({
   currentUserId,
@@ -97,6 +98,17 @@ const FollowActions = ({
     }
   };
 
+  const handleConversation = async (participentId: string) => {
+    const res = await addConversation(currentUserId, [participentId], false);
+
+    if (res?.error === "Private conversation already exists") {
+      router.push(`/inbox/${res?.conversationId}`);
+    }
+    if (res?.success) {
+      router.push(`/inbox/${res?.conversationId}`);
+    }
+  };
+
   if (currentUserId === profileUserId) return null; // No actions for own profile
 
   return (
@@ -107,7 +119,7 @@ const FollowActions = ({
           <Button
             variant="secondary"
             className="w-full"
-            onClick={() => router.push(`/messages/${profileUserId}`)}
+            onClick={() => handleConversation(profileUserId)}
             disabled={loading}
           >
             Message
@@ -127,7 +139,7 @@ const FollowActions = ({
           <Button
             variant="secondary"
             className="w-full"
-            onClick={() => router.push(`/messages/${profileUserId}`)}
+            onClick={() => handleConversation(profileUserId)}
             disabled={loading}
           >
             Message

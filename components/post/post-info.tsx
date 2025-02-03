@@ -16,6 +16,18 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 import { HeartIcon, MessageCircle, SendIcon, TrashIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -40,24 +52,27 @@ import {
   updatePostLikes,
 } from "@/lib/actions/post.actions";
 import { PostResponseInterface } from "@/types/types";
+import { useSocket } from "@/context/use.socket";
 
 const PostInfo = ({
   post,
   userId,
+  username,
 }: {
   post: PostResponseInterface;
   userId: string;
+  username: string;
 }) => {
   const [isLiked, setIsLiked] = useState<boolean>(
     post?.likes?.find((like) => like.userId === userId) ? true : false
   );
+  const socket = useSocket();
   //   const [isCommentUpdated, setIsCommentUpdated] = useState<boolean>(false);
   const [postData, setPostData] = useState<PostResponseInterface>(post);
   const [isAnimating, setIsAnimating] = useState(false);
   const [comment, setComment] = useState<string>("");
 
   const [replay, setReplay] = useState<string>("");
-  const [open, setOpen] = useState<boolean>(false);
 
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -81,6 +96,17 @@ const PostInfo = ({
 
     if (isVal) {
       await updatePostLikes(userId, post?.id, "add");
+
+      if (!socket) return;
+      if (socket && socket.connected) {
+        socket.emit("notification", {
+          recivers: [post?.userId],
+          text: `${username ? username : "Someone"} liked your post.`,
+        });
+      } else {
+        console.log("socket not connected");
+      }
+
       fetchUpdatedPost();
     } else {
       await updatePostLikes(userId, post?.id, "remove");
@@ -99,6 +125,17 @@ const PostInfo = ({
         .then((data) => {
           if (data?.success) {
             setComment("");
+            if (!socket) return;
+            if (socket && socket.connected) {
+              socket.emit("notification", {
+                recivers: [post?.userId],
+                text: `${
+                  username ? username : "Someone"
+                } commented on your post.`,
+              });
+            } else {
+              console.log("socket not connected");
+            }
             fetchUpdatedPost();
             router.refresh();
           }
@@ -117,7 +154,6 @@ const PostInfo = ({
         .then((data) => {
           if (data?.success) {
             setReplay("");
-            setOpen(false);
             fetchUpdatedPost();
             router.refresh();
           }
@@ -146,7 +182,7 @@ const PostInfo = ({
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between space-x-5 my-4 px-3 md:px-0">
+      <div className="flex items-center justify-between my-2 px-3 md:px-0">
         <div className="flex items-center space-x-1 md:space-x-4">
           <div className="flex items-center space-x-1">
             <div className="flex items-center space-x-1">
@@ -216,19 +252,17 @@ const PostInfo = ({
                               <p className="text-xs opacity-65">
                                 {getRelativeTime(new Date(comment?.createdAt))}
                               </p>
-                              <p className="text-sm opacity-65 cursor-pointer">
-                                <Dialog open={open} onOpenChange={setOpen}>
-                                  <DialogTrigger asChild>
-                                    <button className="text-xs">Reply</button>
-                                  </DialogTrigger>
-
-                                  <DialogContent className="sm:max-w-[425px]">
-                                    <DialogHeader>
-                                      <DialogTitle>Replay</DialogTitle>
-                                    </DialogHeader>
-
-                                    <div>
-                                      <div className="flex justify-between w-full">
+                              <div className="text-sm opacity-65 cursor-pointer">
+                                <AlertDialog>
+                                  <AlertDialogTrigger className="text-xs">
+                                    Reply
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>
+                                        reply to {comment?.user?.username}
+                                      </AlertDialogTitle>
+                                      <AlertDialogDescription>
                                         <input
                                           type="text"
                                           className="w-full px-4 py-3 placeholder:text-sm outline-none border-none"
@@ -238,30 +272,34 @@ const PostInfo = ({
                                           }
                                           value={replay}
                                         />{" "}
-                                        <button
-                                          className="flex px-3 items-center text-blue-500"
-                                          disabled={isPending}
-                                          onClick={() =>
-                                            handleReplaySubmit(comment.id)
-                                          }
-                                        >
-                                          {isPending ? (
-                                            <span
-                                              className={`justify-center items-center ${
-                                                isPending ? "flex" : "hidden"
-                                              }`}
-                                            >
-                                              <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
-                                            </span>
-                                          ) : (
-                                            <span>Reply</span>
-                                          )}
-                                        </button>
-                                      </div>
-                                    </div>
-                                  </DialogContent>
-                                </Dialog>
-                              </p>
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>
+                                        Cancel
+                                      </AlertDialogCancel>
+                                      <AlertDialogAction
+                                        disabled={isPending}
+                                        onClick={() =>
+                                          handleReplaySubmit(comment.id)
+                                        }
+                                      >
+                                        {isPending ? (
+                                          <span
+                                            className={`justify-center items-center ${
+                                              isPending ? "flex" : "hidden"
+                                            }`}
+                                          >
+                                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
+                                          </span>
+                                        ) : (
+                                          <span>Reply</span>
+                                        )}
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
 
                               {userId === comment?.userId && (
                                 <p className="text-sm opacity-65 cursor-pointer">
@@ -420,19 +458,17 @@ const PostInfo = ({
                               <p className="text-xs opacity-65">
                                 {getRelativeTime(new Date(comment?.createdAt))}
                               </p>
-                              <p className="text-sm opacity-65 cursor-pointer">
-                                <Dialog open={open} onOpenChange={setOpen}>
-                                  <DialogTrigger asChild>
-                                    <button className="text-xs">Reply</button>
-                                  </DialogTrigger>
-
-                                  <DialogContent className="sm:max-w-[425px]">
-                                    <DialogHeader>
-                                      <DialogTitle>Replay</DialogTitle>
-                                    </DialogHeader>
-
-                                    <div>
-                                      <div className="flex justify-between w-full">
+                              <div className="text-sm opacity-65 cursor-pointer">
+                                <AlertDialog>
+                                  <AlertDialogTrigger className="text-xs">
+                                    Reply
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>
+                                        reply to {comment?.user?.username}
+                                      </AlertDialogTitle>
+                                      <AlertDialogDescription>
                                         <input
                                           type="text"
                                           className="w-full px-4 py-3 placeholder:text-sm outline-none border-none"
@@ -442,30 +478,34 @@ const PostInfo = ({
                                           }
                                           value={replay}
                                         />{" "}
-                                        <button
-                                          className="flex px-3 items-center text-blue-500"
-                                          disabled={isPending}
-                                          onClick={() =>
-                                            handleReplaySubmit(comment.id)
-                                          }
-                                        >
-                                          {isPending ? (
-                                            <span
-                                              className={`justify-center items-center ${
-                                                isPending ? "flex" : "hidden"
-                                              }`}
-                                            >
-                                              <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
-                                            </span>
-                                          ) : (
-                                            <span>Reply</span>
-                                          )}
-                                        </button>
-                                      </div>
-                                    </div>
-                                  </DialogContent>
-                                </Dialog>
-                              </p>
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>
+                                        Cancel
+                                      </AlertDialogCancel>
+                                      <AlertDialogAction
+                                        disabled={isPending}
+                                        onClick={() =>
+                                          handleReplaySubmit(comment.id)
+                                        }
+                                      >
+                                        {isPending ? (
+                                          <span
+                                            className={`justify-center items-center ${
+                                              isPending ? "flex" : "hidden"
+                                            }`}
+                                          >
+                                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
+                                          </span>
+                                        ) : (
+                                          <span>Reply</span>
+                                        )}
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
 
                               {userId === comment?.userId && (
                                 <p className="text-sm opacity-65 cursor-pointer">
@@ -597,7 +637,7 @@ const PostInfo = ({
       )}
 
       {postData?.likesCount > 0 && (
-        <div className="mb-1 hidden md:block">
+        <div className="hidden md:block">
           <Dialog>
             <DialogTrigger asChild>
               <p className="px-3 md:px-0 cursor-pointer font-semibold opacity-80">
@@ -659,10 +699,10 @@ const PostInfo = ({
       )}
 
       {postData?.likesCount > 0 && (
-        <div className="my-1 md:hidden">
+        <div className="md:hidden">
           <Drawer>
             <DrawerTrigger>
-              <p className="px-3 md:px-0 cursor-pointer font-semibold opacity-80 my-2 text-lg">
+              <p className="px-3 md:px-0 cursor-pointer font-semibold opacity-80 text-lg">
                 {postData?.likesCount} likes
               </p>
             </DrawerTrigger>
@@ -728,7 +768,7 @@ const PostInfo = ({
       )}
 
       {postData?.commentsCount > 0 && (
-        <div className="hidden md:block mt-2">
+        <div className="hidden md:block mt-1">
           <Dialog>
             <DialogTrigger asChild>
               <p className="cursor-pointer opacity-70">
@@ -777,19 +817,17 @@ const PostInfo = ({
                           <p className="text-xs opacity-65">
                             {getRelativeTime(new Date(comment?.createdAt))}
                           </p>
-                          <p className="text-sm opacity-65 cursor-pointer">
-                            <Dialog open={open} onOpenChange={setOpen}>
-                              <DialogTrigger asChild>
-                                <button className="text-xs">Reply</button>
-                              </DialogTrigger>
-
-                              <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                  <DialogTitle>Replay</DialogTitle>
-                                </DialogHeader>
-
-                                <div>
-                                  <div className="flex justify-between w-full">
+                          <div className="text-sm opacity-65 cursor-pointer">
+                            <AlertDialog>
+                              <AlertDialogTrigger className="text-xs">
+                                Reply
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    reply to {comment?.user?.username}
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
                                     <input
                                       type="text"
                                       className="w-full px-4 py-3 placeholder:text-sm outline-none border-none"
@@ -799,30 +837,32 @@ const PostInfo = ({
                                       }
                                       value={replay}
                                     />{" "}
-                                    <button
-                                      className="flex px-3 items-center text-blue-500"
-                                      disabled={isPending}
-                                      onClick={() =>
-                                        handleReplaySubmit(comment.id)
-                                      }
-                                    >
-                                      {isPending ? (
-                                        <span
-                                          className={`justify-center items-center ${
-                                            isPending ? "flex" : "hidden"
-                                          }`}
-                                        >
-                                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
-                                        </span>
-                                      ) : (
-                                        <span>Reply</span>
-                                      )}
-                                    </button>
-                                  </div>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                          </p>
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    disabled={isPending}
+                                    onClick={() =>
+                                      handleReplaySubmit(comment.id)
+                                    }
+                                  >
+                                    {isPending ? (
+                                      <span
+                                        className={`justify-center items-center ${
+                                          isPending ? "flex" : "hidden"
+                                        }`}
+                                      >
+                                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
+                                      </span>
+                                    ) : (
+                                      <span>Reply</span>
+                                    )}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
 
                           {userId === comment?.userId && (
                             <p className="text-sm opacity-65 cursor-pointer">
@@ -932,7 +972,7 @@ const PostInfo = ({
       )}
 
       {postData?.commentsCount > 0 && (
-        <div className="px-3 md:px-0 md:hidden flex items-center mt-2">
+        <div className="px-3 md:px-0 md:hidden flex items-center mt-1">
           <Drawer>
             <DrawerTrigger>
               <p className="cursor-pointer opacity-70">
@@ -979,19 +1019,17 @@ const PostInfo = ({
                           <p className="text-xs opacity-65">
                             {getRelativeTime(new Date(comment?.createdAt))}
                           </p>
-                          <p className="text-sm opacity-65 cursor-pointer">
-                            <Dialog open={open} onOpenChange={setOpen}>
-                              <DialogTrigger asChild>
-                                <button className="text-xs">Reply</button>
-                              </DialogTrigger>
-
-                              <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                  <DialogTitle>Replay</DialogTitle>
-                                </DialogHeader>
-
-                                <div>
-                                  <div className="flex justify-between w-full">
+                          <div className="text-sm opacity-65 cursor-pointer">
+                            <AlertDialog>
+                              <AlertDialogTrigger className="text-xs">
+                                Reply
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    reply to {comment?.user?.username}
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
                                     <input
                                       type="text"
                                       className="w-full px-4 py-3 placeholder:text-sm outline-none border-none"
@@ -1001,30 +1039,32 @@ const PostInfo = ({
                                       }
                                       value={replay}
                                     />{" "}
-                                    <button
-                                      className="flex px-3 items-center text-blue-500"
-                                      disabled={isPending}
-                                      onClick={() =>
-                                        handleReplaySubmit(comment.id)
-                                      }
-                                    >
-                                      {isPending ? (
-                                        <span
-                                          className={`justify-center items-center ${
-                                            isPending ? "flex" : "hidden"
-                                          }`}
-                                        >
-                                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
-                                        </span>
-                                      ) : (
-                                        <span>Reply</span>
-                                      )}
-                                    </button>
-                                  </div>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                          </p>
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    disabled={isPending}
+                                    onClick={() =>
+                                      handleReplaySubmit(comment.id)
+                                    }
+                                  >
+                                    {isPending ? (
+                                      <span
+                                        className={`justify-center items-center ${
+                                          isPending ? "flex" : "hidden"
+                                        }`}
+                                      >
+                                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
+                                      </span>
+                                    ) : (
+                                      <span>Reply</span>
+                                    )}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
 
                           {userId === comment?.userId && (
                             <p className="text-sm opacity-65 cursor-pointer">

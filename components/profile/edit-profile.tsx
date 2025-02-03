@@ -221,14 +221,17 @@ const EditProfile = ({
                   <FormSuccess message={success} />
 
                   <Button type="submit" className="w-full flex gap-2">
-                    <span
-                      className={`justify-center items-center ${
-                        isPending ? "flex" : "hidden"
-                      }`}
-                    >
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
-                    </span>
-                    Save
+                    {isPending ? (
+                      <span
+                        className={`justify-center items-center ${
+                          isPending ? "flex" : "hidden"
+                        }`}
+                      >
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
+                      </span>
+                    ) : (
+                      <span>Save</span>
+                    )}
                   </Button>
                 </form>
               </Form>
@@ -309,14 +312,17 @@ const EditProfile = ({
                     <FormSuccess message={passwordSuccess} />
 
                     <Button type="submit" className="w-full flex gap-2">
-                      <span
-                        className={`justify-center items-center ${
-                          isPending ? "flex" : "hidden"
-                        }`}
-                      >
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
-                      </span>
-                      Change Password
+                      {isPending ? (
+                        <span
+                          className={`justify-center items-center ${
+                            isPending ? "flex" : "hidden"
+                          }`}
+                        >
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
+                        </span>
+                      ) : (
+                        <span>Change Password</span>
+                      )}
                     </Button>
                   </form>
                 </Form>

@@ -4,16 +4,46 @@ import { PostFormInterface } from "@/types/types";
 import { revalidatePath } from "next/cache";
 import { deleteImageCloudinary } from "./delete.image.actions";
 import { prisma } from "@/lib/prisma";
+import { createNotification, deleteNotification } from "./notification.actions";
 
 export const createPost = async (post: PostFormInterface) => {
   try {
-    await prisma.post.create({
+    const postOwnerFollowers = await prisma.follower.findMany({
+      where: {
+        followingId: post?.userId as string,
+      },
+      include: {
+        follower: {
+          select: {
+            id: true,
+          },
+        }, // Include details about the follower
+      },
+    });
+
+    const newPost = await prisma.post.create({
       data: {
         userId: post.userId as string,
         caption: post.caption as string,
         images: post.images,
       },
     });
+
+    if (postOwnerFollowers.length > 0) {
+      postOwnerFollowers.forEach(async (follower) => {
+        const data = {
+          userId: post?.userId as string,
+          recipientId: follower?.follower.id as string,
+          postId: newPost?.id as string,
+          postImage: newPost?.images[0].url as string,
+          text: "shared a post.",
+          isSeen: false,
+          type: "POST",
+        };
+        await createNotification(data);
+      });
+    }
+
     await prisma.user.update({
       where: {
         id: post.userId as string,
@@ -62,6 +92,25 @@ export const updatePostLikes = async (
         },
       });
 
+      const newPost = await prisma.post.findUnique({
+        where: {
+          id: postId as string,
+        },
+      });
+
+      if (userId !== newPost?.userId) {
+        const data = {
+          userId: userId as string,
+          recipientId: newPost?.userId as string,
+          postId: newPost?.id as string,
+          postImage: newPost?.images[0].url as string,
+          text: "liked your post.",
+          isSeen: false,
+          type: "LIKE",
+        };
+        await createNotification(data);
+      }
+
       await prisma.post.update({
         where: {
           id: postId as string,
@@ -81,6 +130,21 @@ export const updatePostLikes = async (
           userId: userId as string,
         },
       });
+      const newPost = await prisma.post.findUnique({
+        where: {
+          id: postId as string,
+        },
+      });
+
+      if (userId !== newPost?.userId) {
+        await deleteNotification(
+          userId as string,
+          newPost?.userId as string,
+          "LIKE",
+          newPost?.id as string
+        );
+      }
+
       await prisma.post.update({
         where: {
           id: postId as string,
@@ -115,6 +179,22 @@ export const addPostComment = async (
       },
     });
 
+    // create notification for post owner
+    const post = await getPostById(postId as string);
+
+    if (userId !== post?.userId) {
+      const data = {
+        userId: userId as string,
+        recipientId: post?.userId as string,
+        postId: post?.id as string,
+        postImage: post?.images[0].url as string,
+        text: "commented on your post.",
+        isSeen: false,
+        type: "COMMENT",
+      };
+      await createNotification(data);
+    }
+
     await prisma.post.update({
       where: {
         id: postId as string,
@@ -146,7 +226,30 @@ export const replayComment = async (
         post: { connect: { id: postId } },
       },
     });
-    return { success: "Replay added successfully" };
+
+    // create notification for post owner
+    const post = await getPostById(postId as string);
+    const comment = await prisma.comment.findUnique({
+      where: { id: parentCommentId },
+    });
+    console.log("parent comment text ---", comment?.text);
+    if (userId !== comment?.userId) {
+      const data = {
+        userId: userId as string,
+        recipientId: comment?.userId as string,
+        postId: post?.id as string,
+        postImage: post?.images[0].url as string,
+        text: "replied on your comment.",
+        isSeen: false,
+        type: "COMMENT",
+      };
+      await createNotification(data);
+    }
+
+    return {
+      success: "Replay added successfully",
+      commentUserId: comment?.userId,
+    };
   } catch (error) {
     console.log(error);
   }
@@ -154,6 +257,19 @@ export const replayComment = async (
 
 export const deleteComment = async (id: string, postId: string) => {
   try {
+    const comment = await prisma.comment.findUnique({
+      where: {
+        id: id as string,
+      },
+      include: {
+        post: {
+          select: {
+            userId: true,
+          },
+        },
+      },
+    });
+
     await prisma.comment.deleteMany({
       where: {
         parentId: id, // Find all replies linked to the parent comment
@@ -166,6 +282,16 @@ export const deleteComment = async (id: string, postId: string) => {
         id: id, // Delete the parent comment
       },
     });
+
+    if (comment?.userId !== comment?.post?.userId) {
+      // delete notification aswell
+      await deleteNotification(
+        comment?.userId as string,
+        comment?.post?.userId as string,
+        "COMMENT",
+        comment?.postId as string
+      );
+    }
 
     await prisma.post.update({
       where: {
@@ -187,7 +313,7 @@ export const deleteComment = async (id: string, postId: string) => {
 export const deletePost = async (id: string, userId: string) => {
   try {
     // delete images from cloudinary before deleting post
-    const images = await prisma.post.findUnique({
+    const post = await prisma.post.findUnique({
       where: {
         id: id as string,
       },
@@ -196,9 +322,33 @@ export const deletePost = async (id: string, userId: string) => {
       },
     });
 
-    images?.images?.map(async (image) => {
+    post?.images?.map(async (image) => {
       await deleteImageCloudinary(image.public_id);
     });
+
+    const postOwnerFollowers = await prisma.follower.findMany({
+      where: {
+        followingId: userId as string,
+      },
+      include: {
+        follower: {
+          select: {
+            id: true,
+          },
+        }, // Include details about the follower
+      },
+    });
+
+    if (postOwnerFollowers.length > 0) {
+      postOwnerFollowers.forEach(async (follower) => {
+        await deleteNotification(
+          userId as string,
+          follower?.follower.id as string,
+          "POST",
+          id as string
+        );
+      });
+    }
 
     await prisma.post.delete({
       where: {

@@ -167,10 +167,69 @@ export interface FollowerInterface {
   createdAt: Date;
   follower: UserInfo;
 }
+
 export interface FollowingInterface {
   id: string;
   followerId: string;
   followingId: string;
   createdAt: Date;
   following: UserInfo;
+}
+
+export interface ConversationInterface {
+  id: string;
+  name: string | null;
+  isGroup: boolean;
+  ownerId: string;
+  participants: Participant[];
+  lastMessage: string | null;
+  lastMessageAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type Participant = {
+  userId: string;
+  username: string;
+  image: string;
+};
+
+export interface MessageInterface {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  text: string;
+  seenBy: string[];
+  createdAt: Date;
+  sender: Sender;
+}
+
+type Sender = {
+  id: string;
+  username: string | null;
+  image: string | null;
+};
+
+export interface NotificationFormInterface {
+  userId: string;
+  recipientId: string;
+  postImage?: string | null;
+  postId?: string | null;
+  text: string;
+  isSeen: boolean;
+  type: string;
+}
+
+export interface NotificationInterface {
+  id: string;
+  userId: string;
+  recipientId: string;
+  postImage?: string | null;
+  postId?: string | null;
+  text: string;
+  isSeen: boolean;
+  type: string;
+  expiresAt: Date;
+  createdAt: Date;
+  user: UserInfo;
 }
