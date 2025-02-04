@@ -187,7 +187,7 @@ const PostInfo = ({
   return (
     <div className="w-full">
       <div className="flex items-center justify-between my-2 px-3 md:px-0">
-        <div className="flex items-center space-x-1 md:space-x-4 border">
+        <div className="flex items-center space-x-1 md:space-x-4">
           <div className="flex items-center space-x-1">
             <div className="flex items-center space-x-1">
               <HeartIcon
@@ -753,7 +753,7 @@ const PostInfo = ({
               </Drawer>
             </div>
           </div>
-          <div className="flex items-center space-x-1 border">
+          <div className="flex items-center space-x-1">
             <SharePost />
           </div>
         </div>
