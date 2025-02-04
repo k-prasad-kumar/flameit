@@ -42,7 +42,7 @@ const Saved = ({
     <button onClick={() => handleSaved(!isSaved)}>
       <BookmarkIcon
         strokeWidth={1.5}
-        size={26}
+        size={28}
         fill={isSaved ? "black" : "none"}
         aria-description="Save post"
       />

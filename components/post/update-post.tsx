@@ -62,14 +62,14 @@ const UpdatePost = ({
             height={100}
             sizes="100%"
             loading="lazy"
-            className="w-auto h-[450px] object-cover"
+            className="w-full h-[500px] md:h-[640px] object-cover"
             alt="post"
           />
         </div>
         <textarea
           rows={8}
           placeholder="What's on your mind?"
-          className="border-none outline-none text-sm bg-transparent w-full mt-1"
+          className="border-none outline-none text-sm bg-transparent w-full mt-3"
           onChange={(e) => setText(e.target.value)}
           value={text}
         />

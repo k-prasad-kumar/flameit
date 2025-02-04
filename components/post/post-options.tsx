@@ -82,7 +82,7 @@ const UserPostOptions = ({
         </DropdownMenuTrigger>
         <DropdownMenuContent className="mr-2">
           {userId !== postUserId && (
-            <DropdownMenuItem>
+            <DropdownMenuItem asChild>
               {loading ? (
                 <div>
                   <span className="justify-center items-center">
@@ -113,18 +113,16 @@ const UserPostOptions = ({
             </DropdownMenuItem>
           )}
           <DropdownMenuItem className="hidden lg:block">
-            <div className="cursor-pointer">
-              <div className="flex items-center gap-3">
-                <LinkIcon size={18} strokeWidth={1.5} />
-                <div>
-                  <CopyLinkButton
-                    text={`${process.env.NEXT_PUBLIC_URL}/p/${postId}`}
-                  />{" "}
-                </div>
+            <div className="flex items-center gap-3 cursor-pointer">
+              <LinkIcon size={18} strokeWidth={1.5} />
+              <div>
+                <CopyLinkButton
+                  text={`${process.env.NEXT_PUBLIC_URL}/p/${postId}`}
+                />{" "}
               </div>
             </div>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem asChild>
             <Link href={`/p/${postId}`} className="cursor-pointer">
               <p className="flex items-center gap-3">
                 <ExternalLinkIcon size={18} strokeWidth={1.5} />
@@ -134,7 +132,7 @@ const UserPostOptions = ({
           </DropdownMenuItem>
           {userId === postUserId && (
             <>
-              <DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link
                   href={`/p/${postId}/update`}
                   className="cursor-pointer flex items-center gap-3"
@@ -143,7 +141,7 @@ const UserPostOptions = ({
                   <PencilIcon size={18} strokeWidth={1.5} /> Edit{" "}
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link
                   href={`/p/${postId}/delete`}
                   className="cursor-pointer flex items-center gap-3 text-red-500"

@@ -126,7 +126,6 @@ const ChatPage = ({
       prevScrollTopRef.current > scrollTop && // Check if scrolling upwards
       scrollTop < 100 // Check if near the top
     ) {
-      console.log("Fetching more messages...");
       isFetchingRef.current = true;
 
       setLoading(true);

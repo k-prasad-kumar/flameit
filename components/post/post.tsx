@@ -9,16 +9,19 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-
 import { Separator } from "../ui/separator";
 import Link from "next/link";
-
 import { getRelativeTime } from "@/lib/relative-time";
-import PostOptions from "./post-options";
 import { useEffect, useState } from "react";
 import { getPosts } from "@/lib/actions/post.actions";
 import { PostResponseInterface } from "@/types/types";
-import PostInfo from "./post-info";
+// import PostOptions from "./post-options";
+// import PostInfo from "./post-info";
+
+import dynamic from "next/dynamic";
+
+const DynamicPostOptions = dynamic(() => import("./post-options"));
+const DynamicPostInfo = dynamic(() => import("./post-info"));
 
 const PostsCard = ({
   posts,
@@ -37,8 +40,8 @@ const PostsCard = ({
     setLoading(true);
 
     const posts: PostResponseInterface[] | undefined = await getPosts(
-      page * 10,
-      10
+      page * 5,
+      5
     );
     setPostsData([...postsData, ...posts!]);
     setPage(page + 1);
@@ -62,8 +65,8 @@ const PostsCard = ({
     <div>
       {postsData.length > 0 &&
         postsData.map((post) => (
-          <div className="w-full pb-4 md:pb-5" key={post?.id}>
-            <div className="w-full py-2 md:py-3 px-3 md:px-0 flex justify-between items-center">
+          <div className="w-full" key={post?.id}>
+            <div className="w-full py-2 px-3 md:px-0 flex justify-between items-center">
               <Link
                 href={`/${post?.user?.username}`}
                 className="flex items-center space-x-3"
@@ -78,7 +81,7 @@ const PostsCard = ({
                   <h2 className="font-semibold">{post?.user?.username}</h2>
                 </div>
               </Link>
-              <PostOptions
+              <DynamicPostOptions
                 userId={userId}
                 postUserId={post?.user?.id as string}
                 postId={post?.id}
@@ -116,7 +119,7 @@ const PostsCard = ({
                 </>
               )}
             </Carousel>
-            <PostInfo
+            <DynamicPostInfo
               post={post}
               userId={userId}
               username={username as string}
@@ -124,7 +127,7 @@ const PostsCard = ({
             <p className="opacity-60 text-xs mt-2 px-3 md:px-0">
               {getRelativeTime(post?.createdAt)}
             </p>
-            <Separator className="mt-10 mb-4" />
+            <Separator className="my-5" />
           </div>
         ))}
       {loading && (

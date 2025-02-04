@@ -3,11 +3,14 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import CopyProfileLink from "./share-profile";
 import HandleProfileFollow from "./handle-follow";
-import Followers from "./followers";
-import Following from "./following";
 import { AtSignIcon } from "lucide-react";
 import TruncateBio from "./bio-truncate";
 import AddConversation from "./add-conversation";
+
+import dynamic from "next/dynamic";
+
+const DynamicFollowers = dynamic(() => import("./followers"));
+const DynamicFollowing = dynamic(() => import("./following"));
 
 const ProfileCard = ({
   loginUserId,
@@ -53,7 +56,7 @@ const ProfileCard = ({
                   <span className="font-semibold">{postsCount}</span> posts
                 </p>
                 <div>
-                  <Followers
+                  <DynamicFollowers
                     userId={userId}
                     loginUserId={loginUserId}
                     username={username}
@@ -61,7 +64,7 @@ const ProfileCard = ({
                   />
                 </div>
                 <div>
-                  <Following
+                  <DynamicFollowing
                     userId={userId}
                     loginUserId={loginUserId}
                     username={username}

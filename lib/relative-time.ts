@@ -9,11 +9,11 @@ export function getRelativeTime(createdAt: Date): string {
   const weeks = Math.floor(days / 7);
   const months = Math.floor(days / 30);
 
-  if (minutes < 1) return `${seconds}s ago`;
-  if (hours < 1) return `${minutes}m ago`;
-  if (days < 1) return `${hours}h ago`;
-  if (weeks < 1) return `${days}d ago`;
-  if (months < 1) return `${weeks}w ago`;
+  if (minutes < 1) return `${seconds} seconds ago`;
+  if (hours < 1) return `${minutes} minutes ago`;
+  if (days < 1) return `${hours} hours ago`;
+  if (weeks < 1) return `${days} days ago`;
+  if (months < 1) return `${weeks} weeks ago`;
 
-  return `${months}mo ago`;
+  return `${months} months ago`;
 }

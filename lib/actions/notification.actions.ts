@@ -7,11 +7,15 @@ export const createNotification = async (data: NotificationFormInterface) => {
   try {
     const expiresAt: Date = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
+    // delete after
+    const d: Date = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 32);
 
     await prisma.notification.create({
       data: {
         ...data,
         expiresAt,
+        createdAt: d,
       },
     });
   } catch (error) {
@@ -79,10 +83,9 @@ export const getNotifications = async (userId: string) => {
       },
     });
 
-    const seenNotifications = await prisma.notification.findMany({
+    const notifications = await prisma.notification.findMany({
       where: {
         recipientId: userId,
-        isSeen: true,
       },
       include: {
         user: {
@@ -110,7 +113,7 @@ export const getNotifications = async (userId: string) => {
       });
     });
 
-    return { notSeenNotifications, seenNotifications };
+    return notifications;
   } catch (error) {
     console.log(error);
   }
@@ -127,6 +130,17 @@ export const getNotSeenNotification = async (userId: string) => {
       orderBy: {
         createdAt: "desc",
       },
+    });
+
+    notifications?.forEach(async (notification) => {
+      await prisma.notification.update({
+        where: {
+          id: notification.id,
+        },
+        data: {
+          isSeen: true,
+        },
+      });
     });
 
     return notifications;

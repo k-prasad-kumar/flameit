@@ -17,7 +17,7 @@ export default async function Home() {
 
   if (!user?.username) return null;
 
-  const posts: PostResponseInterface[] | undefined = await getPosts(0, 10);
+  const posts: PostResponseInterface[] | undefined = await getPosts(0, 5);
 
   if (!posts || posts.length === 0) {
     return (

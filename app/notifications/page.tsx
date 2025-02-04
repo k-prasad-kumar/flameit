@@ -9,18 +9,10 @@ const page = async () => {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const notifications = await getNotifications(user?.id as string);
+  const notifications: NotificationInterface[] | undefined =
+    await getNotifications(user?.id as string);
 
-  const notSeenNotifications =
-    notifications?.notSeenNotifications as NotificationInterface[];
-  const seenNotifications =
-    notifications?.seenNotifications as NotificationInterface[];
-
-  if (
-    !notSeenNotifications ||
-    (notSeenNotifications?.length === 0 && !seenNotifications) ||
-    seenNotifications?.length === 0
-  ) {
+  if (!notifications) {
     return (
       <div className="w-full h-screen max-w-screen-sm mx-auto mt-14 md:mt-14">
         <h1 className="text-2xl">Notifications</h1>
@@ -37,10 +29,7 @@ const page = async () => {
   return (
     <div className="w-full max-w-screen-sm mx-auto mt-14 md:mt-10">
       <div className="px-0 md:px-4 lg:px-14 pt-0 md:pt-6">
-        <Notifications
-          notSeenNotifications={notSeenNotifications!}
-          seenNotifications={seenNotifications!}
-        />
+        <Notifications notifications={notifications!} />
       </div>
     </div>
   );

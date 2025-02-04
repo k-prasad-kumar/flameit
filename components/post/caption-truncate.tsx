@@ -20,7 +20,7 @@ const TruncateCaption = ({
 
   if (text.length <= maxLength) {
     return (
-      <p className="break-words">
+      <p className="break-words capitalize-first">
         <Link
           href={`/${username}`}
           className="text-sm font-semibold pr-2 opacity-80"
@@ -40,7 +40,7 @@ const TruncateCaption = ({
       >
         {username}
       </Link>
-      <span className="opacity-80 text-sm break-words">
+      <span className="opacity-80 text-sm break-words capitalize-first">
         {" "}
         {showFull ? text : `${text.slice(0, maxLength)}... `}
       </span>
