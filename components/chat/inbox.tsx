@@ -38,7 +38,7 @@ const InboxPage = ({
   }, []);
 
   return (
-    <div>
+    <div className="w-full">
       <div className="relative mx-4 my-4">
         <SearchIcon
           strokeWidth={1.5}
@@ -57,15 +57,15 @@ const InboxPage = ({
       {conversations?.map((conversation) => (
         <div className="flex flex-col mx-4" key={conversation?.id}>
           {conversation?.participants.map((participant) => (
-            <div key={participant?.userId}>
+            <div key={participant?.userId} className="max-w-full">
               {participant?.userId !== userId && (
                 <Link
                   href={`/inbox/${conversation?.id}`}
                   className="flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2"
                   key={participant?.userId}
                 >
-                  <div className="flex items-center space-x-4 h-fit">
-                    <div className="relative">
+                  <div className="flex items-center space-x-4 h-fit w-full">
+                    <div className="relative w-fit">
                       <ProfileAvatar
                         image={participant?.image as string}
                         alt="profile"
@@ -80,9 +80,9 @@ const InboxPage = ({
                         }`}
                       ></div>
                     </div>
-                    <div>
+                    <div className="w-5/6">
                       <h2 className="truncate">{participant?.username}</h2>
-                      <p className="truncate text-xs">
+                      <p className="truncate text-xs w-full">
                         {conversation?.lastMessage
                           ? conversation?.lastMessage
                           : ""}

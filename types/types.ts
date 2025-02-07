@@ -180,6 +180,7 @@ export interface ConversationInterface {
   id: string;
   name: string | null;
   isGroup: boolean;
+  groupImage: string | null;
   ownerId: string;
   participants: Participant[];
   lastMessage: string | null;
@@ -199,10 +200,27 @@ export interface MessageInterface {
   conversationId: string;
   senderId: string;
   text: string;
+  post: MessagePost | null;
   seenBy: string[];
   createdAt: Date;
+  reactions: Reactions[];
   sender: Sender;
+  parentMessage: MessageInterface | null;
 }
+
+type MessagePost = {
+  postId: string | null;
+  image: string | null;
+  userImage: string | null;
+  username: string | null;
+};
+
+export type Reactions = {
+  userId: string;
+  name: string;
+  image: string;
+  reaction: string;
+};
 
 type Sender = {
   id: string;
@@ -232,4 +250,16 @@ export interface NotificationInterface {
   expiresAt: Date;
   createdAt: Date;
   user: UserInfo;
+}
+export interface NotificationsInterface {
+  id: string;
+  userId: string;
+  recipientId: string;
+  postImage?: string | null;
+  postId?: string | null;
+  text: string;
+  isSeen: boolean;
+  type: string;
+  expiresAt: Date;
+  createdAt: Date;
 }

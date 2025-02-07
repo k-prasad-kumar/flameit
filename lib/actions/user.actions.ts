@@ -188,7 +188,7 @@ export const updateSavedPost = async (
           postId: postId as string,
         },
       });
-      return { success: "Post removed successfully" };
+      return { success: "Post removed from saved successfully" };
     }
   } catch (error) {
     console.log(error);

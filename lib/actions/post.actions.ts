@@ -1,6 +1,6 @@
 "use server";
 
-import { PostFormInterface } from "@/types/types";
+import { Like, PostFormInterface } from "@/types/types";
 import { revalidatePath } from "next/cache";
 import { deleteImageCloudinary } from "./delete.image.actions";
 import { prisma } from "@/lib/prisma";
@@ -84,11 +84,29 @@ export const updatePostLikes = async (
   type: string
 ) => {
   try {
+    let likes: Like[] | null = [];
+
     if (type === "add") {
       await prisma.like.create({
         data: {
           userId: userId as string,
           postId: postId as string,
+        },
+      });
+
+      likes = await prisma.like.findMany({
+        where: {
+          postId: postId as string,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              username: true,
+              image: true,
+            },
+          },
         },
       });
 
@@ -130,6 +148,23 @@ export const updatePostLikes = async (
           userId: userId as string,
         },
       });
+
+      likes = await prisma.like.findMany({
+        where: {
+          postId: postId as string,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              username: true,
+              image: true,
+            },
+          },
+        },
+      });
+
       const newPost = await prisma.post.findUnique({
         where: {
           id: postId as string,
@@ -158,7 +193,7 @@ export const updatePostLikes = async (
     }
 
     revalidatePath("/");
-    return { success: "Post updated successfully" };
+    return likes;
   } catch (error) {
     console.log("error", error);
   }
@@ -529,6 +564,49 @@ export const getPostById = async (id: string) => {
     });
 
     return post;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getPostComments = async (id: string) => {
+  try {
+    const comments = await prisma.comment.findMany({
+      where: {
+        postId: id as string,
+        parentId: null, // Fetch only top-level comments
+      },
+      orderBy: {
+        createdAt: "desc", // Order comments by createdAt in descending order
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            username: true,
+          },
+        },
+        replies: {
+          // Include replies for each comment
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                username: true,
+                image: true, // Include user details for replies
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "asc", // Order replies by creation time
+          },
+        },
+      },
+    });
+    return comments;
   } catch (error) {
     console.log(error);
   }

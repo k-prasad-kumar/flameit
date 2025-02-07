@@ -102,7 +102,9 @@ export const deleteConversation = async (id: string) => {
 export const sendMessage = async (
   conversationId: string,
   senderId: string,
-  text: string
+  text: string,
+  parentMessageId?: string | null,
+  post?: { postId: string; image: string; username: string; userImage: string }
 ) => {
   try {
     if (!conversationId || !senderId || !text) {
@@ -115,17 +117,23 @@ export const sendMessage = async (
         conversationId,
         senderId,
         text,
+        post: post ? post : null,
+        parentMessageId: parentMessageId ? parentMessageId : null,
         seenBy: [senderId], // Message is initially seen by sender
       },
     });
-    const newMessage: MessageInterface | null = await prisma.message.findUnique(
-      {
+    const newMessage: MessageInterface | null =
+      (await prisma.message.findUnique({
         where: { id: message.id },
         include: {
           sender: { select: { id: true, username: true, image: true } },
+          parentMessage: {
+            include: {
+              sender: { select: { id: true, username: true, image: true } },
+            },
+          },
         },
-      }
-    );
+      })) as MessageInterface | null;
     // Update conversation last message
     await prisma.conversation.update({
       where: { id: conversationId },
@@ -133,6 +141,31 @@ export const sendMessage = async (
     });
 
     return { success: "Message sent successfully", newMessage: newMessage };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const replyMessage = async (
+  conversationId: string,
+  senderId: string,
+  text: string,
+  parentMessageId?: string
+) => {
+  try {
+    if (!conversationId || !senderId || !text || !parentMessageId) {
+      return { error: "Invalid message data" };
+    }
+    await prisma.message.create({
+      data: {
+        conversationId,
+        senderId,
+        text,
+        parentMessageId,
+      },
+    });
+
+    return { success: "replied successfully" };
   } catch (error) {
     console.log(error);
   }
@@ -158,10 +191,100 @@ export const markMessageAsSeen = async (messageId: string, userId: string) => {
 
 export const deleteMessage = async (messageId: string) => {
   try {
-    await prisma.message.delete({ where: { id: messageId } });
+    const replies = await prisma.message.findMany({
+      where: { parentMessageId: messageId },
+      select: { id: true },
+    });
+
+    if (!replies) {
+      throw new Error("Message not found");
+    }
+
+    // Recursively delete all replies
+    for (const reply of replies) {
+      await deleteMessage(reply.id);
+    }
+
+    // Delete the parent message
+    await prisma.message.delete({
+      where: { id: messageId },
+    });
+
     return { success: "Message deleted successfully" };
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const updateReaction = async (
+  id: string,
+  userId: string,
+  name: string,
+  image: string,
+  reaction: string
+) => {
+  try {
+    // Fetch current reactions for the message
+    const messageData = await prisma.message.findUnique({
+      where: { id },
+      select: { reactions: true },
+    });
+    if (!messageData) {
+      return { error: "Message not found", updatedReactions: [] };
+    }
+    const currentReactions = messageData.reactions || [];
+    const existingReaction = currentReactions.find((r) => r.userId === userId);
+    let newReactionsArray;
+    if (existingReaction) {
+      if (existingReaction.reaction === reaction) {
+        // If the same reaction is clicked, remove it
+        newReactionsArray = currentReactions.filter((r) => r.userId !== userId);
+        await prisma.message.update({
+          where: { id },
+          data: { reactions: newReactionsArray },
+        });
+        return {
+          success: "Reaction removed successfully",
+          updatedReactions: newReactionsArray,
+        };
+      } else {
+        // Update to a new reaction
+        newReactionsArray = currentReactions.map((r) =>
+          r.userId === userId ? { ...r, reaction, name, image } : r
+        );
+        await prisma.message.update({
+          where: { id },
+          data: { reactions: newReactionsArray },
+        });
+        return {
+          success: "Reaction updated successfully",
+          updatedReactions: newReactionsArray,
+        };
+      }
+    } else {
+      // Add a new reaction
+      await prisma.message.update({
+        where: { id },
+        data: {
+          reactions: {
+            push: { userId, name, image, reaction },
+          },
+        },
+      });
+      // Retrieve the updated reactions array
+      const newMessageData = await prisma.message.findUnique({
+        where: { id },
+        select: { reactions: true },
+      });
+      newReactionsArray = newMessageData?.reactions || [];
+      return {
+        success: "Reaction added successfully",
+        updatedReactions: newReactionsArray,
+      };
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 };
 
@@ -181,16 +304,21 @@ export const getMessages = async (
   cursor: string,
   take: number
 ) => {
-  const messages = await prisma.message.findMany({
+  const messages: MessageInterface[] = (await prisma.message.findMany({
     where: { conversationId },
     include: {
       sender: { select: { id: true, username: true, image: true } },
+      parentMessage: {
+        include: {
+          sender: { select: { id: true, username: true, image: true } },
+        },
+      },
     },
     take: take, // Fetch latest 40 messages
     skip: cursor ? 1 : 0, // Skip the first message if cursor exists
     cursor: cursor ? { id: cursor } : undefined, // Start fetching from the last message in previous batch
     orderBy: { createdAt: "desc" }, // Get newest messages first
-  });
+  })) as MessageInterface[];
 
   return {
     messages,

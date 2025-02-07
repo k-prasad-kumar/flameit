@@ -165,7 +165,7 @@ model Comment {
   createdAt DateTime   @default(now()) // Timestamp of comment creation
   updatedAt DateTime   @updatedAt     // Timestamp of comment update
 
-  @@index([postId]) // Optimize queries for comments on a specific post
+  @@index([postId])   // Optimize queries for comments on a specific post
   @@index([parentId]) // Optimize queries for nested replies
 }
 
@@ -195,12 +195,13 @@ model TaggedPost {
 model Conversation {
   id            String      @id @default(auto()) @map("_id") @db.ObjectId
   name          String?     // Name for group chats, null for private chats
-  isGroup       Boolean     @default(false) // True if it's a group chat
+  isGroup       Boolean     @default(false)
+  groupImage    String?     // True if it's a group chat
   owner         User        @relation(name:"ConversationOwner", fields: [ownerId], references: [id])
   ownerId       String      @db.ObjectId
   participants  Participant[]    // Stores user IDs for all participants
   messages      Message[]
-  lastMessage   String?
+  lastMessage   String?     
   lastMessageAt DateTime    @default(now())
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
@@ -214,15 +215,37 @@ type Participant{
 
 model Message {
   id             String       @id @default(auto()) @map("_id") @db.ObjectId
-  sender         User         @relation(name: "MessageSender", fields: [senderId], references: [id])
+  sender         User         @relation(name: "MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
   senderId       String       @db.ObjectId
   conversationId String       @db.ObjectId
   conversation   Conversation @relation(fields: [conversationId], references: [id])
   text           String       
+  post           MessagePost? 
+  reactions      Reaction[]   
   seenBy         String[]     // Stores user IDs who have seen the message
   createdAt      DateTime     @default(now())
 
+  // 🔥 Self-referencing relation for replies
+  parentMessage   Message?    @relation(name: "MessageReplies", fields: [parentMessageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  parentMessageId String?     @db.ObjectId
+  replies         Message[]   @relation(name: "MessageReplies")
+
   @@index([conversationId])   // Optimizes queries
+  @@index([parentMessageId]) // Optimize queries for nested replies
+}
+
+type Reaction {
+  userId    String
+  name  String
+  image     String  
+  reaction  String
+}
+
+type MessagePost {
+  postId         String?      
+  image          String?
+  userImage      String?
+  username       String?
 }
 
 model Notification {

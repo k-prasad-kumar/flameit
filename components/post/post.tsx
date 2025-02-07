@@ -15,10 +15,9 @@ import { getRelativeTime } from "@/lib/relative-time";
 import { useEffect, useState } from "react";
 import { getPosts } from "@/lib/actions/post.actions";
 import { PostResponseInterface } from "@/types/types";
-// import PostOptions from "./post-options";
-// import PostInfo from "./post-info";
 
 import dynamic from "next/dynamic";
+import TruncateCaption from "./caption-truncate";
 
 const DynamicPostOptions = dynamic(() => import("./post-options"));
 const DynamicPostInfo = dynamic(() => import("./post-info"));
@@ -62,7 +61,7 @@ const PostsCard = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, page]);
   return (
-    <div>
+    <div className="sm:mx-14 md:mx-10 lg:mx-6">
       {postsData.length > 0 &&
         postsData.map((post) => (
           <div className="w-full" key={post?.id}>
@@ -104,7 +103,7 @@ const PostsCard = ({
                             height={100}
                             sizes="100%"
                             loading="lazy"
-                            className="w-full h-[500px] md:h-[640px] object-cover"
+                            className="w-[468px] h-[544px] object-cover"
                             alt="post"
                           />
                         </div>
@@ -120,11 +119,29 @@ const PostsCard = ({
               )}
             </Carousel>
             <DynamicPostInfo
-              post={post}
+              postUserId={post?.user?.id as string}
               userId={userId}
               username={username as string}
+              postUsername={post?.user?.username as string}
+              postUserImage={post?.user?.image as string}
+              postId={post?.id as string}
+              image={post?.images[0].url as string}
+              comments={post?.comments}
+              commentsCount={post?.commentsCount as number}
+              likes={post?.likes}
+              likesCount={post?.likesCount as number}
+              savedBy={post?.savedBy}
             />
-            <p className="opacity-60 text-xs mt-2 px-3 md:px-0">
+
+            {post?.caption && (
+              <div className="px-3 md:px-0 text-sm">
+                <TruncateCaption
+                  username={post?.user?.username as string}
+                  text={post?.caption as string}
+                />
+              </div>
+            )}
+            <p className="opacity-60 text-xs px-3 md:px-0">
               {getRelativeTime(post?.createdAt)}
             </p>
             <Separator className="my-5" />
