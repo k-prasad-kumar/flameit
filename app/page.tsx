@@ -9,7 +9,7 @@ import Link from "next/link";
 import { CameraIcon } from "lucide-react";
 import PostsCard from "@/components/post/post";
 import Footer from "@/components/layout/footer";
-import Head from "next/head";
+// import Head from "next/head";
 
 export default async function Home() {
   const user = await getCurrentUser();
@@ -38,40 +38,35 @@ export default async function Home() {
 
   return (
     <>
-      <Head>
-        <title>FlameIt</title>
-        <meta name="description" content={"A place to share your thoughts"} />
+      {/* <Head>
+        <title>FlameIt.</title>
+        <meta name="description" content="A place to share your thoughts" />
 
-        {/* Open Graph tags */}
-        <meta property="og:title" content={"FlameIt"} />
+        <meta property="og:url" content="https://flameit.vercel.app" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="FlameIt." />
         <meta
           property="og:description"
-          content={"A place to share your thoughts"}
+          content="A place to share your thoughts"
         />
         <meta
           property="og:image"
-          content={
-            "https://res.cloudinary.com/flameit/image/upload/v1739108958/FlameIt_nykv2i.png"
-          }
+          content="https://opengraph.b-cdn.net/production/images/0badbfa3-7dfe-4bd6-bacf-3acfdbe0910e.png?token=tjbvA8rbzoIm-CDyBYda1OJGIOxreBtRd39GZToX-_w&height=630&width=1200&expires=33275109214"
         />
-        <meta property="og:url" content={`${process.env.NEXT_PUBLIC_URL}`} />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="FlameIt" />
 
-        {/* Twitter Card tags */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={"FlameIt"} />
+        <meta property="twitter:domain" content="flameit.vercel.app" />
+        <meta property="twitter:url" content="https://flameit.vercel.app" />
+        <meta name="twitter:title" content="FlameIt." />
         <meta
           name="twitter:description"
-          content={"A place to share your thoughts"}
+          content="A place to share your thoughts"
         />
         <meta
           name="twitter:image"
-          content={
-            "https://res.cloudinary.com/flameit/image/upload/v1739108958/FlameIt_nykv2i.png"
-          }
+          content="https://opengraph.b-cdn.net/production/images/0badbfa3-7dfe-4bd6-bacf-3acfdbe0910e.png?token=tjbvA8rbzoIm-CDyBYda1OJGIOxreBtRd39GZToX-_w&height=630&width=1200&expires=33275109214"
         />
-      </Head>
+      </Head> */}
 
       <Suspense fallback={<Loading />}>
         <div className="w-full max-w-screen-sm mx-auto mt-14 md:mt-10">
