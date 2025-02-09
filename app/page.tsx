@@ -9,7 +9,7 @@ import Link from "next/link";
 import { CameraIcon } from "lucide-react";
 import PostsCard from "@/components/post/post";
 import Footer from "@/components/layout/footer";
-// import Head from "next/head";
+import Head from "next/head";
 
 export default async function Home() {
   const user = await getCurrentUser();
@@ -38,7 +38,7 @@ export default async function Home() {
 
   return (
     <>
-      {/* <Head>
+      <Head>
         <title>FlameIt.</title>
         <meta name="description" content="A place to share your thoughts" />
 
@@ -66,7 +66,7 @@ export default async function Home() {
           name="twitter:image"
           content="https://opengraph.b-cdn.net/production/images/0badbfa3-7dfe-4bd6-bacf-3acfdbe0910e.png?token=tjbvA8rbzoIm-CDyBYda1OJGIOxreBtRd39GZToX-_w&height=630&width=1200&expires=33275109214"
         />
-      </Head> */}
+      </Head>
 
       <Suspense fallback={<Loading />}>
         <div className="w-full max-w-screen-sm mx-auto mt-14 md:mt-10">
