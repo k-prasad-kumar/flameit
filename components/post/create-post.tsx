@@ -126,7 +126,7 @@ const CreatePost = ({
         <div className="flex justify-between items-center mt-2">
           <CldUploadButton
             uploadPreset="flameit-images"
-            options={{ maxFiles: 5 }}
+            options={{ maxFiles: 5, maxFileSize: 1 * 1024 }}
             onSuccess={(result) => {
               setImages((prev) => [
                 ...prev,

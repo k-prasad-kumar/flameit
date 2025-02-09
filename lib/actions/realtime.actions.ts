@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getUserById } from "./user.actions";
 import { MessageInterface } from "@/types/types";
+import { deleteImageCloudinary } from "./delete.image.actions";
 
 export const addConversation = async (
   userId: string,
@@ -102,12 +103,18 @@ export const deleteConversation = async (id: string) => {
 export const sendMessage = async (
   conversationId: string,
   senderId: string,
-  text: string,
+  text?: string | null,
   parentMessageId?: string | null,
-  post?: { postId: string; image: string; username: string; userImage: string }
+  post?: {
+    postId?: string | null;
+    image?: string | null;
+    imagePublicId?: string | null;
+    username?: string | null;
+    userImage?: string | null;
+  } | null
 ) => {
   try {
-    if (!conversationId || !senderId || !text) {
+    if (!conversationId || !senderId) {
       return { error: "Invalid message data" };
     }
 
@@ -137,7 +144,10 @@ export const sendMessage = async (
     // Update conversation last message
     await prisma.conversation.update({
       where: { id: conversationId },
-      data: { lastMessage: text, lastMessageAt: new Date() },
+      data: {
+        lastMessage: text ? text : "You sent an attachment",
+        lastMessageAt: new Date(),
+      },
     });
 
     return { success: "Message sent successfully", newMessage: newMessage };
@@ -205,6 +215,14 @@ export const deleteMessage = async (messageId: string) => {
       await deleteMessage(reply.id);
     }
 
+    const message = await prisma.message.findUnique({
+      where: { id: messageId },
+    });
+
+    if (message?.post?.imagePublicId) {
+      deleteImageCloudinary(message?.post?.imagePublicId);
+    }
+
     // Delete the parent message
     await prisma.message.delete({
       where: { id: messageId },
@@ -224,7 +242,7 @@ export const updateReaction = async (
   reaction: string
 ) => {
   try {
-    // Fetch current reactions for the message
+    // Fetch the current reactions for the message
     const messageData = await prisma.message.findUnique({
       where: { id },
       select: { reactions: true },
@@ -233,6 +251,7 @@ export const updateReaction = async (
       return { error: "Message not found", updatedReactions: [] };
     }
     const currentReactions = messageData.reactions || [];
+    // Find if the current user already reacted
     const existingReaction = currentReactions.find((r) => r.userId === userId);
     let newReactionsArray;
     if (existingReaction) {
@@ -248,7 +267,7 @@ export const updateReaction = async (
           updatedReactions: newReactionsArray,
         };
       } else {
-        // Update to a new reaction
+        // If a different reaction exists, update it (replace the previous reaction)
         newReactionsArray = currentReactions.map((r) =>
           r.userId === userId ? { ...r, reaction, name, image } : r
         );
@@ -262,21 +281,15 @@ export const updateReaction = async (
         };
       }
     } else {
-      // Add a new reaction
+      // If no reaction exists for this user, add the new reaction by building a new array
+      newReactionsArray = [
+        ...currentReactions,
+        { userId, name, image, reaction },
+      ];
       await prisma.message.update({
         where: { id },
-        data: {
-          reactions: {
-            push: { userId, name, image, reaction },
-          },
-        },
+        data: { reactions: newReactionsArray },
       });
-      // Retrieve the updated reactions array
-      const newMessageData = await prisma.message.findUnique({
-        where: { id },
-        select: { reactions: true },
-      });
-      newReactionsArray = newMessageData?.reactions || [];
       return {
         success: "Reaction added successfully",
         updatedReactions: newReactionsArray,

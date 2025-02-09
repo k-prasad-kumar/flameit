@@ -211,16 +211,17 @@ export interface MessageInterface {
 type MessagePost = {
   postId: string | null;
   image: string | null;
+  imagePublicId: string | null;
   userImage: string | null;
   username: string | null;
 };
 
-export type Reactions = {
+export interface Reactions {
   userId: string;
   name: string;
-  image: string;
+  image: string | null;
   reaction: string;
-};
+}
 
 type Sender = {
   id: string;

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { ProfileAvatar } from "@/components/avatar";
@@ -9,21 +8,12 @@ import {
   ImageIcon,
   MessageCircleCodeIcon,
   Phone,
-  ReplyIcon,
   SendIcon,
-  SmileIcon,
   TrashIcon,
   X,
 } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   ConversationInterface,
   MessageInterface,
@@ -41,28 +31,12 @@ import { toast } from "sonner";
 import { useSocket } from "@/context/use.socket";
 import { formatDate } from "@/lib/format-date";
 import Image from "next/image";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
 
-import dynamic from "next/dynamic";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
-import { Separator } from "../ui/separator";
-
-const DynamicEmojiPicker = dynamic(() => import("emoji-picker-react"));
+import ActionButtons from "./action-buttons";
+import MessageReactions from "./reactions";
+import { CldUploadWidget, CloudinaryUploadWidgetInfo } from "next-cloudinary";
+import { Button } from "../ui/button";
+import { deleteImageCloudinary } from "@/lib/actions/delete.image.actions";
 
 const ChatPage = ({
   conversation,
@@ -75,7 +49,7 @@ const ChatPage = ({
   name: string;
   image: string;
 }) => {
-  const [text, setText] = useState<string>("");
+  const [text, setText] = useState<string | null>(null);
   const [reciveMessage, setReciveMessage] = useState<boolean>(false);
   const [messages, setMessages] = useState<MessageInterface[]>();
   const [isPending, startTransition] = useTransition();
@@ -94,6 +68,10 @@ const ChatPage = ({
     username: string;
     userId: string;
   } | null>(null); // Reply state
+  const [uploadImage, setUploadImage] = useState<{
+    url: string;
+    public_id: string;
+  } | null>(null);
 
   const socket = useSocket();
   const router = useRouter();
@@ -135,6 +113,7 @@ const ChatPage = ({
         setHasScrolledInitially(true);
       } // Set the flag after the initial scroll// ✅ Scroll only when messages are available
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
   useEffect(() => {
@@ -241,11 +220,24 @@ const ChatPage = ({
   };
 
   const handleSubmit = (e: React.MouseEvent<HTMLFormElement>) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
 
-    if (!text) return toast.error("Type some message...");
+    if (!text && !uploadImage) return toast.error("Type some message...");
     startTransition(() => {
-      sendMessage(conversation?.id, userId, text, replyTo?.id).then((data) => {
+      sendMessage(
+        conversation?.id,
+        userId,
+        text ? text : null,
+        replyTo?.id,
+        uploadImage
+          ? {
+              image: uploadImage?.url ? (uploadImage?.url as string) : null,
+              imagePublicId: uploadImage?.public_id
+                ? (uploadImage?.public_id as string)
+                : null,
+            }
+          : null
+      ).then((data) => {
         if (data?.success) {
           if (socket && socket.connected) {
             const recieverIds: string[] = [];
@@ -264,16 +256,22 @@ const ChatPage = ({
               ...(prev as MessageInterface[]),
               data?.newMessage as MessageInterface,
             ]);
+            setUploadImage(null);
             setReplyTo(null);
             scrollToBottom();
             setReciveMessage(true);
 
-            setText("");
+            setText(null);
             router.refresh();
           }
         }
       });
     });
+  };
+
+  const removeImage = (id: string) => {
+    deleteImageCloudinary(id);
+    setUploadImage(null);
   };
 
   const handleReact = (id: string, emoji: string) => {
@@ -381,7 +379,7 @@ const ChatPage = ({
         <div
           ref={chatContainerRef}
           onScroll={handleScroll}
-          className="w-full h-[72vh] max-h-[72vh] md:h-[77vh] md:max-h-[77vh] overflow-y-scroll py-2 mt-[45px] mb-[55px]"
+          className="w-full h-[72vh] max-h-[72vh] md:h-[77vh] md:max-h-[77vh] overflow-y-scroll py-2 mt-10"
         >
           <div className="mb-4">
             {loading && (
@@ -404,17 +402,16 @@ const ChatPage = ({
                       className="py-2 w-full flex flex-col overflow-hidden"
                     >
                       {/* Replied message */}
-
                       {message?.parentMessage && (
                         <div
-                          className={`flex flex-col w-full  mb-1 ${
+                          className={`flex flex-col w-full mb-1 pl-12 pr-2 ${
                             message?.senderId !== userId
                               ? "justify-start items-start"
                               : "justify-end items-end"
                           }`}
                         >
                           {message.senderId !== userId && (
-                            <p className="text-sm opacity-70 mb-1">
+                            <p className="text-xs opacity-70 mb-1">
                               {message?.sender?.username} replied to{" "}
                               {userId === message?.parentMessage?.senderId
                                 ? "you"
@@ -425,7 +422,7 @@ const ChatPage = ({
                             </p>
                           )}
                           {message.senderId === userId && (
-                            <p className="text-sm opacity-70 mb-1">
+                            <p className="text-xs opacity-70 mb-1">
                               you replied to{" "}
                               {userId === message?.parentMessage?.senderId
                                 ? "yourself"
@@ -449,20 +446,28 @@ const ChatPage = ({
                               />
                             </Link>
                           ) : (
-                            <div className="flex gap-2 items-center">
-                              {message?.senderId !== userId && (
-                                <div className="w-1 h-8 max-h-full rounded-full bg-gray-300"></div>
-                              )}
-                              <Link
-                                href={`#${message?.parentMessage?.id}`}
-                                className="flex text-sm px-5 py-2 rounded-xl bg-gray-100 dark:bg-gray-600 text-black dark:text-white"
+                            <div className={`flex w-4/5`}>
+                              <div
+                                className={`flex items-center gap-2 w-full ${
+                                  message?.senderId !== userId
+                                    ? "justify-start items-start"
+                                    : "justify-end items-end"
+                                }`}
                               >
-                                {message?.parentMessage?.text.slice(0, 50)}...
-                              </Link>
+                                {message?.senderId !== userId && (
+                                  <div className="w-1 h-full max-h-full rounded-full bg-gray-300"></div>
+                                )}
+                                <Link
+                                  href={`#${message?.parentMessage?.id}`}
+                                  className="flex text-sm px-5 py-2 rounded-xl bg-gray-100 dark:bg-gray-600 text-black dark:text-white"
+                                >
+                                  {message?.parentMessage?.text}
+                                </Link>
 
-                              {message?.senderId === userId && (
-                                <div className="w-1 h-8 max-h-full rounded-full bg-gray-300"></div>
-                              )}
+                                {message?.senderId === userId && (
+                                  <div className="w-1 h-full max-h-full rounded-full bg-gray-300"></div>
+                                )}
+                              </div>
                             </div>
                           )}
                         </div>
@@ -471,10 +476,10 @@ const ChatPage = ({
                       {/* Message without Post */}
                       {!message?.post && (
                         <div
-                          className={`flex w-full items-center ${
+                          className={`flex w-full items-start ${
                             message.senderId !== userId
-                              ? "justify-start"
-                              : "justify-end"
+                              ? "justify-start pl-4"
+                              : "justify-end pr-2"
                           }`}
                         >
                           {message.senderId !== userId && (
@@ -490,507 +495,254 @@ const ChatPage = ({
                               />
                             </Link>
                           )}
-                          <div className="flex gap-2 group">
-                            {message.senderId === userId && (
-                              <div
-                                className={`flex ${
-                                  message.senderId !== userId
-                                    ? "justify-start"
-                                    : "justify-end"
-                                } hidden group-hover:block`}
-                              >
-                                {/* unsend button */}
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button
-                                        asChild
-                                        variant={"link"}
-                                        className="px-2 py-0"
-                                        onClick={() => handleUnsend(message.id)}
-                                        disabled={isPending}
-                                      >
-                                        <span className="hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer">
-                                          <TrashIcon />
-                                        </span>
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>Unsend</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                                {/* reply button */}
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button
-                                        asChild
-                                        variant={"link"}
-                                        className="px-2 py-0"
-                                        onClick={() =>
-                                          setReplyTo({
-                                            id: message.id,
-                                            text: message.text,
-                                            username: message.sender
-                                              ?.username as string,
-                                            userId: message.senderId,
-                                          })
-                                        }
-                                      >
-                                        <span className="hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer">
-                                          <ReplyIcon />
-                                        </span>
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>Reply</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                                {/* react button */}
-                                <HoverCard>
-                                  <HoverCardTrigger>
-                                    <Button
-                                      asChild
-                                      variant={"link"}
-                                      className="px-2 py-0 rounded"
-                                    >
-                                      <span className="hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer rounded px-1">
-                                        <SmileIcon />
-                                      </span>
-                                    </Button>
-                                  </HoverCardTrigger>
-                                  <HoverCardContent>
-                                    The React Framework – created and maintained
-                                    by @vercel.
-                                  </HoverCardContent>
-                                </HoverCard>
-                              </div>
-                            )}
-                            <div>
-                              <div
-                                className={`text-sm px-5 py-2 rounded-xl max-w-3/4 ${
-                                  message.senderId !== userId
-                                    ? "bg-gray-100 dark:bg-gray-600 text-black dark:text-white"
-                                    : "bg-[#3797f0] text-white"
-                                } relative`}
-                                id={`${message.id}`}
-                              >
-                                {message.text}
+
+                          {message.senderId === userId && (
+                            <div className={`w-4/6 flex flex-col items-end`}>
+                              <div className={`w-full flex group justify-end`}>
+                                <div
+                                  className={`hidden group-hover:flex items-center min-w-fit max-w-1/5 relative`}
+                                >
+                                  <ActionButtons
+                                    messageId={message.id}
+                                    messageText={message.text}
+                                    messageSenderId={message.senderId}
+                                    messageUsername={message.sender?.username}
+                                    handleUnsend={handleUnsend}
+                                    handleReact={handleReact}
+                                    setReplyTo={setReplyTo}
+                                    isPending={isPending}
+                                    isUnsended={true}
+                                  />
+                                </div>
+                                <div className="min-w-fit max-w-4/5">
+                                  <div
+                                    className={`text-sm px-4 py-2 rounded-xl w-fit max-w-4/5 ${
+                                      message.senderId !== userId
+                                        ? "bg-gray-100 dark:bg-gray-600 text-black dark:text-white"
+                                        : "bg-[#3797f0] text-white"
+                                    } relative`}
+                                    id={`${message.id}`}
+                                  >
+                                    {message.text}
+                                  </div>
+                                </div>
                               </div>
                               {message.reactions?.length > 0 && (
                                 <div className="bg-gray-100 dark:bg-gray-600 px-1 w-fit rounded-full text-sm">
-                                  <Dialog>
-                                    <DialogTrigger>
-                                      {message?.reactions?.[0]?.reaction}
-                                    </DialogTrigger>
-                                    <DialogContent className="px-0">
-                                      <DialogHeader>
-                                        <DialogTitle className="text-center">
-                                          Reactions
-                                        </DialogTitle>
-                                      </DialogHeader>
-                                      <Separator />
-                                      <div>
-                                        {message.reactions?.map((reaction) => (
-                                          <div key={reaction.userId}>
-                                            {reaction?.userId !== userId ? (
-                                              <div
-                                                key={reaction.userId}
-                                                className="flex items-center justify-between gap-2 w-full px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-800"
-                                              >
-                                                <div className="flex gap-2 items-center">
-                                                  <ProfileAvatar
-                                                    image={
-                                                      reaction.image as string
-                                                    }
-                                                    alt="profile"
-                                                    width="12"
-                                                    height="12"
-                                                  />
-                                                  <div className="space-y-[1px]">
-                                                    <p className="text-sm">
-                                                      {reaction.name}
-                                                    </p>
-                                                  </div>
-                                                </div>
-                                                <p className="text-xl">
-                                                  {reaction.reaction}
-                                                </p>
-                                              </div>
-                                            ) : (
-                                              <div
-                                                key={reaction.userId}
-                                                className="flex items-center justify-between gap-2 cursor-pointer w-full px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-800"
-                                                onClick={() =>
-                                                  handleReact(
-                                                    message.id,
-                                                    reaction.reaction
-                                                  )
-                                                }
-                                              >
-                                                <div className="flex gap-2 items-center">
-                                                  <ProfileAvatar
-                                                    image={
-                                                      reaction.image as string
-                                                    }
-                                                    alt="profile"
-                                                    width="12"
-                                                    height="12"
-                                                  />
-                                                  <div className="space-y-[1px]">
-                                                    <p className="text-sm">
-                                                      {reaction.name}
-                                                    </p>
-                                                    <p className="text-xs opacity-70">
-                                                      Select to remove
-                                                    </p>
-                                                  </div>
-                                                </div>
-                                                <p className="text-xl">
-                                                  {reaction.reaction}
-                                                </p>
-                                              </div>
-                                            )}
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </DialogContent>
-                                  </Dialog>
+                                  <MessageReactions
+                                    reactions={message?.reactions}
+                                    messageId={message.id}
+                                    userId={userId}
+                                    handleReact={handleReact}
+                                  />
                                 </div>
                               )}
                             </div>
+                          )}
+                          {message.senderId !== userId && (
+                            <div
+                              className={`w-4/6 flex flex-col justify-start`}
+                            >
+                              <div className={`w-full flex group`}>
+                                <div className="min-w-fit max-w-4/5">
+                                  <div
+                                    className={`text-sm px-4 py-2 rounded-xl w-fit max-w-4/5 border-black ${
+                                      message.senderId !== userId
+                                        ? "bg-gray-100 dark:bg-gray-600 text-black dark:text-white"
+                                        : "bg-[#3797f0] text-white"
+                                    } relative`}
+                                    id={`${message.id}`}
+                                  >
+                                    {message.text}
+                                  </div>
+                                </div>
 
-                            {message.senderId !== userId && (
-                              <div
-                                className={`flex ${
-                                  message.senderId !== userId
-                                    ? "justify-start"
-                                    : "justify-end"
-                                } hidden group-hover:block`}
-                              >
-                                {/* react button */}
-
-                                <HoverCard>
-                                  <HoverCardTrigger>
-                                    <Button
-                                      asChild
-                                      variant={"link"}
-                                      className="px-2 py-0 rounded"
-                                    >
-                                      <span className="hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer rounded px-1">
-                                        <SmileIcon />
-                                      </span>
-                                    </Button>
-                                  </HoverCardTrigger>
-                                  <HoverCardContent className="w-fit p-0 rounded-full">
-                                    <div className="p-2 border flex gap-2 rounded-full">
-                                      <div
-                                        className="cursor-pointer hover:scale-110 text-3xl"
-                                        onClick={() =>
-                                          handleReact(message?.id, "❤️")
-                                        }
-                                      >
-                                        ❤️
-                                      </div>
-                                      <div
-                                        className="cursor-pointer hover:scale-110 text-3xl"
-                                        onClick={() =>
-                                          handleReact(message?.id, "😂")
-                                        }
-                                      >
-                                        😂
-                                      </div>
-                                      <div
-                                        className="cursor-pointer hover:scale-110 text-3xl"
-                                        onClick={() =>
-                                          handleReact(message?.id, "😮")
-                                        }
-                                      >
-                                        😮
-                                      </div>
-                                      <div
-                                        className="cursor-pointer hover:scale-110 text-3xl"
-                                        onClick={() =>
-                                          handleReact(message?.id, "😢")
-                                        }
-                                      >
-                                        😢
-                                      </div>
-                                      <div
-                                        className="cursor-pointer hover:scale-110 text-3xl"
-                                        onClick={() =>
-                                          handleReact(message?.id, "😡")
-                                        }
-                                      >
-                                        😡
-                                      </div>
-                                      <div
-                                        className="cursor-pointer hover:scale-110 text-3xl"
-                                        onClick={() =>
-                                          handleReact(message?.id, "👍")
-                                        }
-                                      >
-                                        👍
-                                      </div>
-                                    </div>
-                                  </HoverCardContent>
-                                </HoverCard>
-                                {/* reply button */}
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button
-                                        asChild
-                                        variant={"link"}
-                                        className="px-2 py-0"
-                                        onClick={() =>
-                                          setReplyTo({
-                                            id: message.id,
-                                            text: message.text,
-                                            username: message.sender
-                                              ?.username as string,
-                                            userId: message.senderId,
-                                          })
-                                        }
-                                      >
-                                        <span className="hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer">
-                                          <ReplyIcon />
-                                        </span>
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>Reply</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
+                                <div
+                                  className={`hidden group-hover:flex items-center min-w-fit max-w-1/5`}
+                                >
+                                  <ActionButtons
+                                    messageId={message.id}
+                                    messageText={message.text}
+                                    messageSenderId={message.senderId}
+                                    messageUsername={message.sender?.username}
+                                    handleUnsend={handleUnsend}
+                                    handleReact={handleReact}
+                                    setReplyTo={setReplyTo}
+                                    isPending={isPending}
+                                    isUnsended={false}
+                                  />
+                                </div>
                               </div>
-                            )}
-                          </div>
+                              {message.reactions?.length > 0 && (
+                                <div className="bg-gray-100 dark:bg-gray-600 px-1 w-fit rounded-full text-sm">
+                                  <MessageReactions
+                                    reactions={message?.reactions}
+                                    messageId={message.id}
+                                    userId={userId}
+                                    handleReact={handleReact}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       )}
 
                       {/* Message with Post (Receiver Side) */}
                       {message?.post && message.senderId !== userId && (
-                        <div className="w-full flex group">
-                          <div
-                            className="relative w-1/2 bg-black rounded-xl overflow-hidden"
-                            id={`${message.id}`}
-                          >
-                            {/* Post User Info (Top Left) */}
-                            <Link
-                              href={`/${message?.post?.username}`}
-                              className="absolute top-2 left-2 flex items-center gap-2 z-10"
+                        <div className="w-full flex group pl-4">
+                          <div className="w-1/2">
+                            <div
+                              className="relative bg-black rounded-xl overflow-hidden"
+                              id={`${message.id}`}
                             >
-                              <ProfileAvatar
-                                image={message.post?.image as string}
-                                alt="profile"
-                                width="6"
-                                height="6"
-                              />
-                              <p className="text-white text-sm">
-                                {message?.post?.username}
+                              {/* Post User Info (Top Left) */}
+                              {!message?.post?.imagePublicId && (
+                                <Link
+                                  href={`/${message?.post?.username}`}
+                                  className="absolute top-2 left-2 flex items-center gap-2 z-10"
+                                >
+                                  <ProfileAvatar
+                                    image={message.post?.image as string}
+                                    alt="profile"
+                                    width="6"
+                                    height="6"
+                                  />
+                                  <p className="text-white text-sm">
+                                    {message?.post?.username}
+                                  </p>
+                                </Link>
+                              )}
+
+                              {/* Post Image (Dimmed) */}
+                              <Link
+                                href={
+                                  !message?.post?.imagePublicId
+                                    ? `/p/${message?.post?.postId}`
+                                    : "#"
+                                }
+                              >
+                                <Image
+                                  src={message?.post?.image as string}
+                                  alt="post"
+                                  width={100}
+                                  height={100}
+                                  sizes="100%"
+                                  className="w-full h-auto object-cover opacity-90"
+                                />
+                              </Link>
+
+                              {/* Message Text Below Post */}
+                              <p className="text-sm px-5 py-2 text-white bg-black bg-opacity-60 rounded-b-xl">
+                                {message.text}
                               </p>
-                            </Link>
-
-                            {/* Post Image (Dimmed) */}
-                            <Link href={`/p/${message?.post?.postId}`}>
-                              <Image
-                                src={message?.post?.image as string}
-                                alt="post"
-                                width={100}
-                                height={100}
-                                sizes="100%"
-                                className="w-full h-auto object-cover opacity-90"
-                              />
-                            </Link>
-
-                            {/* Message Text Below Post */}
-                            <p className="text-sm px-5 py-2 text-white bg-black bg-opacity-60 rounded-b-xl">
-                              {message.text}
-                            </p>
+                            </div>
+                            {message.reactions?.length > 0 && (
+                              <div className="bg-gray-100 dark:bg-gray-600 px-1 w-fit rounded-full text-sm">
+                                <MessageReactions
+                                  reactions={message?.reactions}
+                                  messageId={message.id}
+                                  userId={userId}
+                                  handleReact={handleReact}
+                                />
+                              </div>
+                            )}
                           </div>
 
                           <div
                             className={`hidden group-hover:flex flex-col min-h-full items-center justify-center`}
                           >
-                            {/* react button */}
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer rounded px-1">
-                                    <Popover>
-                                      <PopoverTrigger>
-                                        <Button
-                                          asChild
-                                          variant={"link"}
-                                          className="px-1 py-0 rounded"
-                                        >
-                                          <SmileIcon />
-                                        </Button>
-                                      </PopoverTrigger>
-                                      <PopoverContent className="w-fit">
-                                        <div>gg</div>
-                                      </PopoverContent>
-                                    </Popover>
-                                  </span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>React</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            {/* reply button */}
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    asChild
-                                    variant={"link"}
-                                    className="px-2 py-0"
-                                    onClick={() =>
-                                      setReplyTo({
-                                        id: message.id,
-                                        text: "Attachment",
-                                        username: message.sender
-                                          ?.username as string,
-                                        userId: message.senderId,
-                                      })
-                                    }
-                                  >
-                                    <span className="hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer">
-                                      <ReplyIcon />
-                                    </span>
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Reply</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <ActionButtons
+                              messageId={message.id}
+                              messageText={message.text}
+                              messageSenderId={message.senderId}
+                              messageUsername={message.sender?.username}
+                              handleUnsend={handleUnsend}
+                              handleReact={handleReact}
+                              setReplyTo={setReplyTo}
+                              isPending={isPending}
+                              isUnsended={false}
+                            />
                           </div>
                         </div>
                       )}
 
                       {/* Message with Post (Sender Side - Right Side) */}
                       {message?.post && message.senderId === userId && (
-                        <div className="w-full flex justify-end group">
+                        <div className="w-full flex justify-end group pr-2">
                           <div
                             className={`hidden group-hover:flex flex-col min-h-full items-center justify-center`}
                           >
-                            {/* react button */}
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer rounded px-1">
-                                    <Popover>
-                                      <PopoverTrigger>
-                                        <Button
-                                          asChild
-                                          variant={"link"}
-                                          className="px-1 py-0 rounded"
-                                        >
-                                          <SmileIcon />
-                                        </Button>
-                                      </PopoverTrigger>
-                                      <PopoverContent className="w-fit">
-                                        <div>gg</div>
-                                      </PopoverContent>
-                                    </Popover>
-                                  </span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>React</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            {/* reply button */}
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    asChild
-                                    variant={"link"}
-                                    className="px-2 py-0"
-                                    onClick={() =>
-                                      setReplyTo({
-                                        id: message.id,
-                                        text: "Attachment",
-                                        username: message.sender
-                                          ?.username as string,
-                                        userId: message.senderId,
-                                      })
-                                    }
-                                  >
-                                    <span className="hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer">
-                                      <ReplyIcon />
-                                    </span>
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Reply</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            {/* unsend button */}
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    asChild
-                                    variant={"link"}
-                                    className="px-2 py-0"
-                                    onClick={() => handleUnsend(message.id)}
-                                    disabled={isPending}
-                                  >
-                                    <span className="hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer">
-                                      <TrashIcon />
-                                    </span>
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Unsend</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <ActionButtons
+                              messageId={message.id}
+                              messageText={message.text}
+                              messageSenderId={message.senderId}
+                              messageUsername={message.sender?.username}
+                              handleUnsend={handleUnsend}
+                              handleReact={handleReact}
+                              setReplyTo={setReplyTo}
+                              isPending={isPending}
+                              isUnsended={true}
+                            />
                           </div>
-                          <div
-                            className="relative w-1/2 bg-black rounded-xl overflow-hidden"
-                            id={`${message.id}`}
-                          >
-                            {/* Post User Info (Top Left) */}
-                            <Link
-                              href={`/${message.post?.username}`}
-                              className="absolute top-2 left-2 flex items-center gap-2 z-10 bg-inherit rounded-full px-2 py-1"
+                          <div className="w-1/2">
+                            <div
+                              className="relative bg-black rounded-xl overflow-hidden"
+                              id={`${message.id}`}
                             >
-                              <ProfileAvatar
-                                image={message.post?.image as string}
-                                alt="profile"
-                                width="6"
-                                height="6"
-                              />
-                              <p className="text-white text-sm truncate">
-                                {message?.post?.username as string}
+                              {/* Post User Info (Top Left) */}
+                              {!message?.post?.imagePublicId && (
+                                <Link
+                                  href={`/${message.post?.username}`}
+                                  className="absolute top-2 left-2 flex items-center gap-2 z-10 bg-inherit rounded-full px-2 py-1"
+                                >
+                                  <ProfileAvatar
+                                    image={message.post?.image as string}
+                                    alt="profile"
+                                    width="6"
+                                    height="6"
+                                  />
+                                  <p className="text-white text-sm truncate">
+                                    {message?.post?.username as string}
+                                  </p>
+                                </Link>
+                              )}
+
+                              {/* Post Image (Dimmed) */}
+                              <Link
+                                href={
+                                  !message?.post?.imagePublicId
+                                    ? `/p/${message?.post?.postId}`
+                                    : "#"
+                                }
+                              >
+                                <Image
+                                  src={message?.post?.image as string}
+                                  alt="post"
+                                  width={100}
+                                  height={100}
+                                  sizes="100%"
+                                  className="w-full h-auto object-cover opacity-90"
+                                />
+                              </Link>
+
+                              {/* Message Text Below Post */}
+                              <p className="text-sm px-5 py-2 text-white bg-black bg-opacity-60 rounded-b-xl">
+                                {message.text}
                               </p>
-                            </Link>
-
-                            {/* Post Image (Dimmed) */}
-                            <Link href={`/p/${message?.post?.postId}`}>
-                              <Image
-                                src={message?.post?.image as string}
-                                alt="post"
-                                width={100}
-                                height={100}
-                                sizes="100%"
-                                className="w-full h-auto object-cover opacity-90"
-                              />
-                            </Link>
-
-                            {/* Message Text Below Post */}
-                            <p className="text-sm px-5 py-2 text-white bg-black bg-opacity-60 rounded-b-xl">
-                              {message.text}
-                            </p>
+                            </div>
+                            <div className="w-full flex justify-end">
+                              {message.reactions?.length > 0 && (
+                                <div className="bg-gray-100 dark:bg-gray-600 px-1 w-fit rounded-full text-sm">
+                                  <MessageReactions
+                                    reactions={message?.reactions}
+                                    messageId={message.id}
+                                    userId={userId}
+                                    handleReact={handleReact}
+                                  />
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       )}
@@ -1038,35 +790,61 @@ const ChatPage = ({
               </div>
             </div>
           )}
+          {uploadImage && (
+            <div className="flex items-center gap-2 w-full justify-center">
+              <div className="relative mb-2 h-[200px]">
+                <Image
+                  src={uploadImage?.url}
+                  alt="post"
+                  width={100}
+                  height={100}
+                  sizes="100%"
+                  className="w-auto h-full object-cover"
+                />
+                <div className="absolute top-0 right-0 z-10">
+                  <Button
+                    type="button"
+                    onClick={() => removeImage(uploadImage?.public_id)}
+                    size="sm"
+                    className="bg-red-500 p-2"
+                  >
+                    <TrashIcon />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center gap-2 w-full">
             <Input
               type="text"
               placeholder="Message..."
               onChange={handleOnChange}
-              value={text}
+              value={text ? text : ""}
             />
 
-            <Popover>
-              <PopoverTrigger className="border p-1">
-                <SmileIcon size={24} strokeWidth={1.5} />
-              </PopoverTrigger>
-              <PopoverContent className="w-fit">
-                <DynamicEmojiPicker
-                  reactionsDefaultOpen={true}
-                  onEmojiClick={(emoji) =>
-                    setText((prev) => prev + emoji.emoji)
-                  }
-                />
-              </PopoverContent>
-            </Popover>
-            <div className="p-1 border">
-              <ImageIcon size={24} strokeWidth={1.5} />
+            <div className={`p-1 ${uploadImage ? "hidden" : "block"}`}>
+              <CldUploadWidget
+                uploadPreset="flameit-messages"
+                options={{ multiple: false, maxFiles: 1 }}
+                onSuccess={(result) => {
+                  setUploadImage({
+                    url: (result.info as CloudinaryUploadWidgetInfo).secure_url,
+                    public_id: (result.info as CloudinaryUploadWidgetInfo)
+                      .public_id,
+                  });
+                }}
+              >
+                {({ open }) => {
+                  return (
+                    <div className="cursor-pointer" onClick={() => open()}>
+                      <ImageIcon size={24} strokeWidth={1.5} />
+                    </div>
+                  );
+                }}
+              </CldUploadWidget>
             </div>
-            <button
-              type="submit"
-              disabled={isPending}
-              className="px-1 py-1 border"
-            >
+            <button type="submit" disabled={isPending} className="px-1 py-1">
               {isPending ? (
                 <span
                   className={`justify-center items-center ${

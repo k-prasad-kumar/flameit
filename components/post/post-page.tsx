@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { ProfileAvatar } from "../avatar";
 import {
@@ -7,22 +9,19 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-
 import { Separator } from "../ui/separator";
 import Link from "next/link";
-
 import { getRelativeTime } from "@/lib/relative-time";
 import { PostResponseInterface } from "@/types/types";
 import { Suspense } from "react";
 import PostSkeleton from "../skeletons/post-skeleton";
 import UserPostOptions from "./post-options";
-// import PostInfo from "./post-info";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 
 const DynamicPostInfo = dynamic(() => import("./post-info"));
 
-const PostsCard = async ({
+const PostsCard = ({
   post,
   userId,
   username,
@@ -31,103 +30,104 @@ const PostsCard = async ({
   userId: string;
   username: string;
 }) => {
-  <Head>
-    <meta property="og:title" content={post?.user?.username as string} />
-    <meta property="og:description" content={post?.caption as string} />
-    <meta property="og:image" content={post?.images[0].url} />
-    <meta
-      property="og:url"
-      content={`https://flameit.vercel.app/p/${post?.id}`}
-    />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="YourSiteName" />
-
-    {/* Optional: For better SEO */}
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={post?.user?.username as string} />
-    <meta name="twitter:description" content={post?.caption as string} />
-    <meta name="twitter:image" content={post?.images[0].url} />
-  </Head>;
-
   return (
-    <Suspense fallback={<PostSkeleton />}>
-      <div className="sm:mx-14 md:mx-10 lg:mx-6">
-        <div className="w-full pb-4 md:pb-5" key={post?.id}>
-          <div className="w-full py-2 md:py-3 px-3 md:px-0 flex justify-between items-center">
-            <Link
-              href={`/${post?.user?.username}`}
-              className="flex items-center space-x-3"
-            >
-              <ProfileAvatar
-                image={post?.user?.image as string}
-                alt="profile"
-                width="10"
-                height="10"
-              />
-              <div className="flex flex-col">
-                <h2 className="font-semibold">{post?.user?.username}</h2>
-              </div>
-            </Link>
-            <UserPostOptions
-              userId={userId}
-              postUserId={post?.user?.id as string}
-              postId={post?.id}
-            />
-          </div>
-          <Carousel
-            className={` w-full h-full max-w-full ${
-              post.images.length > 0 ? "flex" : "hidden"
-            } justify-center shadow items-center relative border`}
-          >
-            <CarouselContent>
-              {post?.images?.length > 0 &&
-                post?.images?.map(
-                  (image: { url: string; public_id: string }) => (
-                    <CarouselItem key={image.public_id}>
-                      <div className="flex aspect-square items-center justify-center">
-                        <Image
-                          src={`${image.url}`}
-                          width={100}
-                          height={100}
-                          sizes="100%"
-                          loading="lazy"
-                          className="w-[468px] h-[544px] object-cover"
-                          alt="post"
-                        />
-                      </div>
-                    </CarouselItem>
-                  )
-                )}
-            </CarouselContent>
-            {post?.images?.length > 1 && (
-              <>
-                <CarouselPrevious className="hidden md:flex absolute bottom-[50%] left-3" />
-                <CarouselNext className="hidden md:flex absolute bottom-[50%] right-2" />
-              </>
-            )}
-          </Carousel>
-          <DynamicPostInfo
-            postUserId={post?.user?.id as string}
-            userId={userId}
-            username={username as string}
-            postUsername={post?.user?.username as string}
-            postUserImage={post?.user?.image as string}
-            postId={post?.id as string}
-            image={post?.images[0].url as string}
-            comments={post?.comments}
-            commentsCount={post?.commentsCount as number}
-            likes={post?.likes}
-            likesCount={post?.likesCount as number}
-            savedBy={post?.savedBy}
-          />
+    <>
+      <Head>
+        <meta property="og:title" content={post?.user?.username as string} />
+        <meta property="og:description" content={post?.caption as string} />
+        <meta property="og:image" content={post?.images[0].url} />
+        <meta
+          property="og:url"
+          content={`https://flameit.vercel.app/p/${post?.id}`}
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="FlameIt" />
 
-          <p className="opacity-60 text-xs mt-2 px-3 md:px-0">
-            {getRelativeTime(post?.createdAt)}
-          </p>
-          <Separator className="mt-10 mb-4" />
+        {/* Optional: For better SEO */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={post?.user?.username as string} />
+        <meta name="twitter:description" content={post?.caption as string} />
+        <meta name="twitter:image" content={post?.images[0].url} />
+      </Head>
+      <Suspense fallback={<PostSkeleton />}>
+        <div className="sm:mx-14 md:mx-10 lg:mx-6">
+          <div className="w-full pb-4 md:pb-5" key={post?.id}>
+            <div className="w-full py-2 md:py-3 px-3 md:px-0 flex justify-between items-center">
+              <Link
+                href={`/${post?.user?.username}`}
+                className="flex items-center space-x-3"
+              >
+                <ProfileAvatar
+                  image={post?.user?.image as string}
+                  alt="profile"
+                  width="10"
+                  height="10"
+                />
+                <div className="flex flex-col">
+                  <h2 className="font-semibold">{post?.user?.username}</h2>
+                </div>
+              </Link>
+              <UserPostOptions
+                userId={userId}
+                postUserId={post?.user?.id as string}
+                postId={post?.id}
+              />
+            </div>
+            <Carousel
+              className={`w-full h-full max-w-full ${
+                post.images.length > 0 ? "flex" : "hidden"
+              } justify-center shadow items-center relative border`}
+            >
+              <CarouselContent>
+                {post?.images?.length > 0 &&
+                  post?.images?.map(
+                    (image: { url: string; public_id: string }) => (
+                      <CarouselItem key={image.public_id}>
+                        <div className="flex aspect-square items-center justify-center">
+                          <Image
+                            src={image.url}
+                            width={100}
+                            height={100}
+                            sizes="100%"
+                            loading="lazy"
+                            className="w-[468px] h-[544px] object-cover"
+                            alt="post"
+                          />
+                        </div>
+                      </CarouselItem>
+                    )
+                  )}
+              </CarouselContent>
+              {post?.images?.length > 1 && (
+                <>
+                  <CarouselPrevious className="hidden md:flex absolute bottom-[50%] left-3" />
+                  <CarouselNext className="hidden md:flex absolute bottom-[50%] right-2" />
+                </>
+              )}
+            </Carousel>
+            <DynamicPostInfo
+              postUserId={post?.user?.id as string}
+              userId={userId}
+              username={username as string}
+              postUsername={post?.user?.username as string}
+              postUserImage={post?.user?.image as string}
+              postId={post?.id as string}
+              image={post?.images[0].url as string}
+              comments={post?.comments}
+              commentsCount={post?.commentsCount as number}
+              likes={post?.likes}
+              likesCount={post?.likesCount as number}
+              savedBy={post?.savedBy}
+            />
+
+            <p className="opacity-60 text-xs mt-2 px-3 md:px-0">
+              {getRelativeTime(post?.createdAt)}
+            </p>
+            <Separator className="mt-10 mb-4" />
+          </div>
         </div>
-      </div>
-    </Suspense>
+      </Suspense>
+    </>
   );
 };
 
