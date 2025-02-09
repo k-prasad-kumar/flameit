@@ -49,7 +49,7 @@ const PostInfo = ({
               userId={userId}
             />
           </div>
-          <div className="flex items-center space-x-1 ">
+          <div className="flex items-center space-x-1">
             <DynamicPostComment
               postCommentsCount={commentsCount}
               postComments={comments}
@@ -59,7 +59,7 @@ const PostInfo = ({
               userId={userId}
             />
           </div>
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-1 mt-2">
             <SharePost
               postId={postId}
               postUsername={postUsername}

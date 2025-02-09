@@ -149,13 +149,15 @@ const PostComment = ({
       <div className="hidden md:block">
         <Dialog>
           <DialogTrigger asChild>
-            <p className="cursor-pointer flex items-center gap-1 font-semibold">
+            <p className="cursor-pointer flex items-center gap-1">
               <MessageCircle
                 strokeWidth={1.5}
                 size={30}
                 aria-description="comment post"
               />
-              <span>{commentsCount !== 0 && formatLikes(commentsCount)}</span>
+              <span className="text-lg">
+                {commentsCount !== 0 && formatLikes(commentsCount)}
+              </span>
             </p>
           </DialogTrigger>
           <DialogContent className="w-full sm:max-w-[500px]">
@@ -358,7 +360,7 @@ const PostComment = ({
                 size={30}
                 aria-description="comment post"
               />
-              <span className="">
+              <span className="text-lg font-semibold">
                 {commentsCount !== 0 && formatLikes(commentsCount)}
               </span>
             </p>

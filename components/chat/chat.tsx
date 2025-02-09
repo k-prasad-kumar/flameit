@@ -333,7 +333,33 @@ const ChatPage = ({
           </Link>
 
           {conversation?.isGroup ? (
-            <div></div>
+            <div className="flex items-center space-x-3">
+              <div className="relative w-fit mb-3">
+                <div className="border-2 rounded-full">
+                  <ProfileAvatar
+                    image={conversation.participants[0].image as string}
+                    alt="profile"
+                    width="8"
+                    height="8"
+                  />
+                </div>
+
+                <div className="absolute top-3 left-3 border-2 rounded-full">
+                  <ProfileAvatar
+                    image={conversation.participants[1].image as string}
+                    alt="profile"
+                    width="8"
+                    height="8"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col pl-3">
+                <p className="flex items-center">
+                  {conversation.name}
+                  <ChevronRight size={16} strokeWidth={1} />
+                </p>
+              </div>
+            </div>
           ) : (
             <Link
               href={`/${

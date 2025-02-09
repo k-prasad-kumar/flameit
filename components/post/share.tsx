@@ -199,7 +199,7 @@ const SharePost = ({
           <DialogTrigger>
             <SendIcon
               strokeWidth={1.5}
-              size={30}
+              size={28}
               aria-description="Share post"
             />
           </DialogTrigger>
@@ -407,7 +407,7 @@ const SharePost = ({
           <DrawerTrigger>
             <SendIcon
               strokeWidth={1.5}
-              size={30}
+              size={28}
               aria-description="Share post"
             />
           </DrawerTrigger>

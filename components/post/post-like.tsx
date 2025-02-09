@@ -98,7 +98,7 @@ const PostLike = ({
         <div className="hidden md:block">
           <Dialog>
             <DialogTrigger asChild>
-              <p className="cursor-pointer font-semibold opacity-80">
+              <p className="cursor-pointer opacity-80 text-lg">
                 {likesCountState !== 0 && formatLikes(likesCountState)}
               </p>
             </DialogTrigger>
@@ -159,7 +159,7 @@ const PostLike = ({
         <div className="md:hidden">
           <Drawer>
             <DrawerTrigger>
-              <p className="cursor-pointer font-semibold opacity-80">
+              <p className="cursor-pointer font-semibold opacity-80 text-lg">
                 {likesCountState !== 0 && formatLikes(likesCountState)}
               </p>
             </DrawerTrigger>

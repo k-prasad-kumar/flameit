@@ -4,8 +4,14 @@ import { getCurrentUser } from "@/lib/current-user-data";
 import { redirect } from "next/navigation";
 import InboxPage from "@/components/chat/inbox";
 import { getAllConversations } from "@/lib/actions/realtime.actions";
-import { ConversationInterface } from "@/types/types";
+import {
+  ConversationInterface,
+  FollowerInterface,
+  FollowingInterface,
+  UserInfo,
+} from "@/types/types";
 import { MessagesSquareIcon } from "lucide-react";
+import { getFollowers, getFollowing } from "@/lib/actions/user.actions";
 
 const Inbox = async () => {
   const user = await getCurrentUser();
@@ -13,6 +19,26 @@ const Inbox = async () => {
 
   const conversations: ConversationInterface[] | undefined =
     await getAllConversations(user?.id as string);
+
+  const followers: FollowerInterface[] = await getFollowers(user?.id as string);
+  const following: FollowingInterface[] = await getFollowing(
+    user?.id as string
+  );
+
+  // Map the followers array to an array of UserInfo using the 'follower' field.
+  const followerUsers: UserInfo[] = followers.map((f) => f.follower);
+
+  // Map the following array to an array of UserInfo using the 'following' field.
+  // If your getFollowing returns the same FollowerInterface as getFollowers, adjust the property name accordingly.
+  const followingUsers: UserInfo[] = following.map((f) => f.following);
+
+  // Combine the two arrays.
+  const combinedUsers: UserInfo[] = [...followerUsers, ...followingUsers];
+
+  // Remove duplicate users by using a Map keyed by user.id.
+  const uniqueUsers: UserInfo[] = Array.from(
+    new Map(combinedUsers.map((user) => [user.id, user])).values()
+  );
 
   return (
     <>
@@ -36,7 +62,11 @@ const Inbox = async () => {
         <Suspense fallback={<Loading />}>
           <div className="w-full max-w-screen-sm mx-auto mt-14 md:mt-10">
             <div className="px-0 md:px-4 lg:px-14 pt-0 md:pt-6">
-              <InboxPage conversations={conversations} userId={user?.id} />
+              <InboxPage
+                conversations={conversations}
+                userId={user?.id}
+                users={uniqueUsers}
+              />
             </div>
           </div>
         </Suspense>
