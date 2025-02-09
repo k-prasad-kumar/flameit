@@ -124,6 +124,22 @@ export const getAllConversations = async (userId: string) => {
   }
 };
 
+export const getAllOnlyConversations = async (userId: string) => {
+  try {
+    const conversations = await prisma.conversation.findMany({
+      where: {
+        participants: {
+          some: { userId },
+        },
+      },
+    });
+
+    return conversations;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const deleteConversation = async (id: string) => {
   try {
     // Delete all messages in the conversation

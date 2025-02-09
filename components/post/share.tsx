@@ -21,10 +21,10 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Separator } from "../ui/separator";
 import {
-  getAllConversations,
+  getAllOnlyConversations,
   sendMessage,
 } from "@/lib/actions/realtime.actions";
-import { ConversationInterface } from "@/types/types";
+import { OneConversationInterface } from "@/types/types";
 import { Button } from "../ui/button";
 import { useSocket } from "@/context/use.socket";
 import { useRouter } from "next/navigation";
@@ -61,7 +61,8 @@ const SharePost = ({
   >([]);
   const [open, setOpen] = useState(false);
 
-  const [conversations, setConversations] = useState<ConversationInterface[]>();
+  const [conversations, setConversations] =
+    useState<OneConversationInterface[]>();
   const [copied, setCopied] = useState(false);
   const [text, setText] = useState<string | null>(null);
 
@@ -71,8 +72,9 @@ const SharePost = ({
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const conversations: ConversationInterface[] | undefined =
-        await getAllConversations(userId);
+      const conversations: OneConversationInterface[] | undefined =
+        await getAllOnlyConversations(userId);
+
       setConversations(conversations);
     };
     fetchUsers();
