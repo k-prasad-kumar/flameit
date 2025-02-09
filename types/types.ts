@@ -187,8 +187,20 @@ export interface ConversationInterface {
   lastMessageAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
-  // after try |  checking do something
   messages: MessageInterface[];
+}
+
+export interface OneConversationInterface {
+  id: string;
+  name: string | null;
+  isGroup: boolean;
+  groupImage: string | null;
+  ownerId: string;
+  participants: Participant[];
+  lastMessage: string | null;
+  lastMessageAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export type Participant = {

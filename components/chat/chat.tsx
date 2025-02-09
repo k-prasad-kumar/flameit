@@ -15,7 +15,7 @@ import {
 
 import { Input } from "@/components/ui/input";
 import {
-  ConversationInterface,
+  OneConversationInterface,
   MessageInterface,
   Reactions,
 } from "@/types/types";
@@ -45,7 +45,7 @@ const ChatPage = ({
   name,
   image,
 }: {
-  conversation: ConversationInterface;
+  conversation: OneConversationInterface;
   userId: string;
   name: string;
   image: string;

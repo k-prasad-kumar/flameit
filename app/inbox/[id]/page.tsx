@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/lib/current-user-data";
 import ChatPage from "@/components/chat/chat";
 import { getConversation } from "@/lib/actions/realtime.actions";
 import NotFound from "@/app/not-found";
-import { ConversationInterface } from "@/types/types";
+import { OneConversationInterface } from "@/types/types";
 
 const Chat = async ({ params }: { params: Promise<{ id: string }> }) => {
   const user = await getCurrentUser();
@@ -14,7 +14,7 @@ const Chat = async ({ params }: { params: Promise<{ id: string }> }) => {
   const id = (await params).id;
   if (!id) return <NotFound />;
 
-  const conversation: (ConversationInterface | null) | undefined =
+  const conversation: (OneConversationInterface | null) | undefined =
     await getConversation(id as string);
 
   if (!conversation) return <NotFound />;
