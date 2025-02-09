@@ -51,7 +51,7 @@ export default async function Home() {
         />
         <meta
           property="og:image"
-          content="https://opengraph.b-cdn.net/production/images/0badbfa3-7dfe-4bd6-bacf-3acfdbe0910e.png?token=tjbvA8rbzoIm-CDyBYda1OJGIOxreBtRd39GZToX-_w&height=630&width=1200&expires=33275109214"
+          content="https://res.cloudinary.com/flameit/image/upload/v1739108958/FlameIt_nykv2i.png"
         />
 
         <meta name="twitter:card" content="summary_large_image" />
@@ -64,7 +64,7 @@ export default async function Home() {
         />
         <meta
           name="twitter:image"
-          content="https://opengraph.b-cdn.net/production/images/0badbfa3-7dfe-4bd6-bacf-3acfdbe0910e.png?token=tjbvA8rbzoIm-CDyBYda1OJGIOxreBtRd39GZToX-_w&height=630&width=1200&expires=33275109214"
+          content="https://res.cloudinary.com/flameit/image/upload/v1739108958/FlameIt_nykv2i.png"
         />
       </Head>
 
