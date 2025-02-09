@@ -4,7 +4,11 @@ import { ProfileAvatar } from "@/components/avatar";
 import { Input } from "@/components/ui/input";
 import { useSocket } from "@/context/use.socket";
 import { addConversation } from "@/lib/actions/realtime.actions";
-import { ConversationInterface, UserInfo } from "@/types/types";
+import {
+  ConversationInterface,
+  UserInfo,
+  MessageInterface,
+} from "@/types/types";
 import { CheckIcon, PlusIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -36,65 +40,73 @@ const InboxPage = ({
   const socket = useSocket();
   const router = useRouter();
 
+  // Setup socket to update online users.
   useEffect(() => {
     if (!socket) return;
-
-    if (socket && socket.connected) {
-      // Tell the server who is online
+    if (socket.connected) {
       socket.emit("online-users", userId);
-      socket.on("online-users", (onlineUsers: string[]) => {
-        setOnlineUsers(onlineUsers);
+      socket.on("online-users", (online: string[]) => {
+        setOnlineUsers(online);
       });
     } else {
       console.log("socket not connected");
     }
-
     return () => {
       socket?.off("online-users");
     };
   }, [socket, userId]);
 
-  // Sort conversations: online conversations come first,
-  // then sort by most recently updated (assuming conversation.updatedAt exists)
-  const sortedConversations = useMemo(() => {
+  // Compute unseen count for each conversation based on messages.
+  // This assumes conversation.messages is an array of MessageInterface objects.
+  const computedConversations = useMemo(() => {
     if (!conversations) return [];
-    return [...conversations].sort((a, b) => {
-      // Check if conversation 'a' has any participant (other than the logged-in user) online
+    return conversations.map((conv) => {
+      const unseenCount = conv.messages
+        ? (conv.messages as MessageInterface[]).filter(
+            (msg) => !msg.seenBy.includes(userId)
+          ).length
+        : 0;
+      return { ...conv, unseenCount };
+    });
+  }, [conversations, userId]);
+
+  // Sort conversations: first those with any online participant (other than the logged-in user),
+  // then by recency (updatedAt descending)
+  const sortedConversations = useMemo(() => {
+    return [...computedConversations].sort((a, b) => {
       const aOnline = a.participants.some(
         (p) => p.userId !== userId && onlineUsers.includes(p.userId)
       );
       const bOnline = b.participants.some(
         (p) => p.userId !== userId && onlineUsers.includes(p.userId)
       );
-
-      // If one conversation is online and the other is not, sort accordingly
       if (aOnline && !bOnline) return -1;
       if (!aOnline && bOnline) return 1;
-
-      // If both have the same online status, sort by updatedAt descending
-      // (Assuming conversation.updatedAt is a valid date string)
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
-  }, [conversations, onlineUsers, userId]);
+  }, [computedConversations, onlineUsers, userId]);
 
+  // Handle group conversation creation.
   const handleConversation = async () => {
-    if (group.length === 0)
-      return toast.error("Please select at least one user to create a group");
-
-    if (groupName.length === 0) return toast.error("Please enter a group name");
-    const res = await addConversation(userId, group, true, groupName);
-
-    if (res?.error === "Private conversation already exists") {
-      router.push(`/inbox/${res?.conversationId}`);
+    if (group.length === 0) {
+      toast.error("Please select at least one user to create a group");
+      return;
     }
-
-    if (res?.success) {
-      router.push(`/inbox/${res?.conversationId}`);
+    if (groupName.length === 0) {
+      toast.error("Please enter a group name");
+      return;
+    }
+    const res = await addConversation(userId, group, true, groupName);
+    if (res?.error === "Private conversation already exists") {
+      router.push(`/inbox/${res.conversationId}`);
+    } else if (res?.success) {
+      router.push(`/inbox/${res.conversationId}`);
     }
   };
 
   return (
     <div className="w-full">
+      {/* Search and Create Group Section */}
       <div className="flex gap-1 items-center">
         <div className="relative mx-4 my-4 w-full">
           <SearchIcon
@@ -102,7 +114,6 @@ const InboxPage = ({
             size={18}
             className="absolute top-1/2 -translate-y-1/2 left-3"
           />
-
           <Input
             type="text"
             name="search"
@@ -131,11 +142,11 @@ const InboxPage = ({
                         key={user.id}
                         className="flex justify-between md:px-4 py-2 cursor-pointer md:hover:bg-gray-100 md:dark:hover:bg-gray-800 my-2"
                         onClick={() => {
-                          if (group.includes(user.id)) {
-                            setGroup(group.filter((id) => id !== user.id));
-                          } else {
-                            setGroup([...group, user.id]);
-                          }
+                          setGroup((prev) =>
+                            prev.includes(user.id)
+                              ? prev.filter((id) => id !== user.id)
+                              : [...prev, user.id]
+                          );
                         }}
                       >
                         <div className="flex gap-3 truncate items-center">
@@ -162,7 +173,6 @@ const InboxPage = ({
                     ))}
                   </div>
                 </ScrollArea>
-
                 <div className="mt-4">
                   <Input
                     type="text"
@@ -179,6 +189,7 @@ const InboxPage = ({
           </Dialog>
         </div>
       </div>
+      {/* Conversation List */}
       {sortedConversations.map((conversation) => (
         <div className="flex flex-col mx-4" key={conversation.id}>
           {conversation.isGroup ? (
@@ -197,7 +208,6 @@ const InboxPage = ({
                         height="8"
                       />
                     </div>
-
                     <div className="absolute top-3 left-3 border-2 rounded-full">
                       <ProfileAvatar
                         image={conversation.participants[1].image as string}
@@ -207,25 +217,49 @@ const InboxPage = ({
                       />
                     </div>
                   </div>
+                  <div className="pl-3 flex items-center justify-between w-full">
+                    <div className="w-full">
+                      <h2 className="truncate">{conversation.name}</h2>
 
-                  <div className="w-5/6 pl-3">
-                    <h2 className="truncate">{conversation.name}</h2>
-                    <p className="truncate text-xs w-full">
-                      {conversation.lastMessage ? conversation.lastMessage : ""}
-                    </p>
+                      <p className="truncate text-xs">
+                        {/* {conversation.lastMessage
+                          ? conversation.lastMessage
+                          : ""} */}
+
+                        {(() => {
+                          // For group conversations, if any participant (except the logged‑in user)
+                          // is online, show that participant's username; otherwise, show the last message.
+                          const onlineGroup = conversation.participants.filter(
+                            (p) =>
+                              p.userId !== userId &&
+                              onlineUsers.includes(p.userId)
+                          );
+                          return onlineGroup.length > 0
+                            ? onlineGroup[0].username +
+                                ", " +
+                                onlineGroup[1]?.username +
+                                " ... online"
+                            : conversation.lastMessage || "";
+                        })()}
+                      </p>
+                    </div>
+                    {conversation.unseenCount > 0 && (
+                      <div className="bg-red-500 text-white md:mr-4 rounded-full text-xs font-bold h-6 w-6 flex items-center justify-center">
+                        {conversation.unseenCount}
+                      </div>
+                    )}
                   </div>
                 </div>
               </Link>
             </div>
           ) : (
             <div>
-              {conversation.participants.map((participant, idx) => (
-                <div key={idx} className="max-w-full">
+              {conversation.participants.map((participant) => (
+                <div key={participant.userId} className="max-w-full">
                   {participant.userId !== userId && (
                     <Link
                       href={`/inbox/${conversation.id}`}
                       className="flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2"
-                      key={participant.userId}
                     >
                       <div className="flex items-center space-x-4 h-fit w-full">
                         <div className="relative w-fit">
@@ -243,14 +277,20 @@ const InboxPage = ({
                             }`}
                           ></div>
                         </div>
-
-                        <div className="w-5/6">
-                          <h2 className="truncate">{participant.username}</h2>
-                          <p className="truncate text-xs w-full">
-                            {conversation.lastMessage
-                              ? conversation.lastMessage
-                              : ""}
-                          </p>
+                        <div className="w-5/6 flex justify-between items-center">
+                          <div className="w-full">
+                            <h2 className="truncate">{participant.username}</h2>
+                            <p className="truncate text-xs w-full">
+                              {conversation.lastMessage
+                                ? conversation.lastMessage
+                                : ""}
+                            </p>
+                          </div>
+                          {conversation.unseenCount > 0 && (
+                            <div className="bg-red-500 text-white rounded-full text-xs font-bold h-6 w-6 flex items-center justify-center">
+                              {conversation.unseenCount}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </Link>

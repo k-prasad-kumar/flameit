@@ -187,6 +187,8 @@ export interface ConversationInterface {
   lastMessageAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
+  // after try |  checking do something
+  messages: MessageInterface[];
 }
 
 export type Participant = {
@@ -199,7 +201,7 @@ export interface MessageInterface {
   id: string;
   conversationId: string;
   senderId: string;
-  text: string;
+  text: string | null;
   post: MessagePost | null;
   seenBy: string[];
   createdAt: Date;

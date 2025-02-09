@@ -75,11 +75,49 @@ export const addConversation = async (
   }
 };
 
+export const updateConversation = async (
+  conversationId: string,
+  userId: string
+) => {
+  try {
+    if (!conversationId || !userId) {
+      return { error: "Missing conversationId or userId" };
+    }
+    await prisma.message.updateMany({
+      where: {
+        conversationId: conversationId as string,
+        // Ensure that seenBy array does not include the userId.
+        NOT: { seenBy: { has: userId as string } },
+      },
+      data: {
+        seenBy: { push: userId as string },
+      },
+    });
+
+    revalidatePath(`/inbox`);
+    revalidatePath(`/inbox/${conversationId}`);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const getAllConversations = async (userId: string) => {
   try {
     const conversations = await prisma.conversation.findMany({
-      where: { participants: { some: { userId } } },
+      where: {
+        participants: {
+          some: { userId },
+        },
+      },
+      include: {
+        messages: {
+          where: {
+            NOT: { seenBy: { has: userId } },
+          },
+        },
+      },
     });
+
     return conversations;
   } catch (error) {
     console.log(error);
@@ -337,4 +375,25 @@ export const getMessages = async (
     messages,
     nextCursor: messages.length > 0 ? messages[messages.length - 1].id : null, // Get the last message ID
   };
+};
+
+export const getUnseenCount = async (userId: string) => {
+  try {
+    if (!userId) {
+      return { error: "User ID is required" };
+    }
+    const unseenCount = await prisma.message.count({
+      where: {
+        conversation: {
+          participants: {
+            some: { userId: userId as string },
+          },
+        },
+        NOT: { seenBy: { has: userId as string } },
+      },
+    });
+    return { success: "Counted", count: unseenCount };
+  } catch (error) {
+    console.log(error);
+  }
 };

@@ -33,7 +33,13 @@ export default async function RootLayout({
           <SocketProvider userId={user?.id as string}>
             <Header userId={user?.id as string} />
             {children}
-            {user && <Sidebar />}
+            {user && (
+              <Sidebar
+                userId={user?.id as string}
+                username={user?.username as string}
+                userImage={user?.image as string}
+              />
+            )}
           </SocketProvider>
           <Toaster />
         </ThemeProvider>

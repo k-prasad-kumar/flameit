@@ -24,6 +24,7 @@ import {
   deleteMessage,
   getMessages,
   sendMessage,
+  updateConversation,
   updateReaction,
 } from "@/lib/actions/realtime.actions";
 import { useRouter } from "next/navigation";
@@ -145,6 +146,25 @@ const ChatPage = ({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reciveMessage, typing]);
+
+  // New effect to mark all messages in the conversation as seen by the logged-in user.
+  useEffect(() => {
+    // Only run if conversation exists and userId is available.
+    if (conversation?.id && userId) {
+      // Create an async function to call the API.
+      const markMessagesAsSeen = async () => {
+        try {
+          await updateConversation(conversation?.id, userId);
+          router.refresh();
+          // Optionally, update your local messages state or refetch messages.
+        } catch (error) {
+          console.error("Failed to mark messages as seen:", error);
+        }
+      };
+      markMessagesAsSeen();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversation?.id, userId]);
 
   // updating reactions real-time
   useEffect(() => {
@@ -530,7 +550,7 @@ const ChatPage = ({
                                 >
                                   <ActionButtons
                                     messageId={message.id}
-                                    messageText={message.text}
+                                    messageText={message.text as string}
                                     messageSenderId={message.senderId}
                                     messageUsername={message.sender?.username}
                                     handleUnsend={handleUnsend}
@@ -588,7 +608,7 @@ const ChatPage = ({
                                 >
                                   <ActionButtons
                                     messageId={message.id}
-                                    messageText={message.text}
+                                    messageText={message.text as string}
                                     messageSenderId={message.senderId}
                                     messageUsername={message.sender?.username}
                                     handleUnsend={handleUnsend}
@@ -680,7 +700,7 @@ const ChatPage = ({
                           >
                             <ActionButtons
                               messageId={message.id}
-                              messageText={message.text}
+                              messageText={message.text as string}
                               messageSenderId={message.senderId}
                               messageUsername={message.sender?.username}
                               handleUnsend={handleUnsend}
@@ -701,7 +721,7 @@ const ChatPage = ({
                           >
                             <ActionButtons
                               messageId={message.id}
-                              messageText={message.text}
+                              messageText={message.text as string}
                               messageSenderId={message.senderId}
                               messageUsername={message.sender?.username}
                               handleUnsend={handleUnsend}
