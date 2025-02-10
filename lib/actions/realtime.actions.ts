@@ -25,7 +25,7 @@ export const addConversation = async (
         image: user?.image as string,
       };
     });
-    console.log(participantsInfo);
+
     const user = await getUserById(userId);
 
     const userInfo = {
@@ -170,6 +170,17 @@ export const sendMessage = async (
   try {
     if (!conversationId || !senderId) {
       return { error: "Invalid message data" };
+    }
+
+    const conversation = await prisma.conversation.findUnique({
+      where: {
+        id: conversationId,
+        participants: { some: { userId: senderId } }, //check senderId is in participants,
+      },
+    });
+
+    if (!conversation) {
+      return { error: "Conversation not found" };
     }
 
     // Create message
@@ -411,5 +422,84 @@ export const getUnseenCount = async (userId: string) => {
     return { success: "Counted", count: unseenCount };
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const addParticipants = async (
+  conversationId: string,
+  participantIds: string[]
+) => {
+  try {
+    if (!conversationId || !participantIds) {
+      return { error: "Invalid conversation data" };
+    }
+
+    const participantsInfo = participantIds.map(async (id) => {
+      const user = await getUserById(id);
+      return {
+        userId: user?.id as string,
+        username: user?.username as string,
+        image: user?.image as string,
+      };
+    });
+
+    const temp = [...(await Promise.all(participantsInfo))];
+    // Update conversation
+    await prisma.conversation.update({
+      where: { id: conversationId },
+      data: {
+        participants: {
+          push: temp.map((user) => ({
+            userId: user.userId,
+            username: user.username,
+            image: user.image,
+          })),
+        },
+      },
+    });
+    return { success: "Participants added successfully" };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const updateGroupName = async (conversationId: string, name: string) => {
+  try {
+    if (!conversationId || !name) {
+      return { error: "Invalid conversation data" };
+    }
+    await prisma.conversation.update({
+      where: { id: conversationId },
+      data: { name },
+    });
+    return { success: "Group name updated successfully" };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const removeParticipant = async (
+  conversationId: string,
+  userId: string
+) => {
+  try {
+    if (!conversationId || !userId) {
+      return { error: "Invalid conversation data" };
+    }
+    await prisma.conversation.update({
+      where: { id: conversationId },
+      data: {
+        participants: {
+          deleteMany: {
+            // Use deleteMany to remove the participant record matching userId
+            where: { userId: userId },
+          },
+        },
+      },
+    });
+    return { success: "Participant removed successfully" };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to remove participant" };
   }
 };

@@ -82,34 +82,34 @@ const Sidebar = ({
   }, [socket, userId]);
 
   return (
-    <div className="fixed left-1/2 bottom-0 -translate-x-1/2 md:left-9 md:top-1/2 md:-translate-y-1/2 px-3 flex md:flex-col justify-between items-center md:gap-5 w-full md:w-fit bg-white dark:bg-black border md:border-none">
+    <div className="fixed left-1/2 bottom-0 -translate-x-1/2 md:left-9 md:top-1/2 md:-translate-y-1/2 px-3 flex md:flex-col justify-between md:justify-around items-center w-full md:w-fit bg-white dark:bg-black border-t md:border-none">
       <Link
         href="/"
         className="hover:bg-gray-100 dark:hover:bg-gray-800 py-2 px-3 rounded-lg"
       >
-        <HomeIcon size={28} />
+        <HomeIcon size={32} strokeWidth={1.5} />
       </Link>
       <Link
         href="/search"
         className="hover:bg-gray-100 dark:hover:bg-gray-800 py-2 px-3 rounded-lg"
       >
-        <SearchIcon size={28} />
+        <SearchIcon size={32} strokeWidth={1.5} />
       </Link>
       <div className="hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg flex items-center justify-center">
         <Link
           href={`/create-post`}
           className="hover:bg-gray-100 dark:hover:bg-gray-800 py-2 px-3 rounded-lg"
         >
-          <PlusIcon size={28} />
+          <PlusIcon size={32} strokeWidth={1.5} />
         </Link>
       </div>
       <Link
         href="/inbox"
         className="hover:bg-gray-100 dark:hover:bg-gray-800 py-2 px-3 rounded-lg relative"
       >
-        <MessageCircle size={28} />
+        <MessageCircle size={32} strokeWidth={1.5} />
         {unseenCount > 0 && (
-          <div className="absolute top-0 right-1 bg-red-500 rounded-full text-white text-xs font-bold w-5 h-5 flex items-center justify-center">
+          <div className="absolute top-1 right-2 bg-red-500 rounded-full text-white text-xs font-bold w-5 h-5 flex items-center justify-center">
             {unseenCount}
           </div>
         )}

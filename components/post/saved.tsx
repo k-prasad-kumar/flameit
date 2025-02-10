@@ -5,6 +5,7 @@ import { useState } from "react";
 import { updateSavedPost } from "@/lib/actions/user.actions";
 import { savedBy } from "@/types/types";
 import { toast } from "sonner";
+import { useTheme } from "next-themes";
 
 const Saved = ({
   userId,
@@ -18,6 +19,8 @@ const Saved = ({
   const [isSaved, setIsSaved] = useState<boolean>(
     savedBy?.find((value) => value.userId === userId) ? true : false
   );
+
+  const { theme } = useTheme();
   const handleSaved = (isVal: boolean) => {
     setIsSaved(!isSaved);
 
@@ -43,7 +46,7 @@ const Saved = ({
       <BookmarkIcon
         strokeWidth={1.5}
         size={28}
-        fill={isSaved ? "black" : "none"}
+        fill={isSaved ? (theme === "dark" ? "#ffffff" : "#000000") : "none"}
         aria-description="Save post"
       />
     </button>

@@ -92,8 +92,13 @@ const InboxPage = ({
       toast.error("Please select at least one user to create a group");
       return;
     }
+
     if (groupName.length === 0) {
       toast.error("Please enter a group name");
+      return;
+    }
+    if (groupName.length > 25) {
+      toast.error("Maximum group name length is 25 characters");
       return;
     }
     const res = await addConversation(userId, group, true, groupName);
@@ -135,6 +140,7 @@ const InboxPage = ({
               </DialogHeader>
               <Separator />
               <div>
+                <h2>Suggested</h2>
                 <ScrollArea className="w-full h-[50vh] md:h-[50vh]">
                   <div>
                     {users?.map((user) => (
@@ -210,7 +216,11 @@ const InboxPage = ({
                     </div>
                     <div className="absolute top-3 left-3 border-2 rounded-full">
                       <ProfileAvatar
-                        image={conversation.participants[1].image as string}
+                        image={
+                          conversation.participants.length > 1
+                            ? (conversation.participants[1].image as string)
+                            : "https://github.com/shadcn.png"
+                        }
                         alt="profile"
                         width="8"
                         height="8"
@@ -222,10 +232,6 @@ const InboxPage = ({
                       <h2 className="truncate">{conversation.name}</h2>
 
                       <p className="truncate text-xs">
-                        {/* {conversation.lastMessage
-                          ? conversation.lastMessage
-                          : ""} */}
-
                         {(() => {
                           // For group conversations, if any participant (except the logged‑in user)
                           // is online, show that participant's username; otherwise, show the last message.
@@ -237,7 +243,11 @@ const InboxPage = ({
                           return onlineGroup.length > 0
                             ? onlineGroup[0].username +
                                 ", " +
-                                onlineGroup[1]?.username +
+                                `${
+                                  onlineGroup[1]?.username
+                                    ? onlineGroup[1].username
+                                    : ""
+                                }` +
                                 " ... online"
                             : conversation.lastMessage || "";
                         })()}

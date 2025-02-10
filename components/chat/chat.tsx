@@ -7,7 +7,6 @@ import {
   ChevronRight,
   ImageIcon,
   MessageCircleCodeIcon,
-  Phone,
   SendIcon,
   TrashIcon,
   X,
@@ -38,6 +37,7 @@ import MessageReactions from "./reactions";
 import { CldUploadWidget, CloudinaryUploadWidgetInfo } from "next-cloudinary";
 import { Button } from "../ui/button";
 import { deleteImageCloudinary } from "@/lib/actions/delete.image.actions";
+import UpdateGroup from "./update-group";
 
 const ChatPage = ({
   conversation,
@@ -119,14 +119,17 @@ const ChatPage = ({
 
   useEffect(() => {
     if (socket && socket.connected) {
-      socket.on("typing", () => {
-        setTyping(true);
-        scrollToBottom(true);
+      socket.on("typing", (data) => {
+        if (data.conversationId === conversation?.id) {
+          setTyping(true);
+          scrollToBottom(true);
+        }
       });
 
-      socket.on("stopTyping", () => {
-        console.log("stoptyping.....");
-        setTyping(false);
+      socket.on("stopTyping", (data) => {
+        if (data.conversationId === conversation?.id) {
+          setTyping(false);
+        }
       });
       socket.on("newMessage", (message) => {
         setMessages((prev) => [
@@ -231,7 +234,10 @@ const ChatPage = ({
       conversation?.participants?.filter((p) =>
         p?.userId !== userId ? recieverIds.push(p?.userId) : null
       );
-      socket.emit("typing", recieverIds);
+      socket.emit("typing", {
+        recieverIds: recieverIds,
+        conversationId: conversation?.id,
+      });
     } else {
       console.log("socket not connected");
     }
@@ -264,7 +270,10 @@ const ChatPage = ({
             conversation?.participants?.filter((p) =>
               p?.userId !== userId ? recieverIds.push(p?.userId) : null
             );
-            socket.emit("stopTyping", recieverIds);
+            socket.emit("stopTyping", {
+              recieverIds: recieverIds,
+              conversationId: conversation?.id,
+            });
 
             // emiting new message
             socket.emit("newMessage", {
@@ -283,6 +292,11 @@ const ChatPage = ({
 
             setText(null);
             router.refresh();
+          }
+        }
+        if (data?.error) {
+          if (conversation?.isGroup) {
+            toast.error("Group is deleted or you are not a member of it.");
           }
         }
       });
@@ -366,7 +380,11 @@ const ChatPage = ({
 
                 <div className="absolute top-3 left-3 border-2 rounded-full">
                   <ProfileAvatar
-                    image={conversation.participants[1].image as string}
+                    image={
+                      conversation.participants.length > 1
+                        ? (conversation.participants[1].image as string)
+                        : "https://github.com/shadcn.png"
+                    }
                     alt="profile"
                     width="8"
                     height="8"
@@ -410,7 +428,12 @@ const ChatPage = ({
             </Link>
           )}
         </div>
-        <Phone size={24} strokeWidth={1} className="mr-3" />
+        <UpdateGroup
+          conversationId={conversation?.id}
+          userId={userId}
+          owner={conversation?.ownerId}
+          participants={conversation?.participants}
+        />
       </div>
       {messages?.length === 0 && (
         <div className="w-full h-screen flex flex-col items-center justify-center">
