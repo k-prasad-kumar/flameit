@@ -3,6 +3,28 @@ import { Skeleton } from "../ui/skeleton";
 const PostSkeleton = () => {
   return (
     <div className="w-full max-w-screen-sm mx-auto pb-4 md:pb-5 mt-16 md:mt-14 md:px-4 lg:px-14">
+      <div className="flex gap-5 px-2 md:px-5 mb-2">
+        <div className="flex flex-col items-center justify-center space-y-2">
+          <Skeleton className="w-16 h-16 rounded-full"></Skeleton>
+          <Skeleton className="w-20 h-4 rounded-full"></Skeleton>
+        </div>
+        <div className="flex flex-col items-center justify-center space-y-2">
+          <Skeleton className="w-16 h-16 rounded-full"></Skeleton>
+          <Skeleton className="w-20 h-4 rounded-full"></Skeleton>
+        </div>
+        <div className="flex flex-col items-center justify-center space-y-2">
+          <Skeleton className="w-16 h-16 rounded-full"></Skeleton>
+          <Skeleton className="w-20 h-4 rounded-full"></Skeleton>
+        </div>
+        <div className="flex flex-col items-center justify-center space-y-2">
+          <Skeleton className="w-16 h-16 rounded-full"></Skeleton>
+          <Skeleton className="w-20 h-4 rounded-full"></Skeleton>
+        </div>
+        <div className="hidden md:flex flex-col items-center justify-center space-y-2">
+          <Skeleton className="w-16 h-16 rounded-full"></Skeleton>
+          <Skeleton className="w-20 h-4 rounded-full"></Skeleton>
+        </div>
+      </div>
       <div className="w-full py-2 md:py-3 px-3 md:px-0 flex justify-between items-center">
         <div className="flex items-center space-x-3">
           <Skeleton className="w-10 h-10 rounded-full"></Skeleton>
