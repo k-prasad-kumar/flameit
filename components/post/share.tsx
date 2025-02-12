@@ -195,8 +195,8 @@ const SharePost = ({
   };
 
   return (
-    <div>
-      <div className="hidden md:block">
+    <div className="flex items-center">
+      <div className="hidden md:flex">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger>
             <SendIcon
@@ -404,7 +404,7 @@ const SharePost = ({
           </DialogContent>
         </Dialog>
       </div>
-      <div className="md:hidden">
+      <div className="flex md:hidden">
         <Drawer>
           <DrawerTrigger>
             <SendIcon

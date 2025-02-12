@@ -114,6 +114,7 @@ export const updateUser = async (
     if (existingUsername) {
       return { error: `The Username ${editProfile?.username} is not avalable` };
     }
+
     const user = await prisma.user.update({
       where: { id: id as string },
       data: {
@@ -467,6 +468,23 @@ export const getFollowing = async (userId: string) => {
             image: true,
           },
         }, // Include details about the follower
+      },
+    });
+    return following;
+  } catch (error) {
+    console.error("Error fetching following:", error);
+    return [];
+  }
+};
+
+export const getFollowingUserId = async (userId: string) => {
+  try {
+    const following = await prisma.follower.findMany({
+      where: {
+        followerId: userId as string, // The user who is following
+      },
+      select: {
+        followingId: true,
       },
     });
     return following;

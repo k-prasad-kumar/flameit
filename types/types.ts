@@ -278,3 +278,42 @@ export interface NotificationsInterface {
   expiresAt: Date;
   createdAt: Date;
 }
+
+export interface StroriesInterface {
+  userId: string;
+  image: Image | null;
+  text: string | null;
+}
+
+export interface StroriesResponseInterface {
+  id: string;
+  userId: string;
+  image: Image | null;
+  text: string | null;
+  expiresAt: Date;
+  createdAt: Date;
+  likes: StoryLike[];
+  comments: StoryComment[];
+  user: UserInfo;
+}
+
+export interface StoryLike {
+  id: string;
+  userId: string;
+  storyId: string;
+  createdAt: Date;
+  user: UserInfo;
+}
+
+export interface StoryComment {
+  id: string;
+  text: string;
+  userId: string;
+  storyId: string;
+  createdAt: Date;
+  user: UserInfo;
+}
+
+export interface StoryUserInfoInterface {
+  user: UserInfo;
+}

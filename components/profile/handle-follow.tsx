@@ -39,6 +39,7 @@ const HandleProfileFollow = ({
 
   const handleFollow = async (type: "follow" | "unfollow") => {
     try {
+      setLoading(true);
       setFollowing(type === "follow" ? true : false); // Optimistic update
       if (type === "follow") {
         const data = await addFollower(userId, isUserId);
@@ -51,6 +52,7 @@ const HandleProfileFollow = ({
           toast.success(data?.success);
         }
       }
+      setLoading(false);
       router.refresh();
     } catch (error) {
       console.error(`Error during ${type}:`, error);

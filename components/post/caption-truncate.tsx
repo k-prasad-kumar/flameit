@@ -21,10 +21,7 @@ const TruncateCaption = ({
   if (text.length <= maxLength) {
     return (
       <p className="break-words capitalize-first">
-        <Link
-          href={`/${username}`}
-          className="text-sm font-semibold pr-2 opacity-80"
-        >
+        <Link href={`/${username}`} className="text-sm font-semibold pr-2">
           {username}
         </Link>
         {text}
@@ -34,10 +31,7 @@ const TruncateCaption = ({
 
   return (
     <p className="w-full break-words">
-      <Link
-        href={`/${username}`}
-        className="text-sm font-semibold pr-1 opacity-80"
-      >
+      <Link href={`/${username}`} className="text-sm font-semibold pr-1">
         {username}
       </Link>
       <span className="opacity-80 text-sm break-words capitalize-first">

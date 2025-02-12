@@ -2,13 +2,19 @@ import { Suspense } from "react";
 import Loading from "@/app/loading";
 import { getCurrentUser } from "@/lib/current-user-data";
 import { redirect } from "next/navigation";
-import { PostResponseInterface } from "@/types/types";
-import { getPosts } from "@/lib/actions/post.actions";
+import {
+  PostResponseInterface,
+  StoryUserInfoInterface,
+  UserInfo,
+} from "@/types/types";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { CameraIcon } from "lucide-react";
 import PostsCard from "@/components/post/post";
 import Footer from "@/components/layout/footer";
+import Stories from "@/components/stories/stories";
+import { getPosts } from "@/lib/actions/post.actions";
+import { getStoriesUserInfo } from "@/lib/actions/stories.actions";
 
 export default async function Home() {
   const user = await getCurrentUser();
@@ -16,6 +22,13 @@ export default async function Home() {
   if (!user) redirect("/login");
 
   if (!user?.username) return null;
+
+  const stories: StoryUserInfoInterface[] | undefined =
+    await getStoriesUserInfo();
+
+  const uniqueUsers: UserInfo[] = Array.from(
+    new Map(stories?.map((story) => [story.user.id, story.user])).values()
+  );
 
   const posts: PostResponseInterface[] | undefined = await getPosts(0, 5);
 
@@ -26,7 +39,7 @@ export default async function Home() {
           <div className="border-2 rounded-full">
             <CameraIcon strokeWidth={1} className="w-20 h-20 m-5" />
           </div>
-          <h2 className="text-2xl">No Posts Yet</h2>
+          <h2 className="text-2xl">No posts yet</h2>
           <Link href={`/create-post`}>
             <Button>Create Post</Button>
           </Link>
@@ -39,6 +52,7 @@ export default async function Home() {
     <Suspense fallback={<Loading />}>
       <div className="w-full max-w-screen-sm mx-auto mt-14 md:mt-10">
         <div className="px-0 md:px-4 lg:px-14 pt-0 md:pt-5">
+          <Stories userImage={user?.image as string} stories={uniqueUsers!} />
           <PostsCard
             posts={posts!}
             userId={user?.id as string}

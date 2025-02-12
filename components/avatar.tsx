@@ -13,7 +13,7 @@ export function ProfileAvatar({ image, alt, width, height }: AvatarProps) {
       <AvatarImage
         src={image ? image : "https://github.com/shadcn.png"}
         alt={alt}
-        className="w-full h-auto object-cover"
+        className="w-full h-auto object-cover h-"
       />
       <AvatarFallback>CN</AvatarFallback>
     </Avatar>

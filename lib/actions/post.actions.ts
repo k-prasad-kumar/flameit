@@ -487,6 +487,92 @@ export const getPosts = async (skip?: number, take?: number) => {
   }
 };
 
+export const getFollowingPosts = async (
+  following: string[],
+  skip?: number,
+  take?: number
+) => {
+  try {
+    const posts = await prisma.post.findMany({
+      where: {
+        userId: {
+          in: following, // Only fetch posts from users in the "following" array
+        },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            image: true,
+          },
+        },
+        likes: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+              },
+            },
+          },
+        },
+        comments: {
+          where: {
+            parentId: null, // Fetch only top-level comments
+          },
+          orderBy: {
+            createdAt: "desc", // Order comments by createdAt in descending order
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+              },
+            },
+            replies: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    username: true,
+                    image: true,
+                  },
+                },
+              },
+              orderBy: {
+                createdAt: "asc", // Order replies by creation time
+              },
+            },
+          },
+        },
+        // taggedUsers: {
+        //   select: {
+        //     userId: true,
+        //   },
+        // },
+        savedBy: true,
+      },
+      orderBy: {
+        createdAt: "desc", // Sort by newest posts first
+      },
+      skip: skip,
+      take: take,
+    });
+
+    return posts;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const getPostById = async (id: string) => {
   try {
     const post = await prisma.post.findFirst({

@@ -50,6 +50,7 @@ const EditProfile = ({
   hasPassword: boolean;
 }) => {
   const [error, setError] = useState<string | undefined>();
+  const [usernameError, setUsernameError] = useState<string | undefined>();
   const [passwordError, setPasswordError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
   const [passwordSuccess, setPasswordSuccess] = useState<string | undefined>();
@@ -76,6 +77,13 @@ const EditProfile = ({
   });
 
   const handleEditProfile = (values: z.infer<typeof EditProfileSchema>) => {
+    const pattern = /^[a-zA-Z0-9_-]+$/;
+    const res = pattern.test(values.username as string);
+    if (!res)
+      return setUsernameError(
+        "Username can only contain letters, numbers, underscores and hyphens."
+      );
+
     startTransition(() => {
       updateUser(
         userId,
@@ -171,6 +179,7 @@ const EditProfile = ({
                       </FormItem>
                     )}
                   />
+                  <FormError message={usernameError} />
 
                   <FormField
                     control={form.control}

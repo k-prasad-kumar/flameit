@@ -61,11 +61,11 @@ const PostsCard = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, page]);
   return (
-    <div className="sm:mx-14 md:mx-10 lg:mx-6">
+    <div className="sm:mx-24 md:mx-20 lg:mx-12">
       {postsData.length > 0 &&
-        postsData.map((post) => (
-          <div className="w-full" key={post?.id}>
-            <div className="w-full py-2 px-3 md:px-0 flex justify-between items-center">
+        postsData.map((post, idx) => (
+          <div className="w-full mb-8 md:mb-0" key={idx}>
+            <div className="w-full pb-2 px-3 md:px-0 flex justify-between items-center">
               <Link
                 href={`/${post?.user?.username}`}
                 className="flex items-center space-x-3"
@@ -103,7 +103,7 @@ const PostsCard = ({
                             height={100}
                             sizes="100%"
                             loading="lazy"
-                            className="w-[468px] h-[544px] object-cover"
+                            className="w-full h-[544px] object-cover"
                             alt="post"
                           />
                         </div>
@@ -141,10 +141,10 @@ const PostsCard = ({
                 />
               </div>
             )}
-            <p className="opacity-60 text-xs px-3 md:px-0">
+            <p className="opacity-60 text-xs px-3 md:px-0 mt-1">
               {getRelativeTime(post?.createdAt)}
             </p>
-            <Separator className="my-5" />
+            <Separator className="my-5 hidden md:flex" />
           </div>
         ))}
       {loading && (

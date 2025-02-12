@@ -50,7 +50,7 @@ const PostsCard = ({
         <meta name="twitter:image" content={post?.images[0].url} />
       </Head>
       <Suspense fallback={<PostSkeleton />}>
-        <div className="sm:mx-14 md:mx-10 lg:mx-6">
+        <div className="sm:mx-24 md:mx-20 lg:mx-10">
           <div className="w-full pb-4 md:pb-5" key={post?.id}>
             <div className="w-full py-2 md:py-3 px-3 md:px-0 flex justify-between items-center">
               <Link
@@ -90,7 +90,7 @@ const PostsCard = ({
                             height={100}
                             sizes="100%"
                             loading="lazy"
-                            className="w-[468px] h-[544px] object-cover"
+                            className="w-full h-[544px] object-cover"
                             alt="post"
                           />
                         </div>

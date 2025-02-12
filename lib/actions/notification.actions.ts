@@ -6,16 +6,12 @@ import { NotificationFormInterface } from "@/types/types";
 export const createNotification = async (data: NotificationFormInterface) => {
   try {
     const expiresAt: Date = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
-    // delete after
-    const d: Date = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 32);
+    expiresAt.setDate(expiresAt.getDate() + 60);
 
     await prisma.notification.create({
       data: {
         ...data,
         expiresAt,
-        createdAt: d,
       },
     });
   } catch (error) {

@@ -95,7 +95,7 @@ const PostLike = ({
         aria-description="Like post"
       />{" "}
       {likesCount > 0 && (
-        <div className="hidden md:block">
+        <div className="hidden md:flex">
           <Dialog>
             <DialogTrigger asChild>
               <p className="cursor-pointer opacity-80 text-lg">
@@ -156,7 +156,7 @@ const PostLike = ({
         </div>
       )}
       {likesCount > 0 && (
-        <div className="md:hidden">
+        <div className="flex md:hidden">
           <Drawer>
             <DrawerTrigger>
               <p className="cursor-pointer font-semibold opacity-80 text-lg">

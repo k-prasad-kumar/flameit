@@ -145,8 +145,8 @@ const PostComment = ({
     });
   };
   return (
-    <div>
-      <div className="hidden md:block">
+    <>
+      <div className="hidden md:flex ml-1">
         <Dialog>
           <DialogTrigger asChild>
             <p className="cursor-pointer flex items-center gap-1">
@@ -351,7 +351,7 @@ const PostComment = ({
         </Dialog>
       </div>
 
-      <div className="px-3 md:px-0 md:hidden flex items-center">
+      <div className="md:hidden flex items-center ml-1">
         <Drawer>
           <DrawerTrigger>
             <p className="cursor-pointer flex items-center gap-1">
@@ -554,7 +554,7 @@ const PostComment = ({
           </DrawerContent>
         </Drawer>
       </div>
-    </div>
+    </>
   );
 };
 export default PostComment;
