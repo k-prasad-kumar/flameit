@@ -1,5 +1,5 @@
 import { getCurrentUser } from "@/lib/current-user-data";
-import Loading from "./loading";
+import Loading from "@/app/stories/loading";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import StoriesPage from "@/components/stories/stories-page";
