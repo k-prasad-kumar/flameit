@@ -380,10 +380,10 @@ const ChatPage = ({
       <div className="w-full max-w-screen-sm h-screen mx-auto flex">
         <div className="w-full right-0 px-0 md:px-4 lg:px-10 pt-0 md:pt-6 flex flex-col items-between relative md:mx-0 border-x-0 md:border-x border">
           {/* {conversation } */}
-          <div className="w-full max-w-screen-sm mx-auto flex items-center justify-between gap-2 mb-12 md:mb-0 fixed top-0 left-0 right-0 p-2 bg-background px-3 md:px-4 lg:px-10 z-10 border-0 md:border">
+          <div className="w-full max-w-screen-sm mx-auto flex items-center justify-between gap-2 mb-12 md:mb-0 fixed top-0 left-0 right-0 p-2 bg-background px-4 md:px-4 lg:px-10 z-10 border-0 md:border">
             <div className="flex items-center space-x-3">
               <Link href={"/inbox"}>
-                <ArrowLeft size={24} strokeWidth={1} />
+                <ArrowLeft size={26} strokeWidth={1.5} />
               </Link>
 
               {conversation?.isGroup ? (

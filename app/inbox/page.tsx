@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import InboxPage from "@/components/chat/inbox";
 import { getAllConversations } from "@/lib/actions/realtime.actions";
 import {
-  ConversationInterface,
+  ConversationForInboxInterface,
   FollowerInterface,
   FollowingInterface,
   UserInfo,
@@ -20,7 +20,7 @@ const Inbox = async () => {
   // const conversations: ConversationInterface[] | undefined =
   //   await getAllConversations(user?.id as string);
 
-  const conversations: ConversationInterface[] | undefined = (
+  const conversations: ConversationForInboxInterface[] | undefined = (
     await getAllConversations(user?.id as string)
   )?.map((conversation) => ({
     ...conversation,
@@ -31,7 +31,9 @@ const Inbox = async () => {
         username: "", // fill in the username from the user data
         image: "", // fill in the image from the user data
       },
-      parentMessage: null, // fill in the parent message from the message data
+      // post: message?.post ? message?.post : null,
+      // reactions: message.reactions,
+      // parentMessage: message.parentMessage, // add this line
     })),
   }));
 

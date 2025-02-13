@@ -110,7 +110,6 @@ const PostsCard = ({
               userId={userId}
               username={username as string}
               postUsername={post?.user?.username as string}
-              postUserImage={post?.user?.image as string}
               postId={post?.id as string}
               image={post?.images[0].url as string}
               comments={post?.comments}

@@ -190,6 +190,20 @@ export interface ConversationInterface {
   messages: MessageInterface[];
 }
 
+export interface ConversationForInboxInterface {
+  id: string;
+  name: string | null;
+  isGroup: boolean;
+  groupImage: string | null;
+  ownerId: string;
+  participants: Participant[];
+  lastMessage: string | null;
+  lastMessageAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  messages: MessageForInboxInterface[];
+}
+
 export interface OneConversationInterface {
   id: string;
   name: string | null;
@@ -209,6 +223,16 @@ export type Participant = {
   conversationId: string;
   user: UserInfo;
 };
+
+export interface MessageForInboxInterface {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  text: string | null;
+  seenBy: string[];
+  createdAt: Date;
+  sender: Sender;
+}
 
 export interface MessageInterface {
   id: string;

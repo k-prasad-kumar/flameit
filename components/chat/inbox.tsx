@@ -5,9 +5,9 @@ import { Input } from "@/components/ui/input";
 import { useSocket } from "@/context/use.socket";
 import { addConversation } from "@/lib/actions/realtime.actions";
 import {
-  ConversationInterface,
   UserInfo,
   MessageInterface,
+  ConversationForInboxInterface,
 } from "@/types/types";
 import { CheckIcon, PlusIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
@@ -30,7 +30,7 @@ const InboxPage = ({
   userId,
   users,
 }: {
-  conversations: ConversationInterface[];
+  conversations: ConversationForInboxInterface[];
   userId: string;
   users: UserInfo[];
 }) => {
