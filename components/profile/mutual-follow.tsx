@@ -29,6 +29,7 @@ const FollowActions = ({
     follower: false, // Is the profile user following the logged-in user?
   });
   const [loading, setLoading] = useState(false); // Manage loading states
+  const [messageLoading, setMessageLoading] = useState(false); // Manage loading states (messageLoadingse); // Manage loading states
   const router = useRouter();
 
   const fetchFollowStatus = useCallback(async () => {
@@ -99,13 +100,16 @@ const FollowActions = ({
   };
 
   const handleConversation = async (participentId: string) => {
-    const res = await addConversation(currentUserId, [participentId], false);
+    setMessageLoading(true);
+    const res = await addConversation(
+      currentUserId,
+      [currentUserId, participentId],
+      false
+    );
 
-    if (res?.error === "Private conversation already exists") {
-      router.push(`/inbox/${res?.conversationId}`);
-    }
     if (res?.success) {
       router.push(`/inbox/${res?.conversationId}`);
+      setMessageLoading(false);
     }
   };
 
@@ -122,7 +126,11 @@ const FollowActions = ({
             onClick={() => handleConversation(profileUserId)}
             disabled={loading}
           >
-            Message
+            {messageLoading ? (
+              <Loader2 className="animate-spin" size={18} />
+            ) : (
+              "Message"
+            )}
           </Button>
           <Button
             variant="ghost"
@@ -142,7 +150,11 @@ const FollowActions = ({
             onClick={() => handleConversation(profileUserId)}
             disabled={loading}
           >
-            Message
+            {messageLoading ? (
+              <Loader2 className="animate-spin" size={18} />
+            ) : (
+              "Message"
+            )}
           </Button>
           <Button
             variant="ghost"

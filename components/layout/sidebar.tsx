@@ -18,24 +18,7 @@ const Sidebar = ({
   userImage: string;
 }) => {
   const [unseenCount, setUnseenCount] = useState<number>(0);
-  // const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const socket = useSocket();
-
-  // Listen for online users updates.
-  // useEffect(() => {
-  //   if (!socket) return;
-  //   if (socket.connected) {
-  //     socket.emit("online-users", userId); // You might want to emit the userId here
-  //     socket.on("online-users", (online: string[]) => {
-  //       setOnlineUsers(online);
-  //     });
-  //   } else {
-  //     console.log("socket not connected");
-  //   }
-  //   return () => {
-  //     socket?.off("online-users");
-  //   };
-  // }, [socket, userId]);
 
   // Function to fetch the updated unseen messages count.
   const fetchUnseenCount = async () => {
@@ -60,13 +43,23 @@ const Sidebar = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
+  // Listen for the custom "messagesSeen" event.
+  useEffect(() => {
+    const handleMessagesSeen = () => {
+      fetchUnseenCount();
+    };
+    window.addEventListener("messagesSeen", handleMessagesSeen);
+    return () => {
+      window.removeEventListener("messagesSeen", handleMessagesSeen);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Listen for the "newMessage" event to update the unseen count.
   useEffect(() => {
     if (!socket) return;
     if (socket.connected) {
       const handleNewMessage = (data: { newMessage: MessageInterface }) => {
-        console.log("New message received in Sidebar:", data.newMessage);
-        // Compare with userId, not username.
         if (data.newMessage.senderId !== userId) {
           fetchUnseenCount();
         }

@@ -1,8 +1,6 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
-import { getUserById } from "./user.actions";
 import { MessageInterface } from "@/types/types";
 import { deleteImageCloudinary } from "./delete.image.actions";
 
@@ -16,23 +14,6 @@ export const addConversation = async (
     if (!userId || !participantIds) {
       return { error: "Invalid conversation data" };
     }
-
-    const participantsInfo = participantIds.map(async (id) => {
-      const user = await getUserById(id);
-      return {
-        userId: user?.id as string,
-        username: user?.username as string,
-        image: user?.image as string,
-      };
-    });
-
-    const user = await getUserById(userId);
-
-    const userInfo = {
-      userId: user?.id as string,
-      username: user?.username as string,
-      image: user?.image as string,
-    };
 
     // Check if a private conversation already exists
     if (!isGroup) {
@@ -49,21 +30,26 @@ export const addConversation = async (
 
       if (existingConversation) {
         return {
-          error: "Private conversation already exists",
+          success: "Private conversation already exists",
           conversationId: existingConversation.id,
         };
       }
     }
 
-    const temp = [{ ...userInfo }, ...(await Promise.all(participantsInfo))];
     // Create conversation
     const conversation = await prisma.conversation.create({
       data: {
         name: isGroup ? name : null,
         isGroup,
         ownerId: userId,
-        participants: temp,
       },
+    });
+
+    await prisma.participant.createMany({
+      data: participantIds.map((id) => ({
+        userId: id,
+        conversationId: conversation.id,
+      })),
     });
 
     return {
@@ -75,7 +61,7 @@ export const addConversation = async (
   }
 };
 
-export const updateConversation = async (
+export const markMessagesAsSeen = async (
   conversationId: string,
   userId: string
 ) => {
@@ -93,9 +79,6 @@ export const updateConversation = async (
         seenBy: { push: userId as string },
       },
     });
-
-    revalidatePath(`/inbox`);
-    revalidatePath(`/inbox/${conversationId}`);
   } catch (error) {
     console.log(error);
   }
@@ -106,10 +89,25 @@ export const getAllConversations = async (userId: string) => {
     const conversations = await prisma.conversation.findMany({
       where: {
         participants: {
-          some: { userId },
+          some: {
+            userId: userId,
+          },
         },
       },
+
       include: {
+        participants: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                image: true,
+                name: true,
+              },
+            },
+          },
+        },
         messages: {
           where: {
             NOT: { seenBy: { has: userId } },
@@ -130,6 +128,20 @@ export const getAllOnlyConversations = async (userId: string) => {
       where: {
         participants: {
           some: { userId },
+        },
+      },
+      include: {
+        participants: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                image: true,
+                name: true,
+              },
+            },
+          },
         },
       },
     });
@@ -160,11 +172,10 @@ export const sendMessage = async (
   text?: string | null,
   parentMessageId?: string | null,
   post?: {
+    postUserId?: string | null;
     postId?: string | null;
     image?: string | null;
     imagePublicId?: string | null;
-    username?: string | null;
-    userImage?: string | null;
   } | null
 ) => {
   try {
@@ -189,16 +200,35 @@ export const sendMessage = async (
         conversationId,
         senderId,
         text,
-        post: post ? post : null,
         parentMessageId: parentMessageId ? parentMessageId : null,
         seenBy: [senderId], // Message is initially seen by sender
       },
     });
+
+    if (post) {
+      await prisma.messagePost.create({
+        data: {
+          postUserId: post.postUserId ? post.postUserId : null,
+          postId: post.postId ? post.postId : null,
+          messageId: message.id,
+          image: post.image ? post.image : null,
+          imagePublicId: post.imagePublicId ? post.imagePublicId : null,
+        },
+      });
+    }
+
     const newMessage: MessageInterface | null =
       (await prisma.message.findUnique({
         where: { id: message.id },
         include: {
           sender: { select: { id: true, username: true, image: true } },
+          post: {
+            include: {
+              postUser: {
+                select: { id: true, username: true, image: true, name: true },
+              },
+            },
+          },
           parentMessage: {
             include: {
               sender: { select: { id: true, username: true, image: true } },
@@ -206,6 +236,7 @@ export const sendMessage = async (
           },
         },
       })) as MessageInterface | null;
+
     // Update conversation last message
     await prisma.conversation.update({
       where: { id: conversationId },
@@ -246,120 +277,129 @@ export const replyMessage = async (
   }
 };
 
-export const markMessageAsSeen = async (messageId: string, userId: string) => {
-  try {
-    if (!userId) {
-      return { error: "User ID is required" };
-    }
-
-    await prisma.message.update({
-      where: { id: messageId },
-      data: { seenBy: { push: userId } },
-    });
-
-    revalidatePath(`/inbox/${messageId}`);
-    return { success: "Message marked as seen successfully" };
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 export const deleteMessage = async (messageId: string) => {
   try {
+    // Find replies for this message, selecting only their id and post.imagePublicId (if available)
     const replies = await prisma.message.findMany({
       where: { parentMessageId: messageId },
-      select: { id: true },
+      select: { id: true, post: { select: { imagePublicId: true } } },
     });
 
-    if (!replies) {
-      throw new Error("Message not found");
-    }
-
-    // Recursively delete all replies
+    // Recursively delete each reply
     for (const reply of replies) {
       await deleteMessage(reply.id);
     }
 
-    const message = await prisma.message.findUnique({
-      where: { id: messageId },
+    // Fetch the MessagePost associated with this message by its messageId field.
+    const messagepost = await prisma.messagePost.findUnique({
+      where: { messageId: messageId },
     });
 
-    if (message?.post?.imagePublicId) {
-      deleteImageCloudinary(message?.post?.imagePublicId);
+    // If there's an associated image, delete it from Cloudinary.
+    if (messagepost?.imagePublicId) {
+      await deleteImageCloudinary(messagepost.imagePublicId);
     }
 
-    // Delete the parent message
+    // Finally, delete the message itself.
     await prisma.message.delete({
       where: { id: messageId },
     });
 
     return { success: "Message deleted successfully" };
   } catch (error) {
-    console.log(error);
+    console.error("Error deleting message:", error);
+    throw error;
   }
 };
 
 export const updateReaction = async (
   id: string,
   userId: string,
-  name: string,
-  image: string,
   reaction: string
 ) => {
   try {
     // Fetch the current reactions for the message
-    const messageData = await prisma.message.findUnique({
+    const reactions = await prisma.reaction.findMany({
       where: { id },
-      select: { reactions: true },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            image: true,
+            name: true,
+          },
+        },
+      },
     });
-    if (!messageData) {
+
+    if (!reactions) {
       return { error: "Message not found", updatedReactions: [] };
     }
-    const currentReactions = messageData.reactions || [];
+    const currentReactions = reactions || [];
+
     // Find if the current user already reacted
-    const existingReaction = currentReactions.find((r) => r.userId === userId);
-    let newReactionsArray;
+    const existingReaction = await prisma.reaction.findFirst({
+      where: {
+        messageId: id,
+        userId: userId,
+      },
+    });
+
     if (existingReaction) {
-      if (existingReaction.reaction === reaction) {
+      if (existingReaction?.reaction === reaction) {
         // If the same reaction is clicked, remove it
-        newReactionsArray = currentReactions.filter((r) => r.userId !== userId);
-        await prisma.message.update({
-          where: { id },
-          data: { reactions: newReactionsArray },
+        await prisma.reaction.delete({
+          where: {
+            id: existingReaction.id,
+          },
         });
         return {
           success: "Reaction removed successfully",
-          updatedReactions: newReactionsArray,
+          updatedReactions: currentReactions.filter((r) => r.userId !== userId),
         };
       } else {
-        // If a different reaction exists, update it (replace the previous reaction)
-        newReactionsArray = currentReactions.map((r) =>
-          r.userId === userId ? { ...r, reaction, name, image } : r
-        );
-        await prisma.message.update({
-          where: { id },
-          data: { reactions: newReactionsArray },
+        // If a different reaction is clicked, update it
+        await prisma.reaction.update({
+          where: {
+            id: existingReaction.id,
+          },
+          data: {
+            reaction,
+          },
         });
-        return {
-          success: "Reaction updated successfully",
-          updatedReactions: newReactionsArray,
-        };
       }
-    } else {
-      // If no reaction exists for this user, add the new reaction by building a new array
-      newReactionsArray = [
-        ...currentReactions,
-        { userId, name, image, reaction },
-      ];
-      await prisma.message.update({
-        where: { id },
-        data: { reactions: newReactionsArray },
-      });
-      return {
-        success: "Reaction added successfully",
-        updatedReactions: newReactionsArray,
-      };
     }
+
+    // Add new reaction
+    await prisma.reaction.create({
+      data: {
+        messageId: id,
+        userId,
+        reaction,
+      },
+    });
+
+    const newReactionsArray = await prisma.reaction.findMany({
+      where: {
+        messageId: id,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            image: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return {
+      success: "Reaction added successfully",
+      updatedReactions: newReactionsArray,
+    };
   } catch (error) {
     console.error(error);
     throw error;
@@ -370,6 +410,15 @@ export const getConversation = async (id: string) => {
   try {
     const conversation = await prisma.conversation.findFirst({
       where: { id: id },
+      include: {
+        participants: {
+          include: {
+            user: {
+              select: { id: true, username: true, image: true, name: true },
+            },
+          },
+        },
+      },
     });
     return conversation;
   } catch (error) {
@@ -386,6 +435,20 @@ export const getMessages = async (
     where: { conversationId },
     include: {
       sender: { select: { id: true, username: true, image: true } },
+      post: {
+        include: {
+          postUser: {
+            select: { id: true, username: true, image: true, name: true },
+          },
+        },
+      },
+      reactions: {
+        include: {
+          user: {
+            select: { id: true, username: true, image: true, name: true },
+          },
+        },
+      },
       parentMessage: {
         include: {
           sender: { select: { id: true, username: true, image: true } },
@@ -434,29 +497,14 @@ export const addParticipants = async (
       return { error: "Invalid conversation data" };
     }
 
-    const participantsInfo = participantIds.map(async (id) => {
-      const user = await getUserById(id);
-      return {
-        userId: user?.id as string,
-        username: user?.username as string,
-        image: user?.image as string,
-      };
+    // Update conversation
+    await prisma.participant.createMany({
+      data: participantIds.map((id) => ({
+        conversationId,
+        userId: id,
+      })),
     });
 
-    const temp = [...(await Promise.all(participantsInfo))];
-    // Update conversation
-    await prisma.conversation.update({
-      where: { id: conversationId },
-      data: {
-        participants: {
-          push: temp.map((user) => ({
-            userId: user.userId,
-            username: user.username,
-            image: user.image,
-          })),
-        },
-      },
-    });
     return { success: "Participants added successfully" };
   } catch (error) {
     console.log(error);
@@ -486,15 +534,10 @@ export const removeParticipant = async (
     if (!conversationId || !userId) {
       return { error: "Invalid conversation data" };
     }
-    await prisma.conversation.update({
-      where: { id: conversationId },
-      data: {
-        participants: {
-          deleteMany: {
-            // Use deleteMany to remove the participant record matching userId
-            where: { userId: userId },
-          },
-        },
+    await prisma.participant.delete({
+      where: {
+        conversationId,
+        userId,
       },
     });
     return { success: "Participant removed successfully" };

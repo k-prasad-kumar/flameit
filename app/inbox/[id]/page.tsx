@@ -21,13 +21,8 @@ const Chat = async ({ params }: { params: Promise<{ id: string }> }) => {
 
   return (
     <Suspense fallback={<Loading />}>
-      <div className="w-full max-w-screen-sm mx-auto mt-16 md:mt-14">
-        <ChatPage
-          conversation={conversation}
-          userId={user?.id}
-          name={user?.name as string}
-          image={user?.image as string}
-        />
+      <div className="w-full h-screen max-w-screen-sm mx-auto">
+        <ChatPage conversation={conversation} userId={user?.id} />
       </div>
     </Suspense>
   );

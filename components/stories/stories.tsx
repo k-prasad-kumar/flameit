@@ -56,7 +56,9 @@ const Stories = ({
                       height="16"
                     />
                   </div>
-                  <p className="truncate w-16 text-xs">{story.username}</p>
+                  <p className="truncate w-full text-center text-xs">
+                    {story.username}
+                  </p>
                 </div>
               </CarouselItem>
             </Link>

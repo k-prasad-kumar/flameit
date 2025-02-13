@@ -89,12 +89,8 @@ const UserPosts = ({ userId }: { userId: string }) => {
         </div>
       ) : (
         <div className="w-full grid grid-cols-3 gap-1 mb-14">
-          {postsData.map((post) => (
-            <Link
-              href={`/p/${post?.id}`}
-              key={post?.id}
-              className="relative group"
-            >
+          {postsData.map((post, idx) => (
+            <Link href={`/p/${post?.id}`} key={idx} className="relative group">
               <Image
                 src={post?.images[0]?.url}
                 width={100}

@@ -239,17 +239,20 @@ const UpdateGroup = ({
                   key={participant.userId}
                   className="flex items-center justify-between md:hover:bg-gray-200 md:dark:hover:bg-gray-800 px-0 md:px-2 my-1"
                 >
-                  <Link href={`/${participant?.username}`} className="w-full">
+                  <Link
+                    href={`/${participant?.user.username}`}
+                    className="w-full"
+                  >
                     <div className="flex items-center gap-2 md:gap-4 my-2">
                       <ProfileAvatar
-                        image={participant?.image as string}
+                        image={participant?.user.image as string}
                         width="12"
                         height="12"
                         alt="profile"
                       />
                       <div className="flex flex-col gap-1">
                         <p className="font-semibold text-sm w-full truncate">
-                          {participant?.username}
+                          {participant?.user.username}
                         </p>
                         {participant?.userId === owner && (
                           <p className="text-xs opacity-70">Admin</p>

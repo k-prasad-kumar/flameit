@@ -204,9 +204,10 @@ export interface OneConversationInterface {
 }
 
 export type Participant = {
+  id: string;
   userId: string;
-  username: string;
-  image: string | null;
+  conversationId: string;
+  user: UserInfo;
 };
 
 export interface MessageInterface {
@@ -223,18 +224,20 @@ export interface MessageInterface {
 }
 
 type MessagePost = {
+  id: string;
+  postUserId: string | null;
+  messageId: string;
   postId: string | null;
   image: string | null;
   imagePublicId: string | null;
-  userImage: string | null;
-  username: string | null;
+  postUser: UserInfo;
 };
 
 export interface Reactions {
+  id: string;
   userId: string;
-  name: string;
-  image: string | null;
   reaction: string;
+  user: UserInfo;
 }
 
 type Sender = {

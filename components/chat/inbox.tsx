@@ -208,7 +208,9 @@ const InboxPage = ({
                   <div className="relative w-fit mb-3">
                     <div className="border-2 rounded-full">
                       <ProfileAvatar
-                        image={conversation.participants[0].image as string}
+                        image={
+                          conversation.participants[0].user.image as string
+                        }
                         alt="profile"
                         width="8"
                         height="8"
@@ -218,7 +220,8 @@ const InboxPage = ({
                       <ProfileAvatar
                         image={
                           conversation.participants.length > 1
-                            ? (conversation.participants[1].image as string)
+                            ? (conversation.participants[1].user
+                                .image as string)
                             : "https://github.com/shadcn.png"
                         }
                         alt="profile"
@@ -241,11 +244,11 @@ const InboxPage = ({
                               onlineUsers.includes(p.userId)
                           );
                           return onlineGroup.length > 0
-                            ? onlineGroup[0].username +
+                            ? onlineGroup[0].user.username +
                                 ", " +
                                 `${
-                                  onlineGroup[1]?.username
-                                    ? onlineGroup[1].username
+                                  onlineGroup[1]?.user.username
+                                    ? onlineGroup[1].user.username
                                     : ""
                                 }` +
                                 " ... online"
@@ -274,7 +277,7 @@ const InboxPage = ({
                       <div className="flex items-center space-x-4 h-fit w-full">
                         <div className="relative w-fit">
                           <ProfileAvatar
-                            image={participant.image as string}
+                            image={participant.user.image as string}
                             alt="profile"
                             width="12"
                             height="12"
@@ -289,7 +292,9 @@ const InboxPage = ({
                         </div>
                         <div className="w-5/6 flex justify-between items-center">
                           <div className="w-full">
-                            <h2 className="truncate">{participant.username}</h2>
+                            <h2 className="truncate">
+                              {participant.user.username}
+                            </h2>
                             <p className="truncate text-xs w-full">
                               {conversation.lastMessage
                                 ? conversation.lastMessage

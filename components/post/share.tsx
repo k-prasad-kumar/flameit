@@ -33,14 +33,14 @@ const SharePost = ({
   postId,
   image,
   userId,
+  postUserId,
   postUsername,
-  postUserImage,
 }: {
   postId: string;
   image: string;
   userId: string;
+  postUserId: string;
   postUsername: string;
-  postUserImage: string;
 }) => {
   const [users, setUsers] = useState<
     {
@@ -110,8 +110,8 @@ const SharePost = ({
             if (participant?.userId !== userId) {
               newUsers.push({
                 conversationId: conversation?.id as string,
-                image: participant?.image as string,
-                name: participant?.username as string,
+                image: participant?.user.image as string,
+                name: participant?.user.username as string,
                 participants: [participant?.userId],
               });
             }
@@ -161,10 +161,9 @@ const SharePost = ({
     startTransition(() => {
       selectedUsers?.forEach((user) => {
         sendMessage(user?.conversationId, userId, text ? text : null, null, {
+          postUserId: postUserId,
           postId: postId,
           image: image,
-          username: postUsername,
-          userImage: postUserImage,
         }).then((data) => {
           if (data?.success) {
             if (socket && socket.connected) {

@@ -89,7 +89,7 @@ const StoriesPage = ({
   };
   return (
     <div className="w-full h-screen relative z-50 bg-background">
-      <div className="absolute top-0 left-0 w-full bg-background p-4 flex justify-between">
+      <div className="absolute top-0 left-0 w-full bg-background p-4 flex justify-between border-2 border-red-500">
         <Link href="/" className="flex items-center space-x-1">
           <FlameIcon size={32} />
           <h1 className="text-2xl font-semibold mt-1">FlameIt.</h1>
@@ -105,7 +105,7 @@ const StoriesPage = ({
               <CarouselContent className="w-full h-full ml-[0px]">
                 {stories?.map((story) => (
                   <CarouselItem
-                    className={`w-full h-screen relative p-0 ${
+                    className={`w-screen h-screen relative p-0 ${
                       story.text
                         ? "bg-gradient-to-tl  from-[#00ddff] to-[#ff00d4]"
                         : "bg-background"
@@ -124,8 +124,8 @@ const StoriesPage = ({
                           alt="profile"
                         />
                         <div>
-                          <p>{story.user.username}</p>
-                          <p className="text-xs">
+                          <p>{story.user.name}</p>
+                          <p className="text-[10px]">
                             {getRelativeTime(story.createdAt)}
                           </p>
                         </div>

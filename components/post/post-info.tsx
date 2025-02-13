@@ -16,11 +16,10 @@ const PostInfo = ({
   postId,
   image,
   postUserId,
+  postUsername,
   savedBy,
   userId,
   username,
-  postUsername,
-  postUserImage,
 }: {
   likes: Like[];
   likesCount: number;
@@ -33,7 +32,6 @@ const PostInfo = ({
   userId: string;
   username: string;
   postUsername: string;
-  postUserImage: string;
 }) => {
   return (
     <div className="w-full">
@@ -62,10 +60,10 @@ const PostInfo = ({
           <div className="flex items-center">
             <SharePost
               postId={postId}
+              postUserId={postUserId}
               postUsername={postUsername}
               userId={userId}
               image={image}
-              postUserImage={postUserImage}
             />
           </div>
         </div>
