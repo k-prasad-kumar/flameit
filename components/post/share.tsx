@@ -27,7 +27,6 @@ import {
 import { OneConversationInterface } from "@/types/types";
 import { Button } from "../ui/button";
 import { useSocket } from "@/context/use.socket";
-import { useRouter } from "next/navigation";
 
 const SharePost = ({
   postId,
@@ -68,7 +67,6 @@ const SharePost = ({
 
   const [isPending, startTransition] = useTransition();
   const socket = useSocket();
-  const router = useRouter();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -186,7 +184,7 @@ const SharePost = ({
               setText(null);
             }
 
-            router.push("/inbox");
+            toast.success("Post Shared Successfully");
           }
         });
       });
