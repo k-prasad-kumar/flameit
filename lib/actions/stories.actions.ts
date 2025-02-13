@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { StoryUserInfoInterface, StroriesInterface } from "@/types/types";
 import { revalidatePath } from "next/cache";
+import { deleteImageCloudinary } from "./delete.image.actions";
 
 export const addStory = async (data: StroriesInterface) => {
   try {
@@ -156,6 +157,16 @@ export const getStoriesUserInfo = async () => {
 
 export const deleteExpiredStories = async () => {
   try {
+    const expiredStories = await prisma.stories.findMany({
+      where: { expiresAt: { lte: new Date() } },
+    });
+
+    expiredStories.forEach(async (story) => {
+      if (story?.image?.public_id) {
+        deleteImageCloudinary(story?.image?.public_id as string);
+      }
+    });
+
     await prisma.stories.deleteMany({
       where: { expiresAt: { lte: new Date() } },
     });
