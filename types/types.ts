@@ -231,7 +231,6 @@ export interface MessageForInboxInterface {
   text: string | null;
   seenBy: string[];
   createdAt: Date;
-  sender: Sender;
 }
 
 export interface MessageInterface {

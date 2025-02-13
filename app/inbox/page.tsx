@@ -17,25 +17,8 @@ const Inbox = async () => {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  // const conversations: ConversationInterface[] | undefined =
-  //   await getAllConversations(user?.id as string);
-
-  const conversations: ConversationForInboxInterface[] | undefined = (
-    await getAllConversations(user?.id as string)
-  )?.map((conversation) => ({
-    ...conversation,
-    messages: conversation.messages.map((message) => ({
-      ...message,
-      sender: {
-        id: message.senderId,
-        username: "", // fill in the username from the user data
-        image: "", // fill in the image from the user data
-      },
-      // post: message?.post ? message?.post : null,
-      // reactions: message.reactions,
-      // parentMessage: message.parentMessage, // add this line
-    })),
-  }));
+  const conversations: ConversationForInboxInterface[] | undefined =
+    await getAllConversations(user?.id as string);
 
   const followers: FollowerInterface[] = await getFollowers(user?.id as string);
   const following: FollowingInterface[] = await getFollowing(
