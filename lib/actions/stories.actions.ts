@@ -75,8 +75,11 @@ export const addStoryComment = async (
   }
 };
 
-export const deleteStory = async (id: string) => {
+export const deleteStory = async (id: string, publicId: string) => {
   try {
+    if (publicId) {
+      await deleteImageCloudinary(publicId);
+    }
     await prisma.stories.delete({ where: { id: id as string } });
     return { success: "Story deleted successfully" };
   } catch (error) {

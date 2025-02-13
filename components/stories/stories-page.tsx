@@ -50,37 +50,43 @@ const StoriesPage = ({
   stories: StroriesResponseInterface[];
 }) => {
   const [text, setText] = useState<string>("");
+  const [likePending, setLikePending] = useState<boolean>(false);
+  const [commnetPending, setCommnetPending] = useState<boolean>(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   const handleLike = (id: string, type: string) => {
+    setLikePending(true);
     startTransition(() => {
       updateStoryLike(id, userId, type).then((data) => {
         if (data?.success) {
+          setLikePending(false);
           router.refresh();
         }
       });
     });
   };
+
   const handleComment = (id: string) => {
     if (!text) return toast.error("Type something");
     if (text.length > 100)
       return toast.error("Maximum text length is 100 characters");
-
+    setCommnetPending(true);
     startTransition(() => {
       addStoryComment(id, userId, text).then((data) => {
         if (data?.success) {
           toast.success(data?.success);
           setText("");
+          setCommnetPending(false);
           router.refresh();
         }
       });
     });
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: string, public_id: string) => {
     startTransition(() => {
-      deleteStory(id).then((data) => {
+      deleteStory(id, public_id).then((data) => {
         if (data?.success) {
           router.push("/");
         }
@@ -89,7 +95,7 @@ const StoriesPage = ({
   };
   return (
     <div className="w-full h-screen relative z-50 bg-background">
-      <div className="absolute top-0 left-0 w-full bg-background p-4 flex justify-between border-2 border-red-500">
+      <div className="absolute top-0 left-0 w-full bg-background p-4 flex justify-between">
         <Link href="/" className="flex items-center space-x-1">
           <FlameIcon size={32} />
           <h1 className="text-2xl font-semibold mt-1">FlameIt.</h1>
@@ -105,11 +111,7 @@ const StoriesPage = ({
               <CarouselContent className="w-full h-full ml-[0px]">
                 {stories?.map((story) => (
                   <CarouselItem
-                    className={`w-screen h-screen relative p-0 ${
-                      story.text
-                        ? "bg-gradient-to-tl  from-[#00ddff] to-[#ff00d4]"
-                        : "bg-background"
-                    }`}
+                    className={`w-screen h-screen relative p-0 bg-gradient-to-tl  from-[#00ddff] to-[#ff00d4]`}
                     key={story.id}
                   >
                     <div className="w-full absolute top-0 left-0 flex items-center justify-between gap-2 text-white rounded-full mx-4 my-2">
@@ -145,12 +147,19 @@ const StoriesPage = ({
                               </DialogHeader>
                               <div className="flex items-center justify-center gap-5">
                                 <DialogClose>
-                                  <Button variant={"secondary"}>Cancel</Button>
+                                  <p className="cursor-pointer rounded-md border h-full py-[6px] px-4 bg-gray-200 dark:bg-gray-600">
+                                    Cancel
+                                  </p>
                                 </DialogClose>
                                 <Button
                                   variant={"destructive"}
                                   type="button"
-                                  onClick={() => handleDelete(story.id)}
+                                  onClick={() =>
+                                    handleDelete(
+                                      story.id,
+                                      story.image?.public_id as string
+                                    )
+                                  }
                                   disabled={isPending}
                                 >
                                   {isPending ? (
@@ -172,7 +181,7 @@ const StoriesPage = ({
                       )}
                     </div>
                     {story.image ? (
-                      <div className="w-full h-[calc(100vh-130px)] flex items-center justify-center mt-14 mb-14">
+                      <div className="w-full h-[calc(100vh-130px)] flex items-center justify-center mt-14 mb-14 relative">
                         <Image
                           src={story.image?.url as string}
                           width={100}
@@ -182,6 +191,9 @@ const StoriesPage = ({
                           className="w-auto h-full object-cover"
                           alt="post"
                         />
+                        <div className="absolute -bottom-0 left-0 w-full h-fit bg-black/40 text-white px-4 py-2 text-center">
+                          <p className="text-sm break-words">{story?.text}</p>
+                        </div>
                       </div>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center px-5">
@@ -206,8 +218,23 @@ const StoriesPage = ({
                           value={text}
                           onChange={(e) => setText(e.target.value)}
                         />
-                        <button onClick={() => handleComment(story.id)}>
-                          <SendIcon strokeWidth={1.5} color="white" />
+                        <button
+                          onClick={() => handleComment(story.id)}
+                          disabled={commnetPending}
+                        >
+                          {commnetPending ? (
+                            <span
+                              className={`justify-center items-center ${
+                                commnetPending ? "flex" : "hidden"
+                              }`}
+                            >
+                              <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
+                            </span>
+                          ) : (
+                            <span>
+                              <SendIcon strokeWidth={1.5} color="white" />
+                            </span>
+                          )}
                         </button>
                         <div>
                           <button
@@ -222,26 +249,40 @@ const StoriesPage = ({
                               )
                             }
                             className="px-0 w-10 h-10 flex items-center justify-center"
-                            disabled={isPending}
+                            disabled={likePending}
                           >
-                            <HeartIcon
-                              color="white"
-                              size={28}
-                              fill={
-                                story.likes.some(
-                                  (like: StoryLike) => like.userId === userId
-                                )
-                                  ? "red"
-                                  : "none"
-                              }
-                              strokeWidth={
-                                story.likes.some(
-                                  (like: StoryLike) => like.userId === userId
-                                )
-                                  ? 0
-                                  : 1.5
-                              }
-                            />
+                            {likePending ? (
+                              <span
+                                className={`justify-center items-center ${
+                                  likePending ? "flex" : "hidden"
+                                }`}
+                              >
+                                <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
+                              </span>
+                            ) : (
+                              <span>
+                                <HeartIcon
+                                  color="white"
+                                  size={28}
+                                  fill={
+                                    story.likes.some(
+                                      (like: StoryLike) =>
+                                        like.userId === userId
+                                    )
+                                      ? "red"
+                                      : "none"
+                                  }
+                                  strokeWidth={
+                                    story.likes.some(
+                                      (like: StoryLike) =>
+                                        like.userId === userId
+                                    )
+                                      ? 0
+                                      : 1.5
+                                  }
+                                />
+                              </span>
+                            )}
                           </button>
                         </div>
                       </div>

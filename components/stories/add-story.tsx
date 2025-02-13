@@ -45,8 +45,8 @@ const AddStory = ({ userId }: { userId: string }) => {
     if (image === null && text === null)
       return toast.error("Upload an image or type something");
 
-    if (text !== null && text?.length > 200)
-      return toast.error("Maximum text length is 200 characters");
+    if (text !== null && text?.length > 150)
+      return toast.error("Maximum text length is 150 characters");
     startTransition(() => {
       addStory({ userId, text, image }).then((data) => {
         if (data?.success) {
@@ -89,7 +89,7 @@ const AddStory = ({ userId }: { userId: string }) => {
             <div className="flex flex-col w-full relative">
               <Input
                 placeholder="Add a caption..."
-                className="text-sm pr-8 w-full bg-inherit"
+                className="text-sm pr-8 w-full bg-gray-100 text-black"
                 onChange={(e) => setText(e.target.value)}
                 value={text ? text : ""}
               />
