@@ -18,7 +18,7 @@ function otpGenerator() {
 
 export const generateEmailVerificationPin = async (email: string) => {
   const pin = otpGenerator().toString();
-  console.log("generated otp is  ------------", pin);
+
   const expiresAt = new Date(new Date().getTime() + 5 * 60 * 1000);
 
   const existingPin = await prisma.emailVerification.findFirst({
