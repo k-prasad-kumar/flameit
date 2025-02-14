@@ -86,6 +86,7 @@ const LoginForm = () => {
             if (data?.error === "Email not verified") {
               setEmail(values.email);
               setPassword(values.password);
+              setError(undefined);
               setOpen(true);
             } else {
               setError(data?.error);
