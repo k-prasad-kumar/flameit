@@ -52,7 +52,7 @@ export const createUser = async (formData: RegisterInterface) => {
     const pin = await generateEmailVerificationPin(formData.email as string);
     await sendVerificationEmail(pin.email, pin.pin);
 
-    return { success: "Registered successfully", email: pin?.email };
+    return { success: "Email sent successfully", email: pin?.email };
   } catch (error) {
     console.log(error);
   }

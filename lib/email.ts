@@ -2,7 +2,6 @@ import sgMail from "@sendgrid/mail";
 sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
 
 export const sendVerificationEmail = async (email: string, token: string) => {
-  console.log("Send Verification Email called---", email, token);
   sgMail
     .send({
       from: "prasadkumar1431234@gmail.com",
@@ -46,13 +45,12 @@ export const sendVerificationEmail = async (email: string, token: string) => {
 };
 
 export const sendResetPasswordEmail = async (email: string, token: string) => {
-  console.log("Send Reset Password Email called---", email, token);
   sgMail
     .send({
       from: "prasadkumar1431234@gmail.com",
       to: email,
       subject: "Password Reset Email",
-      text: "",
+      text: "One-time verification code",
       html: `<div>
         <h1 style={{ fontSize: "20px", fontWeight: "bold" }}>
           One-time verification code
