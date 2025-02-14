@@ -1,6 +1,5 @@
 import sgMail from "@sendgrid/mail";
 sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
-console.log("from mail --------", process.env.SENDGRID_API_KEY as string);
 
 export const sendVerificationEmail = async (email: string, token: string) => {
   sgMail
