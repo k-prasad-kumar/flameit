@@ -12,6 +12,11 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { compare, hash } from "bcryptjs";
 import { createNotification, deleteNotification } from "./notification.actions";
+import {
+  generateEmailVerificationPin,
+  generateResetPasswordPin,
+} from "../token";
+import { sendVerificationEmail } from "../email";
 
 export const createUser = async (formData: RegisterInterface) => {
   try {
@@ -20,7 +25,7 @@ export const createUser = async (formData: RegisterInterface) => {
     });
 
     if (user) {
-      return { error: "User already exists" };
+      return { error: "User already exists, Please login." };
     }
 
     const username = await prisma.user.findFirst({
@@ -43,13 +48,144 @@ export const createUser = async (formData: RegisterInterface) => {
         password: hashedPassword,
       },
     });
-    return { success: "Registered successfully" };
+
+    const pin = await generateEmailVerificationPin(formData.email as string);
+    await sendVerificationEmail(pin.email, pin.pin);
+
+    return { success: "Registered successfully", email: pin?.email };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const checkVerification = async (email: string, pin: string) => {
+  try {
+    if (!email || !pin) return { error: "Please provide both email & pin." };
+
+    const verificationRecord = await prisma.emailVerification.findFirst({
+      where: { email },
+    });
+
+    if (!verificationRecord) {
+      return { error: "Verification record not found" };
+    }
+
+    if (verificationRecord.pin !== pin) {
+      return { error: "Incorrect one-time code" };
+    }
+
+    const now = new Date();
+    // Optionally check if the code has expired
+    if (now > new Date(verificationRecord.expiresAt)) {
+      return { error: "The verification code has expired." };
+    }
+
+    // Update user's emailVerified field with the current time
+    await prisma.user.update({
+      where: { email },
+      data: { emailVerified: now },
+    });
+
+    // Optionally, delete or mark the verification record as used
+    await prisma.emailVerification.delete({
+      where: { id: verificationRecord.id },
+    });
+
+    return { success: "Email verified successfully" };
+  } catch (error) {
+    console.error(error);
+    return { error: "An error occurred while verifying your email." };
+  }
+};
+
+export const sendResetPasswordEmail = async (email: string) => {
+  try {
+    const user = await prisma.user.findFirst({ where: { email } });
+    if (!user) return { error: "User not found" };
+
+    const pin = await generateResetPasswordPin(email);
+    await sendVerificationEmail(pin.email, pin.pin);
+    return { success: "Email sent successfully", email: pin?.email };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const passwordResetVerification = async (email: string, pin: string) => {
+  try {
+    console.log(email, pin);
+    if (!email || !pin) return { error: "Please provide both email & pin." };
+
+    const verificationRecord = await prisma.passwordReset.findFirst({
+      where: { email },
+    });
+
+    if (!verificationRecord) {
+      return { error: "Verification record not found" };
+    }
+
+    if (verificationRecord.pin !== pin) {
+      return { error: "Incorrect one-time code" };
+    }
+
+    const now = new Date();
+    // Optionally check if the code has expired
+    if (now > new Date(verificationRecord.expiresAt)) {
+      return { error: "The verification code has expired." };
+    }
+
+    // Optionally, delete or mark the verification record as used
+    await prisma.passwordReset.delete({
+      where: { id: verificationRecord.id },
+    });
+
+    return { success: "Forgot password email verified successfully" };
+  } catch (error) {
+    console.error(error);
+    return { error: "An error occurred while verifying your email." };
+  }
+};
+
+export const resetPassword = async (email: string, password: string) => {
+  try {
+    const hashedPassword: string = await hash(password as string, 10);
+
+    await prisma.user.update({
+      where: { email },
+      data: {
+        password: hashedPassword,
+      },
+    });
+    return { success: "Password reset successfully" };
   } catch (error) {
     console.log(error);
   }
 };
 
 export const login = async (email: string, password: string) => {
+  const user = await prisma.user.findFirst({
+    where: { email: email as string },
+  });
+
+  if (!user) {
+    return { error: "User not found" };
+  }
+
+  const isPasswordCorrect = await compare(
+    password as string,
+    user.password as string
+  );
+
+  if (!isPasswordCorrect) {
+    return { error: "Incorrect password" };
+  }
+
+  if (!user.emailVerified) {
+    const pin = await generateEmailVerificationPin(email as string);
+    await sendVerificationEmail(pin.email, pin.pin);
+    return { error: "Email not verified" };
+  }
+
   try {
     await signIn("credentials", {
       email,

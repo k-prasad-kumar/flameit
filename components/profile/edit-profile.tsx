@@ -251,9 +251,9 @@ const EditProfile = ({
       {hasPassword && (
         <Accordion type="single" collapsible>
           <AccordionItem value="item-1">
-            <AccordionTrigger>Change Password</AccordionTrigger>
+            <AccordionTrigger>Change Your Password</AccordionTrigger>
             <AccordionContent>
-              <div className="w-full px-1">
+              <div className="w-full px-1 pt-5">
                 <Form {...changePasswordForm}>
                   <form
                     onSubmit={changePasswordForm.handleSubmit(
@@ -303,11 +303,11 @@ const EditProfile = ({
                       name="confirmPassword"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Confirm Password</FormLabel>
+                          <FormLabel>Confirm New Password</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              type="text"
+                              type="password"
                               placeholder="٭٭٭٭٭٭٭٭"
                               disabled={isPending}
                             />

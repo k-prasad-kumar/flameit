@@ -33,7 +33,7 @@ export const ChangePasswordSchema = z
   .object({
     currentPassword: z.string().min(4, "Current Password is required"),
     newPassword: z.string().min(4, "New Password is required"),
-    confirmPassword: z.string().min(4, "confirm Password is required"),
+    confirmPassword: z.string().min(4, "Confirm New Password is required"),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Passwords doesn't match",
@@ -43,4 +43,14 @@ export const ChangePasswordSchema = z
     message:
       "New password cannot be the same as the current password. Please choose a different password.",
     path: ["newPassword"], // path of error
+  });
+
+export const ResetPasswordSchema = z
+  .object({
+    newPassword: z.string().min(4, "New Password is required"),
+    confirmPassword: z.string().min(4, "Confirm New Password is required"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords doesn't match",
+    path: ["confirmPassword"], // path of error
   });

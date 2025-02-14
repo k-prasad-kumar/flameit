@@ -455,7 +455,7 @@ export const getPosts = async (skip?: number, take?: number) => {
                     id: true,
                     name: true,
                     username: true,
-                    image: true, // Include user details for replies
+                    image: true,
                   },
                 },
               },
@@ -464,21 +464,14 @@ export const getPosts = async (skip?: number, take?: number) => {
               },
             },
           },
-
-          // take: 5, // Optionally limit the number of comments per post
         },
-        // taggedUsers: {
-        //   select: {
-        //     userId: true,
-        //   },
-        // },
         savedBy: true,
       },
       orderBy: {
         createdAt: "desc", // Sort by newest posts first
       },
-      skip: skip, // Offset for pagination
-      take: take, // Number of posts to fetch per page
+      skip: skip ?? 0, // Default to 0 if skip is null or undefined
+      take: take ?? 5, // Default to 5 if take is null or undefined
     });
 
     return posts;

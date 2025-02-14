@@ -62,9 +62,14 @@ export default {
           "50%": { transform: "scale(1.2)", opacity: "1" },
           "100%": { transform: "scale(1)", opacity: "1" },
         },
+        "caret-blink": {
+          "0%,70%,100%": { opacity: "1" },
+          "20%,50%": { opacity: "0" },
+        },
       },
       animation: {
         pop: "pop 0.3s ease-in-out",
+        "caret-blink": "caret-blink 1.25s ease-out infinite",
       },
     },
   },

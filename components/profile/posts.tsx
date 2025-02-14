@@ -41,6 +41,10 @@ const UserPosts = ({ userId }: { userId: string }) => {
 
   const onScroll = () => {
     const scrollElement = document.documentElement;
+
+    // Do nothing if the content is too short to scroll.
+    if (scrollElement.scrollHeight <= scrollElement.clientHeight) return;
+
     const isBottomReached =
       scrollElement.scrollHeight - scrollElement.scrollTop <=
       scrollElement.clientHeight + 200; // Adjust buffer

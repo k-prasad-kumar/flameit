@@ -320,3 +320,20 @@ model StoryComment {
 
   @@index([storyId])   // Optimize queries for comments on a specific post
 }
+
+
+model PasswordReset {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  email     String     
+  pin       String 
+  expiresAt DateTime    
+  createdAt DateTime   @default(now()) 
+}
+
+model EmailVerification {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  email     String     
+  pin       String     
+  expiresAt DateTime
+  createdAt DateTime   @default(now()) 
+}

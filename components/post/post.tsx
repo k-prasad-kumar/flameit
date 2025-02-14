@@ -12,10 +12,9 @@ import {
 import { Separator } from "../ui/separator";
 import Link from "next/link";
 import { getRelativeTime } from "@/lib/relative-time";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { getPosts } from "@/lib/actions/post.actions";
 import { PostResponseInterface } from "@/types/types";
-
 import dynamic from "next/dynamic";
 import TruncateCaption from "./caption-truncate";
 
@@ -32,34 +31,55 @@ const PostsCard = ({
   username: string;
 }) => {
   const [loading, setLoading] = useState(false);
-  const [postsData, setPostsData] = useState(posts);
+  const [postsData, setPostsData] = useState<PostResponseInterface[]>(posts);
   const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
-  const loadMoreData = async () => {
+  // Function to load more posts.
+  const loadMoreData = useCallback(async () => {
+    if (loading || !hasMore) return;
     setLoading(true);
-
-    const posts: PostResponseInterface[] | undefined = await getPosts(
-      page * 5,
-      5
-    );
-    setPostsData([...postsData, ...posts!]);
-    setPage(page + 1);
-    setLoading(false);
-  };
-  const onScroll = async () => {
-    if (
-      window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 &&
-      !loading
-    ) {
-      await loadMoreData();
+    try {
+      const newPosts: PostResponseInterface[] | undefined = await getPosts(
+        page * 5,
+        5
+      );
+      if (newPosts && newPosts.length > 0) {
+        setPostsData((prev) => [...prev, ...newPosts]);
+        setPage((prev) => prev + 1);
+      } else {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error("Failed to load posts:", error);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [loading, hasMore, page]);
 
+  // Use Intersection Observer to load more data when the sentinel is visible.
   useEffect(() => {
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, page]);
+    if (!hasMore || loading) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMoreData();
+        }
+      },
+      { threshold: 0.5 } // Trigger when 50% of the sentinel is visible.
+    );
+    const currentSentinel = sentinelRef.current;
+    if (currentSentinel) {
+      observer.observe(currentSentinel);
+    }
+    return () => {
+      if (currentSentinel) {
+        observer.unobserve(currentSentinel);
+      }
+    };
+  }, [hasMore, loading, loadMoreData]);
+
   return (
     <div className="sm:mx-24 md:mx-20 lg:mx-12">
       {postsData.length > 0 &&
@@ -87,7 +107,7 @@ const PostsCard = ({
               />
             </div>
             <Carousel
-              className={` w-full h-full max-w-full ${
+              className={`w-full h-full max-w-full ${
                 post.images.length > 0 ? "flex" : "hidden"
               } justify-center shadow items-center relative border`}
             >
@@ -98,7 +118,7 @@ const PostsCard = ({
                       <CarouselItem key={image.public_id}>
                         <div className="flex aspect-square items-center justify-center">
                           <Image
-                            src={`${image.url}`}
+                            src={image.url}
                             width={100}
                             height={100}
                             sizes="100%"
@@ -131,7 +151,6 @@ const PostsCard = ({
               likesCount={post?.likesCount as number}
               savedBy={post?.savedBy}
             />
-
             {post?.caption && (
               <div className="px-3 md:px-0 text-sm">
                 <TruncateCaption
@@ -146,12 +165,20 @@ const PostsCard = ({
             <Separator className="my-5 hidden md:flex" />
           </div>
         ))}
+      {/* Sentinel element for Intersection Observer */}
+      <div ref={sentinelRef} />
       {loading && (
         <div className="w-full flex justify-center items-center mt-4">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></div>
+        </div>
+      )}
+      {!hasMore && !loading && (
+        <div className="text-center text-gray-500 mt-4 mb-24">
+          You have reached the end.
         </div>
       )}
     </div>
   );
 };
+
 export default PostsCard;
