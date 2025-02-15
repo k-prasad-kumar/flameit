@@ -157,6 +157,9 @@ export const deleteConversation = async (id: string) => {
     // Delete all messages in the conversation
     await prisma.message.deleteMany({ where: { conversationId: id } });
 
+    // delete all participants
+    await prisma.participant.deleteMany({ where: { conversationId: id } });
+
     // Delete conversation
     await prisma.conversation.delete({ where: { id } });
 

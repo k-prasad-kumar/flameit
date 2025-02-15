@@ -40,6 +40,8 @@ import { deleteImageCloudinary } from "@/lib/actions/delete.image.actions";
 import UpdateGroup from "./update-group";
 import { groupMessages } from "@/lib/group-messages";
 
+import DeleteChat from "./delete-chat";
+
 const ChatPage = ({
   conversation,
   userId,
@@ -440,13 +442,15 @@ const ChatPage = ({
                 </Link>
               )}
             </div>
-            {conversation?.isGroup && (
+            {conversation?.isGroup ? (
               <UpdateGroup
                 conversationId={conversation?.id}
                 userId={userId}
                 owner={conversation?.ownerId}
                 participants={conversation?.participants}
               />
+            ) : (
+              <DeleteChat conversationId={conversation?.id} />
             )}
           </div>
           {messages?.length === 0 && (

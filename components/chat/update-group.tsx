@@ -58,6 +58,9 @@ const UpdateGroup = ({
   const [open, setOpen] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
 
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
   useEffect(() => {
     const fetchPeople = async () => {
       // Fetch followers and following
@@ -86,9 +89,6 @@ const UpdateGroup = ({
 
     fetchPeople();
   }, [userId, participants]); // Include participants if they might change
-
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
 
   const handleRemove = (id: string) => {
     setGroup((prev) => prev.filter((userId) => userId !== id));
