@@ -1,7 +1,7 @@
 {
   "name": "FlameIt",
   "short_name": "FlameIt",
-  "theme_color": "#00ff00",
+  "theme_color": "#ffffff",
   "background_color": "#ffffff",
   "display": "standalone",
   "orientation": "any",
