@@ -18,9 +18,10 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "FlameIt.",
-    description: "A place to share your thoughts",
+    description:
+      "FlameIt: Express yourself, connect with your community, and discover amazing content. Share photos, create stories, and chat with friends.",
     url: "https://flameit.vercel.app",
-    siteName: "FlameIt.",
+    siteName: "FlameIt.vercel.app.",
     images:
       "https://res.cloudinary.com/flameit/image/upload/v1739565980/FlameIt_ozvqyt.png",
     locale: "en-US",
@@ -29,7 +30,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "FlameIt.",
-    description: "A place to share your thoughts",
+    description:
+      "FlameIt: Express yourself, connect with your community, and discover amazing content. Share photos, create stories, and chat with friends.",
     images:
       "https://res.cloudinary.com/flameit/image/upload/v1739565980/FlameIt_ozvqyt.png",
   },

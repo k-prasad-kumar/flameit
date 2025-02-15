@@ -15,7 +15,6 @@ import Footer from "@/components/layout/footer";
 import Stories from "@/components/stories/stories";
 import { getPosts } from "@/lib/actions/post.actions";
 import { getStoriesUserInfo } from "@/lib/actions/stories.actions";
-import Head from "next/head";
 
 export default async function Home() {
   const user = await getCurrentUser();
@@ -51,27 +50,6 @@ export default async function Home() {
 
   return (
     <Suspense fallback={<Loading />}>
-      <Head>
-        <meta property="og:title" content="FlameIt." />
-        <meta property="og:type" content="image" />
-        <meta property="og:url" content={`https://flameit.vercel.app`} />
-        <meta
-          property="og:image"
-          content={
-            "https://res.cloudinary.com/flameit/image/upload/v1739565980/FlameIt_ozvqyt.png"
-          }
-        />
-        <meta property="og:site_name" content="FlameIt" />
-
-        {/* Optional: For better SEO */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta
-          name="twitter:image"
-          content={
-            "https://res.cloudinary.com/flameit/image/upload/v1739565980/FlameIt_ozvqyt.png"
-          }
-        />
-      </Head>
       <div className="w-full max-w-screen-sm mx-auto mt-14 md:mt-10">
         <div className="px-0 md:px-4 lg:px-14 pt-0 md:pt-5">
           <Stories userImage={user?.image as string} stories={uniqueUsers!} />
