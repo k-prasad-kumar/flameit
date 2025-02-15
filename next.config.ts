@@ -15,7 +15,6 @@ const nextConfig: NextConfig = {
 
   distDir: "build",
   reactStrictMode: true,
-  eactStrictMode: true, // If you're using Strict Mode
   trailingSlash: true, // Important for Vercel
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
