@@ -12,16 +12,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    turbo: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      cacheDir: ".turbo",
-    },
-  },
+
   distDir: "build",
   reactStrictMode: true,
-  // swcMinify: true,
+  eactStrictMode: true, // If you're using Strict Mode
+  trailingSlash: true, // Important for Vercel
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   },
