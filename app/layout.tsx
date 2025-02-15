@@ -12,14 +12,15 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "FlameIt.",
-  description: "A place to share your thoughts",
+  description:
+    "FlameIt: Share your world, connect with friends. Photos, posts, stories, and chat – all in one place.",
   icons: {
     icon: "/favicon.ico",
   },
   openGraph: {
     title: "FlameIt.",
     description:
-      "FlameIt: Express yourself, connect with your community, and discover amazing content. Share photos, create stories, and chat with friends.",
+      "FlameIt: Share your world, connect with friends. Photos, posts, stories, and chat – all in one place.",
     url: "https://flameit.vercel.app",
     siteName: "FlameIt.vercel.app.",
     images:
@@ -27,11 +28,12 @@ export const metadata: Metadata = {
     locale: "en-US",
     type: "website",
   },
+
   twitter: {
     card: "summary_large_image",
     title: "FlameIt.",
     description:
-      "FlameIt: Express yourself, connect with your community, and discover amazing content. Share photos, create stories, and chat with friends.",
+      "FlameIt: Share your world, connect with friends. Photos, posts, stories, and chat – all in one place.",
     images:
       "https://res.cloudinary.com/flameit/image/upload/v1739565980/FlameIt_ozvqyt.png",
   },
