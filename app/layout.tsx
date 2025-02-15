@@ -14,9 +14,7 @@ export const metadata: Metadata = {
   title: "FlameIt.",
   description:
     "FlameIt: Share your world, connect with friends. Photos, posts, stories, and chat – all in one place.",
-  icons: {
-    icon: "/favicon.ico",
-  },
+
   openGraph: {
     title: "FlameIt.",
     description:
@@ -37,6 +35,24 @@ export const metadata: Metadata = {
     images:
       "https://res.cloudinary.com/flameit/image/upload/v1739565980/FlameIt_ozvqyt.png",
   },
+  generator: "Next.js",
+  manifest: "/manifest.json",
+  keywords: ["FlameIt.", "FlameIt", "FlameIt", "FlameIt", "FlameIt"],
+  authors: [{ name: "FlameIt", url: "https://flameit.vercel.app" }],
+  // viewport:
+  //   " minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover",
+  icons: [
+    { rel: "apple-touch-icon", url: "/icons/logo-512.png" },
+    { rel: "icon", url: "/icons/logo-512.png" },
+  ],
+};
+
+export const viewport = {
+  minimumScale: 1,
+  initialScale: 1,
+  width: "device-width",
+  shrinkToFit: "no",
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({
@@ -47,6 +63,12 @@ export default async function RootLayout({
   const user = await getCurrentUser();
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta name="theme-color" content="#ffffff" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/icons/logo-512.png" />
+        <link rel="icon" href="/icons/logo-512.png" />
+      </head>
       <body className={`${inter.className} antialiased`}>
         <ThemeProvider
           attribute="class"
