@@ -13,6 +13,19 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "FlameIt.",
   description: "A place to share your thoughts",
+  icons: {
+    icon: "/favicon.ico",
+  },
+  openGraph: {
+    title: "FlameIt.",
+    description: "A place to share your thoughts",
+    url: "https://flameit.vercel.app",
+    siteName: "FlameIt.",
+    images:
+      "https://res.cloudinary.com/flameit/image/upload/v1739565980/FlameIt_ozvqyt.png",
+    locale: "en-US",
+    type: "website",
+  },
 };
 
 export default async function RootLayout({

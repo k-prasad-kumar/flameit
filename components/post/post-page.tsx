@@ -17,7 +17,6 @@ import { Suspense } from "react";
 import PostSkeleton from "../skeletons/post-skeleton";
 import UserPostOptions from "./post-options";
 import dynamic from "next/dynamic";
-import Head from "next/head";
 
 const DynamicPostInfo = dynamic(() => import("./post-info"));
 
@@ -32,23 +31,6 @@ const PostsCard = ({
 }) => {
   return (
     <>
-      <Head>
-        <meta property="og:title" content={post?.user?.username as string} />
-        <meta property="og:description" content={post?.caption as string} />
-        <meta property="og:image" content={post?.images[0].url} />
-        <meta
-          property="og:url"
-          content={`https://flameit.vercel.app/p/${post?.id}`}
-        />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="FlameIt" />
-
-        {/* Optional: For better SEO */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={post?.user?.username as string} />
-        <meta name="twitter:description" content={post?.caption as string} />
-        <meta name="twitter:image" content={post?.images[0].url} />
-      </Head>
       <Suspense fallback={<PostSkeleton />}>
         <div className="sm:mx-24 md:mx-20 lg:mx-10">
           <div className="w-full pb-4 md:pb-5" key={post?.id}>
