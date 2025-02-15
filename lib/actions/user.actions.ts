@@ -103,6 +103,13 @@ export const sendResetPasswordEmail = async (email: string) => {
     const user = await prisma.user.findFirst({ where: { email } });
     if (!user) return { error: "User not found" };
 
+    if (!user.emailVerified) return { error: "Email not verified" };
+
+    if (!user.password)
+      return {
+        error: "Password not found try to login with social account",
+      };
+
     const pin = await generateResetPasswordPin(email);
     await sendVerificationEmail(pin.email, pin.pin);
     return { success: "Email sent successfully", email: pin?.email };
