@@ -26,6 +26,13 @@ export const metadata: Metadata = {
     locale: "en-US",
     type: "website",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "FlameIt.",
+    description: "A place to share your thoughts",
+    images:
+      "https://res.cloudinary.com/flameit/image/upload/v1739565980/FlameIt_ozvqyt.png",
+  },
 };
 
 export default async function RootLayout({
