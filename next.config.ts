@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  distDir: "build",
+  // distDir: "build",
   reactStrictMode: true,
   trailingSlash: true, // Important for Vercel
   compiler: {
