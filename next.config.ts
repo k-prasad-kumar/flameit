@@ -20,7 +20,7 @@ const nextConfig: NextConfig = {
 };
 
 const pwaOptions = {
-  dest: "public",
+  dest: "static",
   disable: process.env.NODE_ENV === "development",
   register: true,
   skipWaiting: true,

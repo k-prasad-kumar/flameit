@@ -30,7 +30,7 @@ import { ProfileAvatar } from "../avatar";
 import { Input } from "../ui/input";
 import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
-import { getFollowers, getFollowing } from "@/lib/actions/user.actions";
+import { getFollowersForInbox, getFollowing } from "@/lib/actions/user.actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -64,7 +64,7 @@ const UpdateGroup = ({
   useEffect(() => {
     const fetchPeople = async () => {
       // Fetch followers and following
-      const followers: FollowerInterface[] = await getFollowers(userId);
+      const followers: FollowerInterface[] = await getFollowersForInbox(userId);
       const following: FollowingInterface[] = await getFollowing(userId);
 
       // Map each to a common UserInfo array.
