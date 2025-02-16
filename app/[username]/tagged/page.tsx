@@ -5,7 +5,11 @@ import ProfileCard from "@/components/profile/profile";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { getloginUserId, getUserByUsername } from "@/lib/actions/user.actions";
+import {
+  getloginUserId,
+  getUserByUsername,
+  isFollower,
+} from "@/lib/actions/user.actions";
 import { UserProfileInterface } from "@/types/types";
 import NotFound from "@/app/not-found";
 import TaggedPosts from "@/components/profile/tagged";
@@ -29,6 +33,11 @@ const Tagged = async ({
 
   if (!user) return <NotFound />;
 
+  const isFollowerUser = await isFollower(
+    loginUser?.id as string,
+    user?.id as string
+  );
+
   return (
     <Suspense fallback={<Loading />}>
       <div className="w-full max-w-screen-sm mx-auto mt-16 md:mt-10">
@@ -42,29 +51,38 @@ const Tagged = async ({
           followersCount={user?.followersCount as number}
           followingCount={user?.followingCount as number}
           postsCount={user?.postsCount as number}
+          isPrivate={user?.isPrivate as boolean}
+          isFollowerUser={isFollowerUser as boolean}
         />
-        <div className="w-full flex justify-center items-center border-t space-x-10 md:space-x-20">
-          <Link
-            href={`/${username}`}
-            className=" text-slate-500 dark:text-slate-400 py-2 px-2 flex items-center gap-2"
-          >
-            <LayoutDashboardIcon size={16} /> <span>Posts</span>
-          </Link>
-          <Link
-            href={`/${username}/saved`}
-            className="py-2 px-2 flex items-center gap-2 text-slate-500 dark:text-slate-400"
-          >
-            <BookmarkIcon size={16} /> <span>Saved</span>
-          </Link>
-          <Link
-            href={`/${username}/tagged`}
-            className="py-2 px-2 flex items-center gap-2 border-t-2 border-t-black dark:border-t-white"
-          >
-            <Contact2Icon size={16} /> <span>Tagged</span>
-          </Link>
-        </div>
 
-        <TaggedPosts userId={user?.id as string} />
+        {(loginUser?.id === user?.id ||
+          !user?.isPrivate ||
+          (user?.isPrivate && isFollowerUser)) && (
+          <>
+            <div className="w-full flex justify-center items-center border-t space-x-10 md:space-x-20">
+              <Link
+                href={`/${username}`}
+                className=" text-slate-500 dark:text-slate-400 py-2 px-2 flex items-center gap-2"
+              >
+                <LayoutDashboardIcon size={16} /> <span>Posts</span>
+              </Link>
+              <Link
+                href={`/${username}/saved`}
+                className="py-2 px-2 flex items-center gap-2 text-slate-500 dark:text-slate-400"
+              >
+                <BookmarkIcon size={16} /> <span>Saved</span>
+              </Link>
+              <Link
+                href={`/${username}/tagged`}
+                className="py-2 px-2 flex items-center gap-2 border-t-2 border-t-black dark:border-t-white"
+              >
+                <Contact2Icon size={16} /> <span>Tagged</span>
+              </Link>
+            </div>
+
+            <TaggedPosts userId={user?.id as string} />
+          </>
+        )}
       </div>
     </Suspense>
   );

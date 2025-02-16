@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { createPost } from "@/lib/actions/post.actions";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { useSocket } from "@/context/use.socket";
-import { getFollowers } from "@/lib/actions/user.actions";
+import { getFollowersForInbox } from "@/lib/actions/user.actions";
 import { FollowerInterface } from "@/types/types";
 
 const CreatePost = ({
@@ -43,7 +43,7 @@ const CreatePost = ({
   const sendNotifications = async () => {
     if (!socket) return;
 
-    const followers: FollowerInterface[] = await getFollowers(userId);
+    const followers: FollowerInterface[] = await getFollowersForInbox(userId);
     const recivers = followers?.filter((follower) => follower.id);
 
     if (socket && socket.connected) {

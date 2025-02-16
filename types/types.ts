@@ -22,6 +22,7 @@ export interface UserInterface {
   emailVerified: Date | null;
   bio: string | null;
   gender: string | null;
+  isPrivate: boolean;
   followersCount: number;
   followingCount: number;
   postsCount: number;
@@ -40,6 +41,7 @@ export interface UserProfileInterface {
   emailVerified: Date | null;
   bio: string | null;
   gender: string | null;
+  isPrivate: boolean;
   followersCount: number;
   followingCount: number;
   postsCount: number;
@@ -153,6 +155,7 @@ export interface EditProfileInterface {
   username: string;
   bio: string;
   gender: string;
+  isPrivate: boolean;
 }
 
 export interface ChangePasswordInterface {
@@ -164,6 +167,7 @@ export interface FollowerInterface {
   id: string;
   followerId: string;
   followingId: string;
+  isAccepted: boolean;
   createdAt: Date;
   follower: UserInfo;
 }
@@ -172,6 +176,7 @@ export interface FollowingInterface {
   id: string;
   followerId: string;
   followingId: string;
+  isAccepted: boolean;
   createdAt: Date;
   following: UserInfo;
 }

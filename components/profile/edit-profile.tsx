@@ -25,6 +25,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Switch } from "@/components/ui/switch";
 
 import { Textarea } from "../ui/textarea";
 import { Input } from "../ui/input";
@@ -65,6 +66,7 @@ const EditProfile = ({
       username: editProfile.username,
       bio: editProfile.bio,
       gender: editProfile.gender,
+      isPrivate: editProfile.isPrivate,
     },
   });
   const changePasswordForm = useForm<z.infer<typeof ChangePasswordSchema>>({
@@ -91,6 +93,7 @@ const EditProfile = ({
           ...values,
           bio: values.bio!,
           gender: values.gender!,
+          isPrivate: values.isPrivate!,
         },
         editProfile.username
       )
@@ -226,6 +229,25 @@ const EditProfile = ({
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="isPrivate"
+                    render={({ field }) => (
+                      <FormItem className="flex justify-between items-end">
+                        <FormLabel>Private account</FormLabel>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={(checked) =>
+                              field.onChange(checked)
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <FormError message={error} />
                   <FormSuccess message={success} />
 

@@ -39,7 +39,7 @@ const FollowActions = ({
       const isProfileUserFollowing = await isFollowing(
         profileUserId,
         currentUserId
-      ); // Profile user -> Current user
+      ); // Profile Profile user -> user
       setStatus({
         following: isUserFollowing,
         follower: isProfileUserFollowing,

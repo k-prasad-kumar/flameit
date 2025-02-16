@@ -1,8 +1,14 @@
 import * as z from "zod";
 
 export const RegisterSchema = z.object({
-  name: z.string().min(4, "Full Name is required"),
-  username: z.string().min(4, "Username is required"),
+  name: z
+    .string()
+    .min(4, "Full Name is required")
+    .max(20, "Full name too long max 20 character(s)"),
+  username: z
+    .string()
+    .min(4, "Username is required")
+    .max(14, "Username too long max 14 character(s)"),
   email: z.string().email({ message: "Email is required" }),
   password: z.string().min(8, "Password must contain at least 8 character(s)"),
 });
@@ -27,6 +33,7 @@ export const EditProfileSchema = z.object({
     .max(20, "Username too long max 20 character(s)"),
   bio: z.string().max(250, "Bio too long max 250 character(s)").optional(),
   gender: z.string().optional(),
+  isPrivate: z.boolean().optional(),
 });
 
 export const ChangePasswordSchema = z

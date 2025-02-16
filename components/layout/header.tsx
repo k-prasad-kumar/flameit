@@ -2,7 +2,10 @@
 
 import { ModeToggle } from "@/components/theme.toggle";
 import { useSocket } from "@/context/use.socket";
-import { getNotSeenNotification } from "@/lib/actions/notification.actions";
+import {
+  getNotSeenNotification,
+  updateNotification,
+} from "@/lib/actions/notification.actions";
 import { NotificationsInterface } from "@/types/types";
 import { FlameIcon, HeartIcon } from "lucide-react";
 import Link from "next/link";
@@ -66,6 +69,11 @@ const Header = ({ userId }: { userId: string }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // ✅ No dependencies, so effect runs only once
 
+  const handleNotifications = async () => {
+    await updateNotification(userId);
+    setNotifications([]);
+  };
+
   return (
     <div
       className={`fixed top-0 left-0 w-full bg-white dark:bg-inherit z-50 transition-transform duration-300 ${
@@ -78,20 +86,24 @@ const Header = ({ userId }: { userId: string }) => {
           <h1 className="text-2xl font-semibold mt-1">FlameIt.</h1>
         </Link>
         <div className="flex items-center space-x-4">
-          <Link
-            href={"/notifications"}
-            className="relative p-1"
-            onClick={() => setNotifications([])}
-          >
-            <HeartIcon strokeWidth={1.5} size={28} />
-            <div
-              className={`bg-red-500 rounded-full absolute top-[1px] right-[1px] text-white text-[10px] w-4 h-4 text-center ${
-                notifications && notifications?.length > 0 ? "block" : "hidden"
-              }`}
+          {userId && (
+            <Link
+              href={"/notifications"}
+              className="relative p-1"
+              onClick={() => handleNotifications()}
             >
-              {notifications?.length}
-            </div>
-          </Link>
+              <HeartIcon strokeWidth={1.5} size={28} />
+              <div
+                className={`bg-red-500 rounded-full absolute top-[1px] right-[1px] text-white text-[10px] w-4 h-4 text-center ${
+                  notifications && notifications?.length > 0
+                    ? "block"
+                    : "hidden"
+                }`}
+              >
+                {notifications?.length}
+              </div>
+            </Link>
+          )}
           <ModeToggle />
         </div>
       </header>

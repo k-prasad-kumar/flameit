@@ -15,6 +15,7 @@ const page = async () => {
     username: user?.username as string,
     bio: user?.bio as string,
     gender: user?.gender as string,
+    isPrivate: user?.isPrivate as boolean,
   };
   return (
     <Suspense fallback={<Loading />}>

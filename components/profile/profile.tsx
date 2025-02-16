@@ -9,10 +9,13 @@ import AddConversation from "./add-conversation";
 
 import dynamic from "next/dynamic";
 
+import PrivateFollow from "./private-follow";
+import { isFollowerRequested } from "@/lib/actions/user.actions";
+
 const DynamicFollowers = dynamic(() => import("./followers"));
 const DynamicFollowing = dynamic(() => import("./following"));
 
-const ProfileCard = ({
+const ProfileCard = async ({
   loginUserId,
   userId,
   username,
@@ -22,6 +25,8 @@ const ProfileCard = ({
   followersCount,
   followingCount,
   postsCount,
+  isPrivate,
+  isFollowerUser,
 }: {
   loginUserId: string;
   userId: string;
@@ -32,7 +37,10 @@ const ProfileCard = ({
   followersCount: number;
   followingCount: number;
   postsCount: number;
+  isPrivate: boolean;
+  isFollowerUser: boolean;
 }) => {
+  const isFollowerRequest = await isFollowerRequested(loginUserId, userId);
   return (
     <>
       <div className="w-full mx-auto">
@@ -55,22 +63,47 @@ const ProfileCard = ({
                 <p>
                   <span className="font-semibold">{postsCount}</span> posts
                 </p>
-                <div>
-                  <DynamicFollowers
-                    userId={userId}
-                    loginUserId={loginUserId}
-                    username={username}
-                    followersCount={followersCount}
-                  />
-                </div>
-                <div>
-                  <DynamicFollowing
-                    userId={userId}
-                    loginUserId={loginUserId}
-                    username={username}
-                    followingCount={followingCount}
-                  />
-                </div>
+                {isPrivate && loginUserId !== userId && !isFollowerUser ? (
+                  <>
+                    <div>
+                      <p>
+                        {" "}
+                        <span className="font-semibold">
+                          {" "}
+                          {followersCount}
+                        </span>{" "}
+                        Followers
+                      </p>
+                    </div>
+                    <div>
+                      <p>
+                        {" "}
+                        <span className="font-semibold">
+                          {followingCount}
+                        </span>{" "}
+                        Following
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <DynamicFollowers
+                        userId={userId}
+                        loginUserId={loginUserId}
+                        followersCount={followersCount}
+                      />
+                    </div>
+                    <div>
+                      <DynamicFollowing
+                        userId={userId}
+                        loginUserId={loginUserId}
+                        username={username}
+                        followingCount={followingCount}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
               <div className="hidden md:flex flex-col w-full px-4 md:px-0 text-sm">
                 <h1 className="font-semibold py-2">{fullName}</h1>
@@ -94,22 +127,38 @@ const ProfileCard = ({
               <span>{username}</span>
             </p>
           </div>
-          {loginUserId === userId && (
-            <div className="w-full my-8 md:mx-0 flex justify-around gap-4">
-              <Link href={`/${username}/edit`} className="w-full ml-4 md:ml-0">
-                <Button className="w-full">Edit profile</Button>
-              </Link>
-              <CopyProfileLink
-                text={`${process.env.NEXT_PUBLIC_URL}/${username}`}
-              />
-            </div>
-          )}
 
-          {loginUserId !== userId && (
-            <div className="w-full my-8 md:mx-0 flex justify-around gap-4">
-              <HandleProfileFollow userId={loginUserId} isUserId={userId} />
-              <AddConversation loginUserId={loginUserId} userId={userId} />
-            </div>
+          {loginUserId === userId ||
+          !isPrivate ||
+          (isPrivate && isFollowerUser) ? (
+            <>
+              {loginUserId === userId && (
+                <div className="w-full my-8 md:mx-0 flex justify-around gap-4">
+                  <Link
+                    href={`/${username}/edit`}
+                    className="w-full ml-4 md:ml-0"
+                  >
+                    <Button className="w-full">Edit profile</Button>
+                  </Link>
+                  <CopyProfileLink
+                    text={`${process.env.NEXT_PUBLIC_URL}/${username}`}
+                  />
+                </div>
+              )}
+
+              {loginUserId !== userId && (
+                <div className="w-full my-8 md:mx-0 flex justify-around gap-4">
+                  <HandleProfileFollow userId={loginUserId} isUserId={userId} />
+                  <AddConversation loginUserId={loginUserId} userId={userId} />
+                </div>
+              )}
+            </>
+          ) : (
+            <PrivateFollow
+              loginUserId={loginUserId}
+              userId={userId}
+              isFollowerRequest={isFollowerRequest}
+            />
           )}
         </div>
       </div>

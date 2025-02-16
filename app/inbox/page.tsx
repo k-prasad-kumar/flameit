@@ -11,7 +11,7 @@ import {
   UserInfo,
 } from "@/types/types";
 import { MessagesSquareIcon } from "lucide-react";
-import { getFollowers, getFollowing } from "@/lib/actions/user.actions";
+import { getFollowersForInbox, getFollowing } from "@/lib/actions/user.actions";
 
 const Inbox = async () => {
   const user = await getCurrentUser();
@@ -20,7 +20,9 @@ const Inbox = async () => {
   const conversations: ConversationForInboxInterface[] | undefined =
     await getAllConversations(user?.id as string);
 
-  const followers: FollowerInterface[] = await getFollowers(user?.id as string);
+  const followers: FollowerInterface[] = await getFollowersForInbox(
+    user?.id as string
+  );
   const following: FollowingInterface[] = await getFollowing(
     user?.id as string
   );
@@ -42,23 +44,24 @@ const Inbox = async () => {
 
   return (
     <>
-      {conversations?.length === 0 && (
-        <Suspense fallback={<Loading />}>
-          <div className="w-full h-screen max-w-screen-sm mx-auto mt-14 md:mt-10">
-            <div className="px-0 md:px-4 lg:px-14 pt-0 md:pt-6 w-full h-full flex items-center justify-center">
-              <div className="flex flex-col justify-center items-center">
-                <div className="p-5 border-2 rounded-full mb-4">
-                  <MessagesSquareIcon size={60} strokeWidth={1} />
+      {!conversations ||
+        (conversations?.length === 0 && (
+          <Suspense fallback={<Loading />}>
+            <div className="w-full h-screen max-w-screen-sm mx-auto mt-14 md:mt-10">
+              <div className="px-0 md:px-4 lg:px-14 pt-0 md:pt-6 w-full h-full flex items-center justify-center">
+                <div className="flex flex-col justify-center items-center">
+                  <div className="p-5 border-2 rounded-full mb-4">
+                    <MessagesSquareIcon size={60} strokeWidth={1} />
+                  </div>
+                  <h1 className="text-2xl">No messages yet</h1>
+                  <p>Send a message to start a chat.</p>
                 </div>
-                <h1 className="text-2xl">No messages yet</h1>
-                <p>Send a message to start a chat.</p>
               </div>
             </div>
-          </div>
-        </Suspense>
-      )}
+          </Suspense>
+        ))}
 
-      {conversations && (
+      {conversations && conversations?.length > 0 && (
         <Suspense fallback={<Loading />}>
           <div className="w-full max-w-screen-sm mx-auto mt-14 md:mt-10">
             <div className="px-0 md:px-4 lg:px-14 pt-0 md:pt-6">

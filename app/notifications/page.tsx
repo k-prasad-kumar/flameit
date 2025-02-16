@@ -12,7 +12,7 @@ const page = async () => {
   const notifications: NotificationInterface[] | undefined =
     await getNotifications(user?.id as string);
 
-  if (!notifications) {
+  if (notifications && notifications?.length === 0) {
     return (
       <div className="w-full h-screen max-w-screen-sm mx-auto mt-14 md:mt-14">
         <h1 className="text-2xl">Notifications</h1>

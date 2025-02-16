@@ -27,7 +27,8 @@ model User {
   accounts        Account[]
   sessions        Session[]
   bio             String   @default("Update your bio...")
-  gender          String?    
+  gender          String?  
+  isPrivate       Boolean  @default(false)  
   followersCount  Int      @default(0) 
   followingCount  Int      @default(0) 
   postsCount      Int      @default(0) 
@@ -114,13 +115,13 @@ model Follower {
   followerId  String   @db.ObjectId
   following   User     @relation("UserFollowers", fields: [followingId], references: [id]) // The user being followed
   followingId String   @db.ObjectId
+  isAccepted  Boolean  @default(false)
   createdAt   DateTime @default(now()) // Timestamp for when the relationship was created
 
   @@unique([followerId, followingId])
   @@index([followerId]) // Optimize queries by follower
   @@index([followingId]) // Optimize queries by following
 }
-
 
 model Post{
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -174,8 +175,6 @@ model Comment {
   @@index([postId])   // Optimize queries for comments on a specific post
   @@index([parentId]) // Optimize queries for nested replies
 }
-
-
 
 
 model SavedPost {

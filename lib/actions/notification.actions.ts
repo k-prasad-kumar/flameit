@@ -26,14 +26,27 @@ export const deleteNotification = async (
   postId?: string
 ) => {
   try {
-    const notification = await prisma.notification.findFirst({
-      where: {
-        userId,
-        recipientId,
-        postId: postId ? postId : null,
-        type,
-      },
-    });
+    if (!userId || !recipientId || !type) return;
+
+    let notification;
+    if (!postId) {
+      notification = await prisma.notification.findFirst({
+        where: {
+          userId,
+          recipientId,
+          type,
+        },
+      });
+    } else {
+      notification = await prisma.notification.findFirst({
+        where: {
+          userId,
+          recipientId,
+          postId: postId ? postId : null,
+          type,
+        },
+      });
+    }
 
     if (notification) {
       await prisma.notification.delete({
@@ -128,6 +141,25 @@ export const getNotSeenNotification = async (userId: string) => {
       },
     });
 
+    return notifications;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const updateNotification = async (userId: string) => {
+  try {
+    deleteExpiredNotifications();
+    const notifications = await prisma.notification.findMany({
+      where: {
+        recipientId: userId,
+        isSeen: false,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
     notifications?.forEach(async (notification) => {
       await prisma.notification.update({
         where: {
@@ -139,7 +171,7 @@ export const getNotSeenNotification = async (userId: string) => {
       });
     });
 
-    return notifications;
+    return { sucess: "Success" };
   } catch (error) {
     console.log(error);
   }

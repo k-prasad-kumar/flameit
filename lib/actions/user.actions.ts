@@ -245,6 +245,7 @@ export const updateUser = async (
           name: editProfile?.name as string,
           bio: editProfile?.bio as string,
           gender: editProfile?.gender as string,
+          isPrivate: editProfile?.isPrivate as boolean,
         },
       });
       return { success: "user updated successfully", username: user?.username };
@@ -341,17 +342,83 @@ export const updateSavedPost = async (
 
 export const addFollower = async (followerId: string, followingId: string) => {
   try {
+    const isPrivate = await prisma.user.findFirst({
+      where: {
+        id: followingId, // The user being followed
+      },
+      select: {
+        isPrivate: true,
+      },
+    });
+
     await prisma.follower.create({
       data: {
         followerId, // The user who is following
         followingId, // The user being followed
+        isAccepted: !isPrivate?.isPrivate,
+      },
+    });
+
+    if (!isPrivate?.isPrivate) {
+      await prisma.user.update({
+        where: {
+          id: followingId, // The user being followed
+        },
+        data: {
+          followersCount: {
+            increment: 1,
+          },
+        },
+      });
+
+      await prisma.user.update({
+        where: {
+          id: followerId, // The user who is following
+        },
+        data: {
+          followingCount: {
+            increment: 1,
+          },
+        },
+      });
+    }
+
+    const data = {
+      userId: followerId as string,
+      recipientId: followingId as string,
+      text: "started following you.",
+      isSeen: false,
+      type: "FOLLOW",
+    };
+    await createNotification(data);
+
+    return { success: "Followed successfully" };
+  } catch (error) {
+    console.error("Error adding follower:", error);
+  }
+};
+
+export const acceptFollower = async (
+  followerId: string,
+  followingId: string
+) => {
+  try {
+    await prisma.follower.update({
+      where: {
+        followerId_followingId: {
+          followerId,
+          followingId,
+        },
+      },
+      data: {
+        isAccepted: true,
       },
     });
 
     const data = {
       userId: followerId as string,
       recipientId: followingId as string,
-      text: "started following you.",
+      text: "accepted following request.",
       isSeen: false,
       type: "FOLLOW",
     };
@@ -379,9 +446,9 @@ export const addFollower = async (followerId: string, followingId: string) => {
       },
     });
 
-    return { success: "Followed successfully" };
+    return { success: "Accepted successfully" };
   } catch (error) {
-    console.error("Error adding follower:", error);
+    console.error("Error accepting follower:", error);
   }
 };
 
@@ -427,6 +494,27 @@ export const removeFollower = async (
   }
 };
 
+export const removeRequestedFollower = async (
+  followerId: string,
+  followingId: string
+) => {
+  try {
+    await prisma.follower.deleteMany({
+      where: {
+        followerId,
+        followingId,
+        isAccepted: false,
+      },
+    });
+
+    await deleteNotification(followerId, followingId, "FOLLOW");
+
+    return { success: "Unfollowed successfully" };
+  } catch (error) {
+    console.error("Error removing follower:", error);
+  }
+};
+
 export const isFollowing = async (followerId: string, followingId: string) => {
   try {
     const relationship = await prisma.follower.findUnique({
@@ -440,6 +528,50 @@ export const isFollowing = async (followerId: string, followingId: string) => {
     return !!relationship; // Returns true if the relationship exists
   } catch (error) {
     console.error("Error checking following relationship:", error);
+    return false;
+  }
+};
+
+export const isFollower = async (followerId: string, followingId: string) => {
+  try {
+    const relationship = await prisma.follower.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId,
+          followingId,
+        },
+        isAccepted: true,
+      },
+    });
+
+    return !!relationship;
+  } catch (error) {
+    console.error("Error checking follower relationship:", error);
+    return false;
+  }
+};
+
+export const isFollowerRequested = async (
+  followerId: string,
+  followingId: string
+) => {
+  try {
+    const relationship = await prisma.follower.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId,
+          followingId,
+        },
+      },
+    });
+
+    if (relationship === null) return false;
+
+    if (relationship && relationship?.isAccepted === false) return true;
+
+    return true;
+  } catch (error) {
+    console.error("Error checking follower relationship:", error);
     return false;
   }
 };
@@ -577,6 +709,7 @@ export const getFollowers = async (userId: string) => {
     const followers = await prisma.follower.findMany({
       where: {
         followingId: userId as string, // The user being followed
+        isAccepted: true,
       },
       include: {
         follower: {
@@ -589,6 +722,49 @@ export const getFollowers = async (userId: string) => {
         }, // Include details about the follower
       },
     });
+
+    const requestedFollowers = await prisma.follower.findMany({
+      where: {
+        followingId: userId as string, // The user being followed
+        isAccepted: false,
+      },
+      include: {
+        follower: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            image: true,
+          },
+        }, // Include details about the follower
+      },
+    });
+    return { followers: followers, requestedFollowers: requestedFollowers };
+  } catch (error) {
+    console.error("Error fetching followers:", error);
+    return [];
+  }
+};
+
+export const getFollowersForInbox = async (userId: string) => {
+  try {
+    const followers = await prisma.follower.findMany({
+      where: {
+        followingId: userId as string, // The user being followed
+        isAccepted: true,
+      },
+      include: {
+        follower: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            image: true,
+          },
+        }, // Include details about the follower
+      },
+    });
+
     return followers;
   } catch (error) {
     console.error("Error fetching followers:", error);
@@ -601,6 +777,7 @@ export const getFollowing = async (userId: string) => {
     const following = await prisma.follower.findMany({
       where: {
         followerId: userId as string, // The user who is following
+        isAccepted: true,
       },
       include: {
         following: {
@@ -674,5 +851,19 @@ export const fetchUsers = async (q: string, skip: number, take: number) => {
     return users;
   } catch (error) {
     console.log("fetch users : ", error);
+  }
+};
+
+export const isPrivateAccount = async (userId: string) => {
+  try {
+    const user = await prisma.user.findFirst({
+      where: { id: userId },
+      select: {
+        isPrivate: true,
+      },
+    });
+    return user?.isPrivate;
+  } catch (error) {
+    console.log(error);
   }
 };
