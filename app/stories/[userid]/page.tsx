@@ -7,7 +7,7 @@ import { FollowingInterface, StoriesResponseInterface } from "@/types/types";
 import { getFollowingStories } from "@/lib/actions/stories.actions";
 import { getFollowing } from "@/lib/actions/user.actions";
 
-const page = async ({ params }: { params: { userid: string } }) => {
+const page = async ({ params }: { params: Promise<{ userid: string }> }) => {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
