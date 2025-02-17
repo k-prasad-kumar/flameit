@@ -13,7 +13,7 @@ import { Separator } from "../ui/separator";
 import Link from "next/link";
 import { getRelativeTime } from "@/lib/relative-time";
 import { useEffect, useState, useRef, useCallback } from "react";
-import { getPosts } from "@/lib/actions/post.actions";
+import { getFollowingPosts } from "@/lib/actions/post.actions";
 import { PostResponseInterface } from "@/types/types";
 import dynamic from "next/dynamic";
 import TruncateCaption from "./caption-truncate";
@@ -25,10 +25,12 @@ const PostsCard = ({
   posts,
   userId,
   username,
+  followingIds,
 }: {
   posts: PostResponseInterface[];
   userId: string;
   username: string;
+  followingIds: string[];
 }) => {
   const [loading, setLoading] = useState(false);
   const [postsData, setPostsData] = useState<PostResponseInterface[]>(posts);
@@ -41,10 +43,8 @@ const PostsCard = ({
     if (loading || !hasMore) return;
     setLoading(true);
     try {
-      const newPosts: PostResponseInterface[] | undefined = await getPosts(
-        page * 5,
-        5
-      );
+      const newPosts: PostResponseInterface[] | undefined =
+        await getFollowingPosts(followingIds, page * 5, 5);
       if (newPosts && newPosts.length > 0) {
         setPostsData((prev) => [...prev, ...newPosts]);
         setPage((prev) => prev + 1);
@@ -56,7 +56,7 @@ const PostsCard = ({
     } finally {
       setLoading(false);
     }
-  }, [loading, hasMore, page]);
+  }, [loading, hasMore, page, followingIds]);
 
   // Use Intersection Observer to load more data when the sentinel is visible.
   useEffect(() => {
@@ -97,13 +97,15 @@ const PostsCard = ({
                   height="10"
                 />
                 <div className="flex flex-col">
-                  <h2 className="font-semibold">{post?.user?.username}</h2>
+                  <h2 className="font-[500] text-sm">{post?.user?.username}</h2>
                 </div>
               </Link>
               <DynamicPostOptions
                 userId={userId}
                 postUserId={post?.user?.id as string}
                 postId={post?.id}
+                isLikes={post?.isLikesCountHide}
+                isComments={post?.isCommentsOff}
               />
             </div>
             <Carousel
@@ -150,6 +152,8 @@ const PostsCard = ({
               likes={post?.likes}
               likesCount={post?.likesCount as number}
               savedBy={post?.savedBy}
+              isLikes={post?.isLikesCountHide}
+              isComments={post?.isCommentsOff}
             />
             {post?.caption && (
               <div className="px-3 md:px-0 text-sm">

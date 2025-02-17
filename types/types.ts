@@ -85,6 +85,8 @@ export interface PostResponseInterface {
   userId: string;
   images: Image[];
   caption: string | null;
+  isLikesCountHide: boolean;
+  isCommentsOff: boolean;
   likesCount: number;
   commentsCount: number;
   user: {
@@ -316,7 +318,7 @@ export interface StroriesInterface {
   text: string | null;
 }
 
-export interface StroriesResponseInterface {
+export interface StoriesResponseInterface {
   id: string;
   userId: string;
   image: Image | null;
@@ -325,6 +327,15 @@ export interface StroriesResponseInterface {
   createdAt: Date;
   likes: StoryLike[];
   comments: StoryComment[];
+  seenBy: StorySeenByInterface[];
+  user: UserInfo;
+}
+
+export interface StorySeenByInterface {
+  id: string;
+  userId: string;
+  storyId: string;
+  createdAt: Date;
   user: UserInfo;
 }
 

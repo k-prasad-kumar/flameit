@@ -20,6 +20,8 @@ const PostInfo = ({
   savedBy,
   userId,
   username,
+  isLikes,
+  isComments,
 }: {
   likes: Like[];
   likesCount: number;
@@ -32,6 +34,8 @@ const PostInfo = ({
   userId: string;
   username: string;
   postUsername: string;
+  isLikes: boolean;
+  isComments: boolean;
 }) => {
   return (
     <div className="w-full">
@@ -45,6 +49,7 @@ const PostInfo = ({
               postUserId={postUserId}
               username={username}
               userId={userId}
+              isLikes={isLikes}
             />
           </div>
           <div className="flex items-center">
@@ -55,6 +60,7 @@ const PostInfo = ({
               postUserId={postUserId}
               username={username}
               userId={userId}
+              isComments={isComments}
             />
           </div>
           <div className="flex items-center">

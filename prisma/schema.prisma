@@ -48,6 +48,7 @@ model User {
   strories        Stories[]
   storiesLikes    StoryLike[]
   storiesComments StoryComment[]
+  storiesSeenBy   StoriesSeenBy[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -124,19 +125,21 @@ model Follower {
 }
 
 model Post{
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId          String   @db.ObjectId  
-  images          Image[]  
-  caption         String?
-  likesCount      Int      @default(0)
-  likes           Like[]
-  commentsCount   Int      @default(0)
-  comments        Comment[]
-  savedBy         SavedPost[] 
-  taggedUsers     TaggedPost[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId           String   @db.ObjectId  
+  images           Image[]  
+  caption          String?
+  isLikesCountHide Boolean  @default(false)
+  isCommentsOff    Boolean  @default(false)
+  likesCount       Int      @default(0)
+  likes            Like[]
+  commentsCount    Int      @default(0)
+  comments         Comment[]
+  savedBy          SavedPost[] 
+  taggedUsers      TaggedPost[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 type Image {
@@ -289,11 +292,19 @@ model Stories{
   text            String?   
   likes           StoryLike[]
   comments        StoryComment[]
+  seenBy          StoriesSeenBy[]
   expiresAt       DateTime 
   createdAt       DateTime @default(now())
 }
 
-
+model StoriesSeenBy{
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String   @db.ObjectId
+  story            Stories     @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  storyId          String   @db.ObjectId  
+  createdAt       DateTime @default(now())
+}
 
 model StoryLike {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -319,7 +330,6 @@ model StoryComment {
 
   @@index([storyId])   // Optimize queries for comments on a specific post
 }
-
 
 model PasswordReset {
   id        String     @id @default(auto()) @map("_id") @db.ObjectId

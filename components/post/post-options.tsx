@@ -3,7 +3,11 @@
 import {
   EllipsisIcon,
   ExternalLinkIcon,
+  HeartIcon,
+  HeartOffIcon,
   LinkIcon,
+  MessageCircle,
+  MessageCircleOff,
   PencilIcon,
   TrashIcon,
   UserRoundMinusIcon,
@@ -27,17 +31,27 @@ import {
 } from "@/lib/actions/user.actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import {
+  hidePostLikesCount,
+  turnOffPostCommenting,
+} from "@/lib/actions/post.actions";
 
 const UserPostOptions = ({
   userId,
   postUserId,
   postId,
+  isLikes,
+  isComments,
 }: {
   userId: string;
   postUserId: string;
   postId: string;
+  isLikes: boolean;
+  isComments: boolean;
 }) => {
   const [following, setFollowing] = useState(false);
+  const [isLikesOff, setIsLikesOff] = useState(isLikes);
+  const [isCommentsOff, setIsCommentsOff] = useState(isComments);
   const [loading, setLoading] = useState(true); // For showing a loading state
   const router = useRouter();
 
@@ -72,6 +86,24 @@ const UserPostOptions = ({
       toast.error("Something went wrong, please try again.");
       setFollowing((prev) => !prev); // Revert on error
     }
+  };
+
+  const handleLikes = (type: string) => {
+    hidePostLikesCount(postId, type).then((data) => {
+      if (data?.success) {
+        setIsLikesOff(!isLikesOff);
+        router.refresh();
+      }
+    });
+  };
+
+  const handleComments = (type: string) => {
+    turnOffPostCommenting(postId, type).then((data) => {
+      if (data?.success) {
+        setIsCommentsOff(!isCommentsOff);
+        router.refresh();
+      }
+    });
   };
 
   return (
@@ -132,6 +164,53 @@ const UserPostOptions = ({
           </DropdownMenuItem>
           {userId === postUserId && (
             <>
+              {isLikesOff ? (
+                <DropdownMenuItem asChild>
+                  <div
+                    className="cursor-pointer flex items-center gap-3"
+                    onClick={() => handleLikes("show")}
+                  >
+                    {" "}
+                    <HeartIcon size={18} strokeWidth={1.5} /> Show likes count
+                    to others{" "}
+                  </div>
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem asChild>
+                  <div
+                    className="cursor-pointer flex items-center gap-3"
+                    onClick={() => handleLikes("hide")}
+                  >
+                    {" "}
+                    <HeartOffIcon size={18} strokeWidth={1.5} /> Hide likes
+                    count to others{" "}
+                  </div>
+                </DropdownMenuItem>
+              )}
+              {isCommentsOff ? (
+                <DropdownMenuItem asChild>
+                  <div
+                    className="cursor-pointer flex items-center gap-3"
+                    onClick={() => handleComments("on")}
+                  >
+                    {" "}
+                    <MessageCircle size={18} strokeWidth={1.5} /> Turn on
+                    commenting{" "}
+                  </div>
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem asChild>
+                  <div
+                    className="cursor-pointer flex items-center gap-3"
+                    onClick={() => handleComments("off")}
+                  >
+                    {" "}
+                    <MessageCircleOff size={18} strokeWidth={1.5} /> Turn off
+                    commenting{" "}
+                  </div>
+                </DropdownMenuItem>
+              )}
+
               <DropdownMenuItem asChild>
                 <Link
                   href={`/p/${postId}/update`}

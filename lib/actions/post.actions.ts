@@ -78,6 +78,69 @@ export const updatePost = async (id: string, caption: string) => {
   }
 };
 
+export const hidePostLikesCount = async (id: string, type: string) => {
+  try {
+    if (type === "hide") {
+      await prisma.post.update({
+        where: {
+          id: id as string,
+        },
+        data: {
+          isLikesCountHide: true,
+        },
+      });
+    }
+
+    if (type === "show") {
+      await prisma.post.update({
+        where: {
+          id: id as string,
+        },
+        data: {
+          isLikesCountHide: false,
+        },
+      });
+    }
+    revalidatePath("/");
+    revalidatePath(`/p/${id}`);
+    return { success: "Likes count updated successfully" };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const turnOffPostCommenting = async (id: string, type: string) => {
+  try {
+    if (type === "off") {
+      await prisma.post.update({
+        where: {
+          id: id as string,
+        },
+        data: {
+          isCommentsOff: true,
+        },
+      });
+    }
+
+    if (type === "on") {
+      await prisma.post.update({
+        where: {
+          id: id as string,
+        },
+        data: {
+          isCommentsOff: false,
+        },
+      });
+    }
+    revalidatePath("/");
+    revalidatePath(`/p/${id}`);
+    return { success: "Commenting updated successfully" };
+  } catch (error) {
+    if (error) {
+    }
+  }
+};
+
 export const updatePostLikes = async (
   userId: string,
   postId: string,
@@ -551,6 +614,88 @@ export const getFollowingPosts = async (
         //     userId: true,
         //   },
         // },
+        savedBy: true,
+      },
+      orderBy: {
+        createdAt: "desc", // Sort by newest posts first
+      },
+      skip: skip,
+      take: take,
+    });
+
+    return posts;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getNotFollowingPosts = async (
+  following: string[],
+  skip?: number,
+  take?: number
+) => {
+  try {
+    const posts = await prisma.post.findMany({
+      where: {
+        userId: {
+          notIn: following, // Only fetch posts from users in the "following" array
+        },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            image: true,
+          },
+        },
+        likes: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+              },
+            },
+          },
+        },
+        comments: {
+          where: {
+            parentId: null, // Fetch only top-level comments
+          },
+          orderBy: {
+            createdAt: "desc", // Order comments by createdAt in descending order
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+              },
+            },
+            replies: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    username: true,
+                    image: true,
+                  },
+                },
+              },
+              orderBy: {
+                createdAt: "asc", // Order replies by creation time
+              },
+            },
+          },
+        },
+
         savedBy: true,
       },
       orderBy: {

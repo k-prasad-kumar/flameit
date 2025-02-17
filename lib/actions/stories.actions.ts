@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { StoryUserInfoInterface, StroriesInterface } from "@/types/types";
 import { revalidatePath } from "next/cache";
 import { deleteImageCloudinary } from "./delete.image.actions";
+import { createNotification, deleteNotification } from "./notification.actions";
 
 export const addStory = async (data: StroriesInterface) => {
   try {
@@ -27,6 +28,7 @@ export const addStory = async (data: StroriesInterface) => {
 
 export const updateStoryLike = async (
   storyId: string,
+  storyUserId: string,
   userId: string,
   type: string
 ) => {
@@ -38,6 +40,17 @@ export const updateStoryLike = async (
           userId: userId as string,
         },
       });
+
+      if (userId !== storyUserId) {
+        const data = {
+          userId: userId as string,
+          recipientId: storyUserId as string,
+          text: "liked your story.",
+          isSeen: false,
+          type: "LIKE",
+        };
+        await createNotification(data);
+      }
     }
 
     if (type === "remove") {
@@ -47,6 +60,14 @@ export const updateStoryLike = async (
           userId: userId as string,
         },
       });
+
+      if (userId !== storyUserId) {
+        await deleteNotification(
+          userId as string,
+          storyUserId as string,
+          "LIKE"
+        );
+      }
     }
 
     return { success: "Story liked successfully" };
@@ -57,6 +78,7 @@ export const updateStoryLike = async (
 
 export const addStoryComment = async (
   storyId: string,
+  storyUserId: string,
   userId: string,
   text: string
 ) => {
@@ -68,6 +90,17 @@ export const addStoryComment = async (
         text: text,
       },
     });
+
+    if (userId !== storyUserId) {
+      const data = {
+        userId: userId as string,
+        recipientId: storyUserId as string,
+        text: "replied on your story.",
+        isSeen: false,
+        type: "COMMENT",
+      };
+      await createNotification(data);
+    }
 
     return { success: "Reply sent successfully" };
   } catch (error) {
@@ -135,9 +168,165 @@ export const getStories = async () => {
   }
 };
 
+export const getFollowingStories = async (followingIds: string[]) => {
+  try {
+    deleteExpiredStories();
+    const stories = await prisma.stories.findMany({
+      where: {
+        userId: {
+          in: followingIds,
+        },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            image: true,
+          },
+        },
+        likes: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+              },
+            },
+          },
+        },
+        comments: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+              },
+            },
+          },
+        },
+        seenBy: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+              },
+            },
+          },
+        },
+      },
+
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return stories;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getStoriesByUser = async (userId: string) => {
+  try {
+    deleteExpiredStories();
+    const stories = await prisma.stories.findMany({
+      where: {
+        userId: userId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            image: true,
+          },
+        },
+        likes: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+              },
+            },
+          },
+        },
+        comments: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return stories;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getStoryById = async (id: string) => {
+  try {
+    const story = await prisma.stories.findUnique({
+      where: { id: id as string },
+    });
+    return story;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const getStoriesUserInfo = async () => {
   try {
     const stories: StoryUserInfoInterface[] = await prisma.stories.findMany({
+      select: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            image: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return stories;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getFollowingStoriesUserInfo = async (followingIds: string[]) => {
+  try {
+    const stories: StoryUserInfoInterface[] = await prisma.stories.findMany({
+      where: {
+        userId: {
+          in: followingIds,
+        },
+      },
       select: {
         user: {
           select: {
@@ -172,6 +361,19 @@ export const deleteExpiredStories = async () => {
 
     await prisma.stories.deleteMany({
       where: { expiresAt: { lte: new Date() } },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const addSennBy = async (userId: string, storyId: string) => {
+  try {
+    await prisma.storiesSeenBy.create({
+      data: {
+        userId: userId,
+        storyId: storyId,
+      },
     });
   } catch (error) {
     console.log(error);

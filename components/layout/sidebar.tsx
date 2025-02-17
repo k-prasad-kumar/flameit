@@ -75,7 +75,7 @@ const Sidebar = ({
   }, [socket, userId]);
 
   return (
-    <div className="fixed left-1/2 bottom-0 -translate-x-1/2 md:left-9 md:top-1/2 md:-translate-y-1/2 px-3 flex md:flex-col justify-between md:justify-around items-center w-full md:w-fit bg-white dark:bg-black border-t md:border-none py-1">
+    <div className="fixed left-1/2 bottom-0 -translate-x-1/2 md:left-9 md:top-1/2 md:-translate-y-1/2 px-3 flex md:flex-col justify-between md:justify-around items-center w-full md:w-fit bg-white dark:bg-black border-t md:border-none py-[1px] md:py-0">
       <Link
         href="/"
         className="hover:bg-gray-100 dark:hover:bg-gray-800 py-2 px-3 rounded-lg"

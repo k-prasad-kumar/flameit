@@ -46,13 +46,15 @@ const PostsCard = ({
                   height="10"
                 />
                 <div className="flex flex-col">
-                  <h2 className="font-semibold">{post?.user?.username}</h2>
+                  <h2 className="font-[500] text-sm">{post?.user?.username}</h2>
                 </div>
               </Link>
               <UserPostOptions
                 userId={userId}
                 postUserId={post?.user?.id as string}
                 postId={post?.id}
+                isLikes={post?.isLikesCountHide}
+                isComments={post?.isCommentsOff}
               />
             </div>
             <Carousel
@@ -99,6 +101,8 @@ const PostsCard = ({
               likes={post?.likes}
               likesCount={post?.likesCount as number}
               savedBy={post?.savedBy}
+              isLikes={post?.isLikesCountHide}
+              isComments={post?.isCommentsOff}
             />
 
             <p className="opacity-60 text-xs mt-2 px-3 md:px-0">

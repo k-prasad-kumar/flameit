@@ -416,8 +416,8 @@ export const acceptFollower = async (
     });
 
     const data = {
-      userId: followerId as string,
-      recipientId: followingId as string,
+      userId: followingId as string,
+      recipientId: followerId as string,
       text: "accepted following request.",
       isSeen: false,
       type: "FOLLOW",
@@ -487,6 +487,7 @@ export const removeFollower = async (
     });
 
     await deleteNotification(followerId, followingId, "FOLLOW");
+    await deleteNotification(followingId, followerId, "FOLLOW");
 
     return { success: "Unfollowed successfully" };
   } catch (error) {

@@ -28,35 +28,27 @@ export const deleteNotification = async (
   try {
     if (!userId || !recipientId || !type) return;
 
-    let notification;
-    if (!postId) {
-      notification = await prisma.notification.findFirst({
-        where: {
-          userId,
-          recipientId,
-          type,
-        },
-      });
-    } else {
-      notification = await prisma.notification.findFirst({
-        where: {
-          userId,
-          recipientId,
-          postId: postId ? postId : null,
-          type,
-        },
-      });
+    // Build the where clause.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const whereClause: any = {
+      userId,
+      recipientId,
+      type,
+    };
+
+    // If a postId is provided, add it to the filter.
+    if (postId) {
+      whereClause.postId = postId;
     }
 
-    if (notification) {
-      await prisma.notification.delete({
-        where: {
-          id: notification?.id as string,
-        },
-      });
-    }
+    await prisma.notification.deleteMany({
+      where: whereClause,
+    });
+
+    return { success: "Notification(s) deleted successfully" };
   } catch (error) {
-    console.log(error);
+    console.error("Error deleting notification:", error);
+    return { error: "Failed to delete notification" };
   }
 };
 
