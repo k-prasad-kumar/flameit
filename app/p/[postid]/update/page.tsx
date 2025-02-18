@@ -25,7 +25,7 @@ const page = async ({ params }: { params: Promise<{ postid: string }> }) => {
           username={post?.user?.username as string}
           image={post?.user?.image as string}
           postId={post?.id as string}
-          postImage={post?.images?.[0].url as string}
+          postImage={post?.image.url as string}
           caption={post?.caption as string}
         />
       </div>
