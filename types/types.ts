@@ -51,7 +51,7 @@ export interface UserProfileInterface {
 
 export interface UserPostsInterface {
   id: string;
-  images: { url: string; public_id: string }[];
+  image: { url: string; public_id: string };
   likesCount: number;
   commentsCount: number;
 }
@@ -60,7 +60,7 @@ export interface SavedInterface {
   id: string;
   post: {
     id: string;
-    images: Image[];
+    image: Image;
   };
   createdAt: Date;
 }
@@ -69,7 +69,7 @@ export interface TaggedInterface {
   id: string;
   post: {
     id: string;
-    images: Image[];
+    image: Image;
   };
   createdAt: Date;
 }

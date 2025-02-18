@@ -96,7 +96,7 @@ const UserPosts = ({ userId }: { userId: string }) => {
           {postsData.map((post, idx) => (
             <Link href={`/p/${post?.id}`} key={idx} className="relative group">
               <Image
-                src={post?.images[0]?.url}
+                src={post?.image.url}
                 width={100}
                 height={100}
                 sizes="100%"

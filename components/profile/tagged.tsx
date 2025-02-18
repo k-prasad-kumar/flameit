@@ -95,7 +95,7 @@ const TaggedPosts = ({ userId }: { userId: string }) => {
                 className="relative group"
               >
                 <Image
-                  src={post?.post?.images[0] ? post?.post?.images[0].url : ""}
+                  src={post?.post?.image ? post?.post?.image.url : ""}
                   width={100}
                   height={100}
                   sizes="100%"

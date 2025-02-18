@@ -66,6 +66,7 @@ const PostsCard = ({
     if (currentSentinel) {
       observer.observe(currentSentinel);
     }
+
     return () => {
       if (currentSentinel) {
         observer.unobserve(currentSentinel);

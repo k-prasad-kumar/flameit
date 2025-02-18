@@ -619,7 +619,7 @@ export const getUserPosts = async (
 
       select: {
         id: true,
-        images: true,
+        image: true,
         likesCount: true,
         commentsCount: true,
       },
@@ -647,7 +647,7 @@ export const getUserSavedPosts = async (
         post: {
           select: {
             id: true,
-            images: true,
+            image: true,
           },
         },
       },
@@ -674,7 +674,7 @@ export const getUserTaggedPosts = async (
         post: {
           select: {
             id: true,
-            images: true,
+            image: true,
           },
         },
       },
