@@ -26,7 +26,7 @@ import Link from "next/link";
 import { ProfileAvatar } from "../avatar";
 import { Input } from "../ui/input";
 import { getRelativeTime } from "@/lib/relative-time";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   addStoryComment,
@@ -40,10 +40,12 @@ import { Button } from "../ui/button";
 import { Progress } from "@/components/ui/progress";
 
 const StoriesPage = ({
+  loginUserId,
   userId,
   stories,
   userStories,
 }: {
+  loginUserId: string;
   userId: string;
   stories: StoriesResponseInterface[];
   userStories: StoriesResponseInterface[];
@@ -58,9 +60,8 @@ const StoriesPage = ({
   const [commnetPending, setCommnetPending] = useState<boolean>(false);
 
   const [paused, setPaused] = useState<boolean>(false); // State to track pause
-  const [progressInterval, setProgressInterval] =
-    useState<NodeJS.Timeout | null>(null);
-  const [storyTimeout, setStoryTimeout] = useState<NodeJS.Timeout | null>(null);
+  const elapsedTimeRef = useRef(0); // Track elapsed time across re-renders
+  const startTimeRef = useRef(Date.now()); // Track start time for the current story
 
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -88,61 +89,83 @@ const StoriesPage = ({
       ? uniqueUserIds[currentIndex + 1]
       : null;
 
-  // Change story every 30 seconds
   useEffect(() => {
-    if (storyIndex < userStories.length - 1) {
-      const timer = setTimeout(() => {
-        setStoryIndex((prevIndex) => prevIndex + 1); // Increment the story index
-        setProgress(0); // Reset progress
-      }, 30000); // 30 seconds
+    let progressInterval: NodeJS.Timeout | null = null;
+    let storyTimeout: NodeJS.Timeout | null = null;
 
-      return () => clearTimeout(timer); // Clear timer on unmount or when storyIndex changes
-    }
-  }, [storyIndex, userStories]);
+    const totalDuration = 30000; // 30 seconds
 
-  // Update the story when the index changes
-  useEffect(() => {
-    if (userStories[storyIndex]) {
-      setStory(userStories[storyIndex]);
-    }
-  }, [storyIndex, userStories]);
+    if (!paused) {
+      // Calculate the remaining time when resuming
+      const remainingTime = totalDuration - elapsedTimeRef.current;
 
-  useEffect(() => {
-    if (paused) {
-      // Clear the intervals when paused
-      if (progressInterval) clearInterval(progressInterval);
-      if (storyTimeout) clearTimeout(storyTimeout);
-    } else {
-      // Set progress interval when not paused
-      const interval = setInterval(() => {
+      // Start the progress bar animation
+      progressInterval = setInterval(() => {
         setProgress((prev) => {
           if (prev >= 100) {
-            clearInterval(interval);
+            clearInterval(progressInterval!);
             return 100;
           }
-          return prev + 0.1;
+          const increment = (100 / totalDuration) * 30; // Increment based on 30ms updates
+          return prev + increment;
         });
       }, 30);
-      setProgressInterval(interval);
 
-      // Set the story timeout for 30 seconds when not paused
-      const timer = setTimeout(() => {
-        setStoryIndex((prevIndex) => prevIndex + 1);
-        setProgress(0);
-      }, 30000);
-      setStoryTimeout(timer);
+      // Change story after remaining time
+      storyTimeout = setTimeout(() => {
+        if (storyIndex < userStories.length - 1) {
+          setStoryIndex((prev) => prev + 1);
+          setProgress(0); // Reset progress
+          elapsedTimeRef.current = 0; // Reset elapsed time for the next story
+        } else if (nextUserId) {
+          router.push(`/stories/${nextUserId}`);
+        }
+      }, remainingTime);
+
+      // Update the start time when resuming
+      startTimeRef.current = Date.now();
+    } else {
+      // When paused, calculate the elapsed time
+      elapsedTimeRef.current += Date.now() - startTimeRef.current;
+
+      // Clear the interval and timeout when paused
+      if (progressInterval) clearInterval(progressInterval);
+      if (storyTimeout) clearTimeout(storyTimeout);
     }
 
+    // Cleanup timers on unmount or pause/play toggle
     return () => {
       if (progressInterval) clearInterval(progressInterval);
       if (storyTimeout) clearTimeout(storyTimeout);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paused, storyIndex, userStories]);
+  }, [paused, storyIndex, userStories, nextUserId, router]);
 
-  // Function to handle pause/resume
+  // Update story when storyIndex changes
+  useEffect(() => {
+    if (userStories[storyIndex]) {
+      setStory(userStories[storyIndex]);
+    }
+    setProgress(0); // Reset progress when the story changes
+  }, [userStories, storyIndex]);
+
+  // Pause/Resume handler
   const togglePause = () => {
     setPaused((prev) => !prev);
+  };
+
+  const handleNext = () => {
+    if (storyIndex < userStories.length - 1) {
+      setStoryIndex((prev) => prev + 1);
+      setProgress(0); // Reset progress
+      elapsedTimeRef.current = 0; // Reset elapsed time for the next story
+    } else if (nextUserId) {
+      router.push(`/stories/${nextUserId}`);
+    }
+
+    if (userStories[storyIndex]) {
+      setStory(userStories[storyIndex]);
+    }
+    setProgress(0);
   };
 
   const handleLike = (id: string, storyUserId: string, type: string) => {
@@ -277,7 +300,7 @@ const StoriesPage = ({
                     )}
                   </div>
 
-                  {story?.userId === userId && (
+                  {story?.userId === loginUserId && (
                     <div className="cursor-pointer flex items-center">
                       <Dialog>
                         <DialogTrigger>
@@ -326,27 +349,32 @@ const StoriesPage = ({
                   )}
                 </div>
               </div>
-              {story?.image ? (
-                <div className="w-full h-[calc(100vh-130px)] flex items-center justify-center mt-14 mb-14 relative">
-                  <Image
-                    src={story?.image?.url as string}
-                    width={100}
-                    height={100}
-                    sizes="100%"
-                    loading="lazy"
-                    className="w-auto h-full object-cover"
-                    alt="post"
-                  />
-                  <div className="absolute -bottom-0 left-0 w-full h-fit bg-black/40 text-white px-4 py-2 text-center">
-                    <p className="text-sm break-words">{story?.text}</p>
+              <div
+                className="w-full h-[calc(100vh-130px)] flex items-center justify-center mt-14 mb-14"
+                onClick={() => handleNext()}
+              >
+                {story?.image ? (
+                  <div className="w-full h-[calc(100vh-130px)] flex items-center justify-center mt-14 mb-14 relative">
+                    <Image
+                      src={story?.image?.url as string}
+                      width={100}
+                      height={100}
+                      sizes="100%"
+                      loading="lazy"
+                      className="w-auto h-full object-cover"
+                      alt="post"
+                    />
+                    <div className="absolute -bottom-0 left-0 w-full h-fit bg-black/40 text-white px-4 py-2 text-center">
+                      <p className="text-sm break-words">{story?.text}</p>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center px-5">
-                  {" "}
-                  <p className="text-white text-xl">{story?.text}</p>
-                </div>
-              )}
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center px-5">
+                    {" "}
+                    <p className="text-white text-xl">{story?.text}</p>
+                  </div>
+                )}
+              </div>
               {story?.userId === userId ? (
                 <div className="w-full absolute bottom-0 flex items-center justify-center text-white px-4 mb-4 gap-14">
                   <div className="flex items-center gap-1">

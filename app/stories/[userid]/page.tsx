@@ -30,6 +30,7 @@ const page = async ({ params }: { params: Promise<{ userid: string }> }) => {
       <div className="w-full h-screen max-w-screen mx-auto">
         <div className="w-full h-full flex items-center justify-center">
           <StoriesPage
+            loginUserId={user?.id as string}
             userId={userId as string}
             stories={stories!}
             userStories={userStories!}
