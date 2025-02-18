@@ -33,7 +33,7 @@ const Stories = ({
                   width="16"
                   height="16"
                 />
-                <div className="absolute -bottom-1 right-4">
+                <div className="absolute -bottom-1 right-0">
                   <PlusCircleIcon
                     color="white"
                     fill="#0095f6"

@@ -2,7 +2,6 @@
 
 import {
   EllipsisIcon,
-  ExternalLinkIcon,
   HeartIcon,
   HeartOffIcon,
   LinkIcon,
@@ -154,14 +153,7 @@ const UserPostOptions = ({
               </div>
             </div>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href={`/p/${postId}`} className="cursor-pointer">
-              <p className="flex items-center gap-3">
-                <ExternalLinkIcon size={18} strokeWidth={1.5} />
-                <span>Go to post</span>
-              </p>
-            </Link>
-          </DropdownMenuItem>
+
           {userId === postUserId && (
             <>
               {isLikesOff ? (
