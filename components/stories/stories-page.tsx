@@ -414,7 +414,7 @@ const StoriesPage = ({
               ) : (
                 <div className="w-full absolute bottom-0 flex items-center justify-between px-4 py-3 gap-4 bg-black/60">
                   <Input
-                    className="placeholder:text-white"
+                    className="placeholder:text-white placeholder:text-sm"
                     placeholder={`Reply to ${story?.user.username} ...`}
                     value={text}
                     onChange={(e) => setText(e.target.value)}
