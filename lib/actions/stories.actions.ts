@@ -367,14 +367,25 @@ export const deleteExpiredStories = async () => {
   }
 };
 
-export const addSennBy = async (userId: string, storyId: string) => {
+export const addSeenBy = async (userId: string, storyId: string) => {
   try {
+    const existingSeenBy = await prisma.storiesSeenBy.findFirst({
+      where: {
+        userId: userId,
+        storyId: storyId,
+      },
+    });
+
+    if (existingSeenBy) return { success: "Alredy seen this story" };
+
     await prisma.storiesSeenBy.create({
       data: {
         userId: userId,
         storyId: storyId,
       },
     });
+
+    return { success: "Added user seenby" };
   } catch (error) {
     console.log(error);
   }

@@ -43,7 +43,7 @@ const StoryComments = ({ comments }: { comments: StoryComment[] }) => {
           <DialogContent className="w-full sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle className="flex justify-center w-full">
-                Comments
+                Replies
               </DialogTitle>
             </DialogHeader>
             <Separator />

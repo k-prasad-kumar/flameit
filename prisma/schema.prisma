@@ -304,6 +304,9 @@ model StoriesSeenBy{
   story            Stories     @relation(fields: [storyId], references: [id], onDelete: Cascade)
   storyId          String   @db.ObjectId  
   createdAt       DateTime @default(now())
+
+  @@unique([userId, storyId]) // Ensure a user can like a post only once
+  @@index([storyId])          // Optimize queries for likes on a specific post
 }
 
 model StoryLike {

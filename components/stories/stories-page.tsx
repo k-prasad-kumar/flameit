@@ -38,6 +38,7 @@ import StoryComments from "./story-comments";
 import StoryLikes from "./story-likes";
 import { Button } from "../ui/button";
 import { Progress } from "@/components/ui/progress";
+import StorySeenBy from "./story-seenby";
 
 const StoriesPage = ({
   loginUserId,
@@ -115,6 +116,7 @@ const StoriesPage = ({
       storyTimeout = setTimeout(() => {
         if (storyIndex < userStories.length - 1) {
           setStoryIndex((prev) => prev + 1);
+
           setProgress(0); // Reset progress
           elapsedTimeRef.current = 0; // Reset elapsed time for the next story
         } else if (nextUserId) {
@@ -379,8 +381,11 @@ const StoriesPage = ({
                   </div>
                 )}
               </div>
-              {story?.userId === userId ? (
+              {story?.userId === loginUserId ? (
                 <div className="w-full absolute bottom-0 flex items-center justify-center text-white px-4 mb-4 gap-14">
+                  <div className="flex items-center gap-1">
+                    <StorySeenBy seenBy={story.seenBy} />
+                  </div>
                   <div className="flex items-center gap-1">
                     <StoryLikes likes={story.likes} />
                   </div>

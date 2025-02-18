@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import StoriesPage from "@/components/stories/stories-page";
 import { FollowingInterface, StoriesResponseInterface } from "@/types/types";
-import { getFollowingStories } from "@/lib/actions/stories.actions";
+import { addSeenBy, getFollowingStories } from "@/lib/actions/stories.actions";
 import { getFollowing } from "@/lib/actions/user.actions";
 
 const page = async ({ params }: { params: Promise<{ userid: string }> }) => {
@@ -24,6 +24,14 @@ const page = async ({ params }: { params: Promise<{ userid: string }> }) => {
   if (stories?.length === 0) redirect("/");
 
   const userStories = stories?.filter((story) => story.user.id === userId);
+
+  if (user?.id !== userId) {
+    userStories?.forEach((story) => {
+      addSeenBy(user?.id, story.id).then((data) => {
+        if (data?.success) return;
+      });
+    });
+  }
 
   return (
     <Suspense fallback={<Loading />}>

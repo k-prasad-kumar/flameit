@@ -325,23 +325,24 @@ const Followers = ({
             </DrawerTitle>
             <Separator />
             <ScrollArea className="w-full h-[80vh] max-h-[80vh] md:h-[80vh] md:max-h-[80vh] py-2">
-              {(!requestedFollowers || requestedFollowers.length === 0) &&
-                (!followers || followers.length === 0) && (
-                  <div className="w-full flex flex-col items-center justify-center mt-14 px-5">
-                    <div className="p-5 border-2 rounded-full">
-                      <UsersRoundIcon size={40} strokeWidth={1} />
-                    </div>
-                    <h1 className="text-2xl opacity-90 mt-5">
-                      Invite Friends to Follow You
-                    </h1>
-                    <p className="text-sm opacity-90 text-center">
-                      Reach out and connect with people to grow your follower
-                      list.
-                    </p>
+              {/* Show invite if no data exists */}
+              {requestedFollowers.length === 0 && followers.length === 0 && (
+                <div className="w-full flex flex-col items-center justify-center mt-14 px-5">
+                  <div className="p-5 border-2 rounded-full">
+                    <UsersRoundIcon size={40} strokeWidth={1} />
                   </div>
-                )}
+                  <h1 className="text-2xl opacity-90 mt-5">
+                    Invite Friends to Follow You
+                  </h1>
+                  <p className="text-sm opacity-90 text-center">
+                    Reach out and connect with people to grow your follower
+                    list.
+                  </p>
+                </div>
+              )}
 
-              {requestedFollowers && requestedFollowers.length > 0 && (
+              {/* Follower requests */}
+              {requestedFollowers.length > 0 && (
                 <>
                   <div className="relative mx-4 my-4">
                     <SearchIcon
@@ -357,7 +358,10 @@ const Followers = ({
                       className="pl-10"
                     />
                   </div>
-                  <div className="flex flex-col mx-4  max-w-full">
+                  <h2 className="text-lg font-semibold mx-4">
+                    Follower requests
+                  </h2>
+                  <div className="flex flex-col mx-4 max-w-full">
                     {requestedFollowers.map((followerInfo) => (
                       <div
                         className="flex items-center justify-between my-2"
@@ -401,14 +405,43 @@ const Followers = ({
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <HandleMutualFollow
-                            currentUserId={loginUserId as string}
-                            profileUserId={followerInfo?.follower?.id as string}
-                            isLoginUserFollowersPage={
-                              loginUserId === followerInfo?.followingId
+                        <div className="flex items-center space-x-2 min-w-3/6 max-w-3/6">
+                          <Button
+                            variant={"blue"}
+                            disabled={isPending}
+                            onClick={() =>
+                              handleFollow(
+                                followerInfo?.follower?.id as string,
+                                followerInfo?.followingId as string
+                              )
                             }
-                          />
+                          >
+                            {isPending ? (
+                              <span className="flex items-center">
+                                <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></span>
+                              </span>
+                            ) : (
+                              <span>Accept</span>
+                            )}
+                          </Button>
+                          <Button
+                            variant={"secondary"}
+                            disabled={deleteLoading}
+                            onClick={() =>
+                              handleUnfollow(
+                                followerInfo?.follower?.id as string,
+                                followerInfo?.followingId as string
+                              )
+                            }
+                          >
+                            {deleteLoading ? (
+                              <span className="flex items-center">
+                                <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></span>
+                              </span>
+                            ) : (
+                              <span>Delete</span>
+                            )}
+                          </Button>
                         </div>
                       </div>
                     ))}
@@ -416,7 +449,8 @@ const Followers = ({
                 </>
               )}
 
-              {followers && followers.length > 0 && (
+              {/* Followers */}
+              {followers.length > 0 && (
                 <>
                   <div className="relative mx-4 my-4">
                     <SearchIcon
