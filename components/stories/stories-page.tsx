@@ -119,6 +119,8 @@ const StoriesPage = ({
           elapsedTimeRef.current = 0; // Reset elapsed time for the next story
         } else if (nextUserId) {
           router.push(`/stories/${nextUserId}`);
+        } else if (!nextUserId) {
+          router.push(`/`);
         }
       }, remainingTime);
 
@@ -160,12 +162,14 @@ const StoriesPage = ({
       elapsedTimeRef.current = 0; // Reset elapsed time for the next story
     } else if (nextUserId) {
       router.push(`/stories/${nextUserId}`);
+    } else if (!nextUserId) {
+      router.push("/");
     }
 
     if (userStories[storyIndex]) {
       setStory(userStories[storyIndex]);
+      setProgress(0);
     }
-    setProgress(0);
   };
 
   const handleLike = (id: string, storyUserId: string, type: string) => {
