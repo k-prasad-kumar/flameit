@@ -101,7 +101,7 @@ const CreatePost = ({
           </div>
           <div className="gap-2 flex flex-wrap">
             {uploadImage && (
-              <div className="relative w-[100px] h-[140px] flex">
+              <div className="relative w-full flex">
                 <div className="absolute top-0 right-0 z-10">
                   <Button
                     type="button"
@@ -115,9 +115,12 @@ const CreatePost = ({
                 </div>
                 <Image
                   src={uploadImage?.url as string}
-                  alt="posts"
-                  className="object-cover rounded-lg"
-                  fill
+                  width={100}
+                  height={100}
+                  sizes="100%"
+                  loading="lazy"
+                  className="w-full h-auto object-cover"
+                  alt="post"
                 />
               </div>
             )}

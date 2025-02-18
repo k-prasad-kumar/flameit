@@ -244,9 +244,17 @@ const StoriesPage = ({
         <div className="w-full h-full sm:px-16 md:px-24">
           <div className="w-full h-full flex justify-center items-center">
             <div
-              className={`w-screen h-screen relative p-0 bg-gradient-to-tl from-[#00ddff] to-[#ff00d4]`}
+              className={`w-screen h-screen relative p-0 ${
+                story?.image
+                  ? "bg-black"
+                  : "bg-gradient-to-tl from-[#00ddff] to-[#ff00d4] text-white"
+              } `}
             >
-              <div className="w-full flex absolute top-0 left-0 gap-1">
+              <div
+                className={`w-full flex absolute top-0 left-0 gap-1 z-50 px-1 md:px-[2px] ${
+                  story?.image ? "bg-black/60" : ""
+                }`}
+              >
                 <div className="flex space-x-1 w-full">
                   {userStories.map((_, index) => {
                     if (index < storyIndex) {
@@ -254,7 +262,7 @@ const StoriesPage = ({
                       return (
                         <div
                           key={index}
-                          className="w-full h-1 bg-white rounded-full"
+                          className="w-full h-1 bg-blue-500 rounded-full"
                         />
                       );
                     } else if (index === storyIndex) {
@@ -271,7 +279,7 @@ const StoriesPage = ({
                       return (
                         <div
                           key={index}
-                          className="w-full h-1 bg-primary/40 rounded-full"
+                          className="w-full h-1 bg-white rounded-full"
                         />
                       );
                     }
@@ -279,7 +287,11 @@ const StoriesPage = ({
                 </div>
               </div>
 
-              <div className="w-full absolute top-0 left-0 flex items-center justify-between gap-2 text-white px-4 mt-4 mb-2">
+              <div
+                className={`w-full absolute top-0 left-0 flex items-center justify-between gap-2 px-4 mt-1 py-1 mb-2 z-50  text-white ${
+                  story?.image ? "bg-black/60" : ""
+                }`}
+              >
                 <div className="flex gap-3 items-center">
                   <Link href={"/"}>
                     <MoveLeftIcon strokeWidth={1.5} />
@@ -356,7 +368,7 @@ const StoriesPage = ({
                 </div>
               </div>
               <div
-                className="w-full h-[calc(100vh-130px)] flex items-center justify-center mt-14 mb-14"
+                className="w-full h-[calc(100vh-130px)] flex items-center justify-center mt-16 mb-14"
                 onClick={() => handleNext()}
               >
                 {story?.image ? (
@@ -367,12 +379,14 @@ const StoriesPage = ({
                       height={100}
                       sizes="100%"
                       loading="lazy"
-                      className="w-auto h-full object-cover"
+                      className="w-full h-auto object-cover"
                       alt="post"
                     />
-                    <div className="absolute -bottom-0 left-0 w-full h-fit bg-black/40 text-white px-4 py-2 text-center">
-                      <p className="text-sm break-words">{story?.text}</p>
-                    </div>
+                    {story?.text && (
+                      <div className="absolute bottom-0 left-0 w-full h-fit bg-black/40 text-white px-4 py-2 text-center">
+                        <p className="text-sm break-words">{story?.text}</p>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center px-5">
@@ -382,7 +396,11 @@ const StoriesPage = ({
                 )}
               </div>
               {story?.userId === loginUserId ? (
-                <div className="w-full absolute bottom-0 flex items-center justify-center text-white px-4 mb-4 gap-14">
+                <div
+                  className={`w-full absolute bottom-0 flex items-center justify-center px-4 py-3 gap-14 ${
+                    story?.image ? "bg-black/60 text-white" : "text-white"
+                  }`}
+                >
                   <div className="flex items-center gap-1">
                     <StorySeenBy seenBy={story.seenBy} />
                   </div>
@@ -394,7 +412,7 @@ const StoriesPage = ({
                   </div>
                 </div>
               ) : (
-                <div className="w-full absolute bottom-0 flex items-center justify-between px-4 mb-4 gap-4 text-white">
+                <div className="w-full absolute bottom-0 flex items-center justify-between px-4 py-3 gap-4 bg-black/60">
                   <Input
                     className="placeholder:text-white"
                     placeholder={`Reply to ${story?.user.username} ...`}

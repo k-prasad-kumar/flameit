@@ -60,10 +60,10 @@ const AddStory = ({ userId }: { userId: string }) => {
   return (
     <div className="w-full h-full flex items-center absolute top-0 left-0 z-50 bg-background">
       {image && (
-        <div className="w-full h-full md:max-w-screen-sm md:px-24 mx-auto mt-2 md:mt-0 px-4 py-5 md:py-0 flex flex-col justify-between relative">
-          <div className="gap-2 flex flex-wrap">
-            <div className="relative w-full flex">
-              <div className="absolute top-0 right-0 z-10">
+        <div className="w-full h-full md:max-w-screen-sm md:px-24 mx-auto mt-2 md:mt-0 flex flex-col justify-between relative">
+          <div className="gap-2 flex">
+            <div className="relative w-full h-screen flex items-center justify-center">
+              <div className="absolute top-3 right-3 z-10">
                 <Button
                   type="button"
                   onClick={() => removeImage()}
@@ -80,12 +80,12 @@ const AddStory = ({ userId }: { userId: string }) => {
                 height={100}
                 sizes="100%"
                 loading="lazy"
-                className="w-auto h-full object-cover"
+                className="w-full h-auto object-cover"
                 alt="post"
               />
             </div>
           </div>
-          <div className="flex justify-between items-center mt-2 gap-2 absolute bottom-0 left-0 mb-4 w-full px-4 md:px-28">
+          <div className="flex justify-between items-center mt-2 gap-2 absolute bottom-0 left-0 mb-4 w-full px-4 md:px-24">
             <div className="flex flex-col w-full relative">
               <Input
                 placeholder="Add a caption..."
@@ -189,7 +189,7 @@ const AddStory = ({ userId }: { userId: string }) => {
           </div>
           <Link
             href="/"
-            className="absolute top-5 left-4 flex gap-2 px-4 py-2 rounded-full bg-background"
+            className="absolute top-1 left-0 flex gap-2 px-4 py-2 rounded-full"
           >
             <Button onClick={() => removeImage()}>
               <MoveLeftIcon strokeWidth={1.5} />
@@ -198,9 +198,9 @@ const AddStory = ({ userId }: { userId: string }) => {
         </div>
       )}
       {!image && (
-        <div className="w-full h-full md:max-w-screen-sm mx-auto p-4 relative">
+        <div className="w-full h-full md:max-w-screen-sm mx-auto p-0 md:p-4 relative">
           <Card className="w-full h-full">
-            <CardContent className="w-full h-full flex flex-col justify-between">
+            <CardContent className="w-full h-full flex flex-col justify-between px-2 md:px-4">
               <Link href="/" className="absolute top-5 left-6 flex">
                 <Button>
                   <MoveLeftIcon strokeWidth={1.5} />
@@ -224,7 +224,7 @@ const AddStory = ({ userId }: { userId: string }) => {
                   <p>Choose a photo</p>
                 </CldUploadButton>
               </div>
-              <div className="flex justify-between items-center mt-2 gap-1">
+              <div className="w-full flex justify-between items-center mt-2 gap-2">
                 <div className="flex flex-col w-full relative">
                   <Input
                     placeholder="Add a caption..."

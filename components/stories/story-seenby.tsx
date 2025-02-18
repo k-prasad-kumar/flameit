@@ -19,6 +19,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import Link from "next/link";
 import { ProfileAvatar } from "../avatar";
 import { StorySeenByInterface } from "@/types/types";
+import { getRelativeTime } from "@/lib/relative-time";
 
 const StorySeenBy = ({ seenBy }: { seenBy: StorySeenByInterface[] }) => {
   return (
@@ -69,12 +70,12 @@ const StorySeenBy = ({ seenBy }: { seenBy: StorySeenByInterface[] }) => {
                       <div className="flex flex-col">
                         <Link
                           href={`/${seen?.user?.username}`}
-                          className="truncate max-w-[180px] sm:max-w-[280px]"
+                          className="truncate max-w-full"
                         >
                           {seen?.user?.username}
                         </Link>
-                        <p className="truncate max-w-[180px] sm:max-w-[280px] text-xs opacity-65">
-                          {seen?.user?.name}
+                        <p className="truncate max-w-full text-xs opacity-65">
+                          {getRelativeTime(seen?.createdAt)}
                         </p>
                       </div>
                     </div>
