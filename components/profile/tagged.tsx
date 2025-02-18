@@ -82,7 +82,7 @@ const TaggedPosts = ({ userId }: { userId: string }) => {
             <Contact2Icon size={40} strokeWidth={1} />
           </div>
           <h1 className="text-2xl font-bold">Photos of you</h1>
-          <p>When people tag you in photos, they &apos; ll appear here.</p>
+          <p>When people tag you in photos, they&apos;ll appear here.</p>
         </div>
       ) : (
         <div className="w-full grid grid-cols-3 gap-1 mb-14">

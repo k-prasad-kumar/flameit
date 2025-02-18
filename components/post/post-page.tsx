@@ -51,9 +51,9 @@ const PostsCard = ({
               />
             </div>
             <div
-              className={`w-full h-full max-w-full justify-center shadow items-center relative border`}
+              className={`w-full justify-center shadow items-center relative`}
             >
-              <div className="flex aspect-square items-center justify-center">
+              <div className="flex items-center justify-center">
                 <Image
                   src={post?.image.url as string}
                   width={100}
