@@ -26,18 +26,18 @@ const CreatePost = ({
   image: string;
 }) => {
   const [caption, setCaption] = useState<string>("");
-  const [images, setImages] = useState<{ url: string; public_id: string }[]>(
-    []
-  );
+  const [uploadImage, setUploadImage] = useState<{
+    url: string;
+    public_id: string;
+  } | null>();
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const socket = useSocket();
 
-  const removeImage = (idx: number) => {
-    deleteImageCloudinary(images[idx].public_id);
+  const removeImage = () => {
+    deleteImageCloudinary(uploadImage?.public_id as string);
 
-    const res = images?.filter((_, i) => i != idx);
-    setImages(res);
+    setUploadImage(null);
   };
 
   const sendNotifications = async () => {
@@ -57,17 +57,20 @@ const CreatePost = ({
   };
 
   const handleSubmit = () => {
-    if (images.length === 0) return toast.error("Please upload a photo");
+    if (image === null || image === undefined)
+      return toast.error("Please upload a photo");
     startTransition(() => {
-      createPost({ userId, images, caption }).then(async (data) => {
-        if (data?.success) {
-          await sendNotifications();
-          setImages([]);
-          setCaption("");
-          router.push(`/`);
-          toast.success("Post created successfully");
+      createPost({ userId, image: uploadImage!, caption }).then(
+        async (data) => {
+          if (data?.success) {
+            await sendNotifications();
+            setUploadImage(null);
+            setCaption("");
+            router.push(`/`);
+            toast.success("Post created successfully");
+          }
         }
-      });
+      );
     });
   };
 
@@ -97,15 +100,12 @@ const CreatePost = ({
             </div>
           </div>
           <div className="gap-2 flex flex-wrap">
-            {images?.map((image, idx) => (
-              <div
-                key={image.public_id}
-                className="relative w-[100px] h-[140px] flex"
-              >
+            {uploadImage && (
+              <div className="relative w-[100px] h-[140px] flex">
                 <div className="absolute top-0 right-0 z-10">
                   <Button
                     type="button"
-                    onClick={() => removeImage(idx)}
+                    onClick={() => removeImage()}
                     size="sm"
                     className="bg-red-500 p-2"
                     disabled={isPending}
@@ -114,35 +114,30 @@ const CreatePost = ({
                   </Button>
                 </div>
                 <Image
-                  src={image.url}
+                  src={uploadImage?.url as string}
                   alt="posts"
                   className="object-cover rounded-lg"
                   fill
                 />
               </div>
-            ))}
+            )}
           </div>
         </ScrollArea>
         <div className="flex justify-between items-center mt-2">
           <CldUploadButton
             uploadPreset="flameit-images"
-            options={{ maxFiles: 5 }}
+            options={{ maxFiles: 1, multiple: false }}
             onSuccess={(result) => {
-              setImages((prev) => [
-                ...prev,
-                {
-                  url: (result.info as CloudinaryUploadWidgetInfo).secure_url,
-                  public_id: (result.info as CloudinaryUploadWidgetInfo)
-                    .public_id,
-                },
-              ]);
+              setUploadImage({
+                url: (result.info as CloudinaryUploadWidgetInfo).secure_url,
+                public_id: (result.info as CloudinaryUploadWidgetInfo)
+                  .public_id,
+              });
             }}
             className="px-4 py-2 flex items-center space-x-2 text-[#777777] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-900 rounded"
           >
             <ImageIcon size={18} />
-            <p>
-              Photo <span className="text-xs">(Max 5 photos)</span>
-            </p>
+            <p>Photo</p>
           </CldUploadButton>
           <Button type="submit" onClick={handleSubmit}>
             {isPending ? (

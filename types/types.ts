@@ -76,14 +76,14 @@ export interface TaggedInterface {
 
 export interface PostFormInterface {
   userId: string;
-  images: Image[];
+  image: Image;
   caption: string;
 }
 
 export interface PostResponseInterface {
   id: string;
   userId: string;
-  images: Image[];
+  image: Image;
   caption: string | null;
   isLikesCountHide: boolean;
   isCommentsOff: boolean;

@@ -2,13 +2,6 @@
 
 import Image from "next/image";
 import { ProfileAvatar } from "../avatar";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 import { Separator } from "../ui/separator";
 import Link from "next/link";
 import { getRelativeTime } from "@/lib/relative-time";
@@ -97,7 +90,7 @@ const PostsCard = ({
                   height="10"
                 />
                 <div className="flex flex-col">
-                  <h2 className="font-[500] text-sm">{post?.user?.username}</h2>
+                  <h2 className="font-[500]">{post?.user?.username}</h2>
                 </div>
               </Link>
               <DynamicPostOptions
@@ -108,45 +101,28 @@ const PostsCard = ({
                 isComments={post?.isCommentsOff}
               />
             </div>
-            <Carousel
-              className={`w-full h-full max-w-full ${
-                post.images.length > 0 ? "flex" : "hidden"
-              } justify-center shadow items-center relative border`}
+            <div
+              className={`w-full h-full max-w-full justify-center shadow items-center relative border`}
             >
-              <CarouselContent>
-                {post?.images?.length > 0 &&
-                  post?.images?.map(
-                    (image: { url: string; public_id: string }) => (
-                      <CarouselItem key={image.public_id}>
-                        <div className="flex aspect-square items-center justify-center">
-                          <Image
-                            src={image.url}
-                            width={100}
-                            height={100}
-                            sizes="100%"
-                            loading="lazy"
-                            className="w-full h-[544px] object-cover"
-                            alt="post"
-                          />
-                        </div>
-                      </CarouselItem>
-                    )
-                  )}
-              </CarouselContent>
-              {post?.images?.length > 1 && (
-                <>
-                  <CarouselPrevious className="hidden md:flex absolute bottom-[50%] left-3" />
-                  <CarouselNext className="hidden md:flex absolute bottom-[50%] right-2" />
-                </>
-              )}
-            </Carousel>
+              <div className="flex aspect-square items-center justify-center">
+                <Image
+                  src={post?.image.url as string}
+                  width={100}
+                  height={100}
+                  sizes="100%"
+                  loading="lazy"
+                  className="w-full h-auto object-cover"
+                  alt="post"
+                />
+              </div>
+            </div>
             <DynamicPostInfo
               postUserId={post?.user?.id as string}
               userId={userId}
               username={username as string}
               postUsername={post?.user?.username as string}
               postId={post?.id as string}
-              image={post?.images[0].url as string}
+              image={post?.image.url as string}
               comments={post?.comments}
               commentsCount={post?.commentsCount as number}
               likes={post?.likes}

@@ -25,7 +25,7 @@ export const createPost = async (post: PostFormInterface) => {
       data: {
         userId: post.userId as string,
         caption: post.caption as string,
-        images: post.images,
+        image: post.image,
       },
     });
 
@@ -35,7 +35,7 @@ export const createPost = async (post: PostFormInterface) => {
           userId: post?.userId as string,
           recipientId: follower?.follower.id as string,
           postId: newPost?.id as string,
-          postImage: newPost?.images[0].url as string,
+          postImage: newPost?.image.url as string,
           text: "shared a post.",
           isSeen: false,
           type: "POST",
@@ -184,7 +184,7 @@ export const updatePostLikes = async (
           userId: userId as string,
           recipientId: newPost?.userId as string,
           postId: newPost?.id as string,
-          postImage: newPost?.images[0].url as string,
+          postImage: newPost?.image.url as string,
           text: "liked your post.",
           isSeen: false,
           type: "LIKE",
@@ -285,7 +285,7 @@ export const addPostComment = async (
         userId: userId as string,
         recipientId: post?.userId as string,
         postId: post?.id as string,
-        postImage: post?.images[0].url as string,
+        postImage: post?.image.url as string,
         text: "commented on your post.",
         isSeen: false,
         type: "COMMENT",
@@ -336,7 +336,7 @@ export const replayComment = async (
         userId: userId as string,
         recipientId: comment?.userId as string,
         postId: post?.id as string,
-        postImage: post?.images[0].url as string,
+        postImage: post?.image.url as string,
         text: "replied on your comment.",
         isSeen: false,
         type: "COMMENT",
@@ -416,13 +416,11 @@ export const deletePost = async (id: string, userId: string) => {
         id: id as string,
       },
       select: {
-        images: true,
+        image: true,
       },
     });
 
-    post?.images?.map(async (image) => {
-      await deleteImageCloudinary(image.public_id);
-    });
+    await deleteImageCloudinary(post?.image?.public_id as string);
 
     const postOwnerFollowers = await prisma.follower.findMany({
       where: {

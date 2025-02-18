@@ -46,7 +46,7 @@ const PostsCard = ({
                   height="10"
                 />
                 <div className="flex flex-col">
-                  <h2 className="font-[500] text-sm">{post?.user?.username}</h2>
+                  <h2 className="font-[500]">{post?.user?.username}</h2>
                 </div>
               </Link>
               <UserPostOptions
