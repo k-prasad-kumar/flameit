@@ -243,7 +243,7 @@ export const updateUser = async (
         where: { id: id as string },
         data: {
           name: editProfile?.name as string,
-          bio: editProfile?.bio as string,
+          bio: editProfile?.bio.replace(/\n/g, "\\n") as string,
           gender: editProfile?.gender as string,
           isPrivate: editProfile?.isPrivate as boolean,
         },

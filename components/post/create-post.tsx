@@ -57,8 +57,11 @@ const CreatePost = ({
   };
 
   const handleSubmit = () => {
-    if (image === null || image === undefined)
+    if (uploadImage === null || uploadImage === undefined)
       return toast.error("Please upload a photo");
+
+    if (caption.length > 1000)
+      return toast.error("Maximum caption length is 1000 characters");
     startTransition(() => {
       createPost({ userId, image: uploadImage!, caption }).then(
         async (data) => {

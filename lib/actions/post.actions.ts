@@ -24,7 +24,7 @@ export const createPost = async (post: PostFormInterface) => {
     const newPost = await prisma.post.create({
       data: {
         userId: post.userId as string,
-        caption: post.caption as string,
+        caption: post.caption.replace(/\n/g, "\\n") as string,
         image: post.image,
       },
     });

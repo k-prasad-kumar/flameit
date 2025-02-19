@@ -6,7 +6,7 @@ import React, { useState } from "react";
 const TruncateCaption = ({
   username,
   text,
-  maxLength = 100 as number,
+  maxLength = 100,
 }: {
   username: string;
   text: string;
@@ -18,13 +18,23 @@ const TruncateCaption = ({
     setShowFull(!showFull);
   };
 
+  // Function to convert newlines to <br>
+  const formatText = (text: string) => {
+    return text.split("\\n").map((line, index) => (
+      <React.Fragment key={index}>
+        {line}
+        <br />
+      </React.Fragment>
+    ));
+  };
+
   if (text.length <= maxLength) {
     return (
-      <p className="break-words capitalize-first">
+      <p className="capitalize-first">
         <Link href={`/${username}`} className="text-sm font-semibold pr-2">
           {username}
         </Link>
-        {text}
+        {formatText(text)}
       </p>
     );
   }
@@ -35,12 +45,20 @@ const TruncateCaption = ({
         {username}
       </Link>
       <span className="opacity-80 text-sm break-words capitalize-first">
-        {" "}
-        {showFull ? text : `${text.slice(0, maxLength)}... `}
+        {showFull ? (
+          formatText(text) // Show full text with formatted newlines
+        ) : (
+          <>
+            {formatText(text.slice(0, maxLength))}
+            ...{" "}
+          </>
+        )}
       </span>
-
-      <span onClick={handleToggle} className="opacity-60 cursor-pointer">
-        {showFull ? " ...showless" : "more"}
+      <span
+        onClick={handleToggle}
+        className="opacity-60 cursor-pointer font-semibold"
+      >
+        {showFull ? "show less" : "more"}
       </span>
     </p>
   );

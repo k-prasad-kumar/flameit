@@ -4,7 +4,7 @@ import React, { useState } from "react";
 
 const TruncateBio = ({
   text,
-  maxLength = 100 as number,
+  maxLength = 100,
 }: {
   text: string;
   maxLength?: number;
@@ -15,22 +15,37 @@ const TruncateBio = ({
     setShowFull(!showFull);
   };
 
+  // Function to convert newlines to <br>
+  const formatText = (text: string) => {
+    return text.split("\\n").map((line, index) => (
+      <React.Fragment key={index}>
+        {line}
+        <br />
+      </React.Fragment>
+    ));
+  };
+
   if (text.length <= maxLength) {
-    return <p>{text}</p>;
+    return <p>{formatText(text)}</p>;
   }
 
   return (
     <p className="w-full">
       <span className="text-sm">
-        {" "}
-        {showFull ? text : `${text.slice(0, maxLength)}... `}
+        {showFull ? (
+          formatText(text) // Show full text with formatted newlines
+        ) : (
+          <>
+            {formatText(text.slice(0, maxLength))}
+            ...{" "}
+          </>
+        )}
       </span>
-
       <span
         onClick={handleToggle}
         className="font-semibold cursor-pointer opacity-75"
       >
-        {showFull ? " ...showless" : "more"}
+        {showFull ? "show less" : "more"}
       </span>
     </p>
   );
