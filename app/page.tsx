@@ -28,7 +28,7 @@ export default async function Home() {
   const following: FollowingInterface[] = await getFollowing(user.id);
 
   const followingIds = following.map((f) => f.followingId);
-  followingIds.push(user.id);
+  followingIds.push(user.id, process.env.OFFICIAL_ACCOUNT as string);
 
   const stories: StoryUserInfoInterface[] | undefined =
     await getFollowingStoriesUserInfo(followingIds);
