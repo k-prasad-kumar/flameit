@@ -251,7 +251,7 @@ const StoriesPage = ({
               } `}
             >
               <div
-                className={`w-full flex absolute top-0 left-0 gap-1 z-50 px-1 md:px-[2px] ${
+                className={`w-full flex absolute top-0 left-0 gap-1 z-50 px-1 md:px-[2px] mt-[2px] ${
                   story?.image ? "bg-black/60" : ""
                 }`}
               >
@@ -288,7 +288,7 @@ const StoriesPage = ({
               </div>
 
               <div
-                className={`w-full absolute top-0 left-0 flex items-center justify-between gap-2 px-4 mt-1 py-1 mb-2 z-50  text-white ${
+                className={`w-full absolute top-0 left-0 flex items-center justify-between gap-2 px-4 mt-2 py-1 mb-2 z-50  text-white ${
                   story?.image ? "bg-black/60" : ""
                 }`}
               >
