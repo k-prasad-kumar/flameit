@@ -21,8 +21,7 @@ export const metadata: Metadata = {
       "FlameIt: Share your world, connect with friends. Photos, posts, stories, and chat – all in one place.",
     url: "https://flameit.vercel.app",
     siteName: "FlameIt.vercel.app.",
-    images:
-      "https://res.cloudinary.com/flameit/image/upload/v1739565980/FlameIt_ozvqyt.png",
+    images: process.env.OG_IMAGE as string,
     locale: "en-US",
     type: "website",
   },
@@ -32,8 +31,7 @@ export const metadata: Metadata = {
     title: "FlameIt.",
     description:
       "FlameIt: Share your world, connect with friends. Photos, posts, stories, and chat – all in one place.",
-    images:
-      "https://res.cloudinary.com/flameit/image/upload/v1739565980/FlameIt_ozvqyt.png",
+    images: process.env.OG_IMAGE as string,
   },
   generator: "Next.js",
   manifest: "/manifest.json",
