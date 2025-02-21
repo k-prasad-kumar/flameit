@@ -68,6 +68,7 @@ const ChatPage = ({
     text: string;
     username: string;
     userId: string;
+    image: string | null;
   } | null>(null); // Reply state
   const [uploadImage, setUploadImage] = useState<{
     url: string;
@@ -516,7 +517,7 @@ const ChatPage = ({
                                   : message?.parentMessage?.sender?.username}
                               </p>
                             )}
-                            {message?.parentMessage?.post ? (
+                            {message?.parentMessage?.post?.image ? (
                               <Link
                                 href={`#${message?.parentMessage?.id}`}
                                 className="w-1/5 flex gap-2"
@@ -549,7 +550,8 @@ const ChatPage = ({
                                     href={`#${message?.parentMessage?.id}`}
                                     className="flex text-sm px-5 py-2 rounded-xl bg-gray-100 dark:bg-gray-600 text-black dark:text-white"
                                   >
-                                    {message?.parentMessage?.text}
+                                    {!message?.parentMessage?.post?.image &&
+                                      message?.parentMessage?.text}
                                   </Link>
 
                                   {message?.senderId === userId && (
@@ -597,6 +599,8 @@ const ChatPage = ({
                                       messageText={message.text as string}
                                       messageSenderId={message.senderId}
                                       messageUsername={message.sender?.username}
+                                      isPost={false}
+                                      image={null}
                                       handleUnsend={handleUnsend}
                                       handleReact={handleReact}
                                       setReplyTo={setReplyTo}
@@ -655,6 +659,8 @@ const ChatPage = ({
                                       messageText={message.text as string}
                                       messageSenderId={message.senderId}
                                       messageUsername={message.sender?.username}
+                                      isPost={false}
+                                      image={null}
                                       handleUnsend={handleUnsend}
                                       handleReact={handleReact}
                                       setReplyTo={setReplyTo}
@@ -681,26 +687,26 @@ const ChatPage = ({
                         {/* Message with Post (Receiver Side) */}
                         {message?.post && message.senderId !== userId && (
                           <div className="w-full flex group pl-4">
-                            <div className="w-1/2">
+                            <div className="w-3/4 md:w-1/2">
                               <div
-                                className="relative bg-black rounded-xl overflow-hidden"
+                                className="relative bg-black/70 rounded-xl overflow-hidden"
                                 id={`${message.id}`}
                               >
                                 {/* Post User Info (Top Left) */}
                                 {!message?.post?.imagePublicId && (
                                   <Link
-                                    href={`/${message?.post?.postUser?.username}`}
-                                    className="absolute top-2 left-2 flex items-center gap-2 z-10"
+                                    href={`/${message.post?.postUser?.username}`}
+                                    className="absolute top-1 left-1 flex items-center gap-2 z-10 bg-inherit rounded-full px-2 py-1"
                                   >
                                     <ProfileAvatar
                                       image={
                                         message.post?.postUser?.image as string
                                       }
                                       alt="profile"
-                                      width="6"
-                                      height="6"
+                                      width="5"
+                                      height="5"
                                     />
-                                    <p className="text-white text-sm">
+                                    <p className="text-white text-xs">
                                       {message?.post?.postUser?.username}
                                     </p>
                                   </Link>
@@ -725,9 +731,11 @@ const ChatPage = ({
                                 </Link>
 
                                 {/* Message Text Below Post */}
-                                <p className="text-sm px-5 py-2 text-white bg-black bg-opacity-60 rounded-b-xl">
-                                  {message.text}
-                                </p>
+                                {message?.text && (
+                                  <p className="text-sm px-5 py-2 bg-gray-100 dark:bg-gray-600 text-black dark:text-white rounded-b-xl">
+                                    {message.text}
+                                  </p>
+                                )}
                               </div>
                               {message.reactions?.length > 0 && (
                                 <div className="bg-gray-100 dark:bg-gray-600 px-1 w-fit rounded-full text-sm">
@@ -742,13 +750,15 @@ const ChatPage = ({
                             </div>
 
                             <div
-                              className={`hidden group-hover:flex flex-col min-h-full items-center justify-center`}
+                              className={`flex md:hidden md:group-hover:flex flex-col min-h-full items-center justify-center`}
                             >
                               <ActionButtons
                                 messageId={message.id}
                                 messageText={message.text as string}
                                 messageSenderId={message.senderId}
                                 messageUsername={message.sender?.username}
+                                isPost={true}
+                                image={message?.post?.image}
                                 handleUnsend={handleUnsend}
                                 handleReact={handleReact}
                                 setReplyTo={setReplyTo}
@@ -763,13 +773,15 @@ const ChatPage = ({
                         {message?.post && message.senderId === userId && (
                           <div className="w-full flex justify-end group pr-2">
                             <div
-                              className={`hidden group-hover:flex flex-col min-h-full items-center justify-center`}
+                              className={`flex md:hidden md:group-hover:flex flex-col min-h-full items-center justify-center`}
                             >
                               <ActionButtons
                                 messageId={message.id}
                                 messageText={message.text as string}
                                 messageSenderId={message.senderId}
                                 messageUsername={message.sender?.username}
+                                isPost={true}
+                                image={message?.post?.image}
                                 handleUnsend={handleUnsend}
                                 handleReact={handleReact}
                                 setReplyTo={setReplyTo}
@@ -777,26 +789,26 @@ const ChatPage = ({
                                 isUnsended={true}
                               />
                             </div>
-                            <div className="w-1/2">
+                            <div className="w-3/4 md:w-1/2">
                               <div
-                                className="relative bg-black rounded-xl overflow-hidden"
+                                className="relative bg-black/70 rounded-xl overflow-hidden"
                                 id={`${message.id}`}
                               >
                                 {/* Post User Info (Top Left) */}
                                 {!message?.post?.imagePublicId && (
                                   <Link
                                     href={`/${message.post?.postUser?.username}`}
-                                    className="absolute top-2 left-2 flex items-center gap-2 z-10 bg-inherit rounded-full px-2 py-1"
+                                    className="absolute top-1 left-1 flex items-center gap-2 z-10 bg-inherit rounded-full px-2 py-1"
                                   >
                                     <ProfileAvatar
                                       image={
                                         message.post?.postUser?.image as string
                                       }
                                       alt="profile"
-                                      width="6"
-                                      height="6"
+                                      width="5"
+                                      height="5"
                                     />
-                                    <p className="text-white text-sm truncate">
+                                    <p className="text-white text-xs truncate">
                                       {
                                         message?.post?.postUser
                                           ?.username as string
@@ -824,9 +836,11 @@ const ChatPage = ({
                                 </Link>
 
                                 {/* Message Text Below Post */}
-                                <p className="text-sm px-5 py-2 text-white bg-black bg-opacity-60 rounded-b-xl">
-                                  {message.text}
-                                </p>
+                                {message?.text && (
+                                  <p className="text-sm px-5 py-2 text-white bg-[#3797f0] rounded-b-xl">
+                                    {message.text}
+                                  </p>
+                                )}
                               </div>
                               <div className="w-full flex justify-end">
                                 {message.reactions?.length > 0 && (
@@ -881,10 +895,18 @@ const ChatPage = ({
                   </div>
                   <div>
                     {replyTo?.text && (
-                      <div className="flex items-center gap-2 w-full mb-4">
+                      <div className="flex justify-between gap-2 w-full mb-4">
                         <p className="text-xs opacity-75 truncate w-full mr-5">
                           {replyTo?.text}
                         </p>
+                        <Image
+                          src={replyTo?.image as string}
+                          alt="post"
+                          width={100}
+                          height={100}
+                          sizes="100%"
+                          className="w-12 h-auto object-cover mr-10"
+                        />
                       </div>
                     )}
                   </div>

@@ -29,12 +29,12 @@ export const createUser = async (formData: RegisterInterface) => {
     }
 
     const username = await prisma.user.findFirst({
-      where: { username: formData.username.toLowerCase() as string },
+      where: { username: formData.username as string },
     });
 
     if (username) {
       return {
-        error: `The Username ${formData.username.toLowerCase()} is not avalable`,
+        error: `The Username ${formData.username} is not avalable`,
       };
     }
 
@@ -43,7 +43,7 @@ export const createUser = async (formData: RegisterInterface) => {
     await prisma.user.create({
       data: {
         name: formData.name as string,
-        username: formData.username.toLowerCase() as string,
+        username: formData.username as string,
         email: formData.email as string,
         password: hashedPassword,
       },
@@ -263,7 +263,7 @@ export const updateUser = async (
       where: { id: id as string },
       data: {
         name: editProfile?.name as string,
-        username: editProfile?.username.toLowerCase() as string,
+        username: editProfile?.username as string,
         bio: editProfile?.bio as string,
         gender: editProfile?.gender as string,
       },

@@ -42,9 +42,9 @@ const AddStory = ({ userId }: { userId: string }) => {
   };
 
   const handleSubmit = () => {
-    if (image === null && text === null)
+    if (!image && !text)
       return toast.error("Upload an image or type something");
-
+    if (text === " " || text === "  ") return toast.error("Type something");
     if (text !== null && text?.length > 150)
       return toast.error("Maximum text length is 150 characters");
     startTransition(() => {

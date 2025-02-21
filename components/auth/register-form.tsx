@@ -54,6 +54,12 @@ const RegisterForm = () => {
   });
 
   const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
+    const pattern = /^[a-zA-Z0-9_-]+$/;
+    const res = pattern.test(values.username as string);
+    if (!res)
+      return setError(
+        "Username can only contain letters, numbers, underscores and hyphens."
+      );
     startTransition(() => {
       createUser(values)
         .then((data) => {

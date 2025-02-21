@@ -229,7 +229,7 @@ const PostComment = ({
                                   <AlertDialogDescription>
                                     <input
                                       type="text"
-                                      className="w-full px-4 py-3 placeholder:text-sm outline-none border-none"
+                                      className="w-full px-4 py-3 placeholder:text-sm outline-none border-none bg-inherit"
                                       placeholder="Add a reply..."
                                       onChange={(e) =>
                                         setReplay(e.target.value)
@@ -342,7 +342,7 @@ const PostComment = ({
                 >
                   <input
                     type="text"
-                    className="w-full px-4 py-3 placeholder:text-sm outline-none border-none"
+                    className="w-full px-4 py-3 placeholder:text-sm outline-none border-none bg-inherit"
                     placeholder="Add a comment..."
                     onChange={(e) => setComment(e.target.value)}
                     value={comment}
@@ -449,7 +449,7 @@ const PostComment = ({
                                   <AlertDialogDescription>
                                     <input
                                       type="text"
-                                      className="w-full px-4 py-3 placeholder:text-sm outline-none border-none"
+                                      className="w-full px-4 py-3 placeholder:text-sm outline-none border-none bg-inherit"
                                       placeholder="Add a reply..."
                                       onChange={(e) =>
                                         setReplay(e.target.value)
@@ -562,7 +562,7 @@ const PostComment = ({
                 >
                   <input
                     type="text"
-                    className="w-full px-4 py-3 placeholder:text-sm outline-none border-none"
+                    className="w-full px-4 py-3 placeholder:text-sm outline-none border-none bg-inherit"
                     placeholder="Add a comment..."
                     onChange={(e) => setComment(e.target.value)}
                     value={comment}

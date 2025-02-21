@@ -235,6 +235,18 @@ export const sendMessage = async (
           parentMessage: {
             include: {
               sender: { select: { id: true, username: true, image: true } },
+              post: {
+                include: {
+                  postUser: {
+                    select: {
+                      id: true,
+                      username: true,
+                      image: true,
+                      name: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -250,31 +262,6 @@ export const sendMessage = async (
     });
 
     return { success: "Message sent successfully", newMessage: newMessage };
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-export const replyMessage = async (
-  conversationId: string,
-  senderId: string,
-  text: string,
-  parentMessageId?: string
-) => {
-  try {
-    if (!conversationId || !senderId || !text || !parentMessageId) {
-      return { error: "Invalid message data" };
-    }
-    await prisma.message.create({
-      data: {
-        conversationId,
-        senderId,
-        text,
-        parentMessageId,
-      },
-    });
-
-    return { success: "replied successfully" };
   } catch (error) {
     console.log(error);
   }
@@ -455,6 +442,13 @@ export const getMessages = async (
       parentMessage: {
         include: {
           sender: { select: { id: true, username: true, image: true } },
+          post: {
+            include: {
+              postUser: {
+                select: { id: true, username: true, image: true, name: true },
+              },
+            },
+          },
         },
       },
     },

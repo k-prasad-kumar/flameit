@@ -59,6 +59,7 @@ const SharePost = ({
     }[]
   >([]);
   const [open, setOpen] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState(false);
 
   const [conversations, setConversations] =
     useState<OneConversationInterface[]>();
@@ -178,11 +179,10 @@ const SharePost = ({
                 conversationParticipants: recieverIds,
                 senderId: userId,
               });
-
-              toast.success("Post Shared Successfully");
-              setOpen(false);
-              setText(null);
             }
+            setOpen(false);
+            setOpenDrawer(false);
+            setText(null);
 
             toast.success("Post Shared Successfully");
           }
@@ -207,7 +207,7 @@ const SharePost = ({
               <DialogTitle>Share</DialogTitle>
             </DialogHeader>
             <div>
-              <ScrollArea className="w-full  max-h-[50vh]">
+              <ScrollArea className="w-full max-h-[50vh]">
                 <div className="grid grid-cols-4 gap-2">
                   {users?.map((user) => (
                     <div
@@ -260,7 +260,7 @@ const SharePost = ({
                 </div>
               </ScrollArea>
               <Separator className="my-3" />
-              <div className="flex items-center gap-4 mt-2 relative">
+              <div className="flex items-center gap-4 mt-2 relative w-full">
                 <div
                   className="flex flex-col items-center justify-center text-sm cursor-pointer"
                   onClick={() => handleCopy()}
@@ -373,7 +373,7 @@ const SharePost = ({
                 {selectedUsers?.length > 0 && (
                   <div>
                     <form
-                      className="w-full h-full absolute bottom-0 left-0 bg-white gap-2 flex flex-col items-center justify-center"
+                      className="w-full h-full pr-5 absolute bottom-0 left-0 bg-background gap-2 flex flex-col items-center justify-center"
                       onSubmit={handleSubmit}
                     >
                       <input
@@ -402,7 +402,7 @@ const SharePost = ({
         </Dialog>
       </div>
       <div className="flex md:hidden">
-        <Drawer>
+        <Drawer open={openDrawer} onOpenChange={setOpenDrawer}>
           <DrawerTrigger>
             <SendIcon
               strokeWidth={1.5}
@@ -414,8 +414,8 @@ const SharePost = ({
             <DrawerHeader>
               <DialogTitle>Share</DialogTitle>
             </DrawerHeader>
-            <div>
-              <ScrollArea className="w-full  max-h-[50vh]">
+            <div className="w-full">
+              <ScrollArea className="w-full max-h-[50vh]">
                 <div className="grid grid-cols-4 gap-2">
                   {users?.map((user) => (
                     <div
@@ -581,7 +581,7 @@ const SharePost = ({
                 {selectedUsers?.length > 0 && (
                   <div>
                     <form
-                      className="w-full h-full absolute bottom-0 left-0 bg-white gap-2 flex flex-col items-center justify-center"
+                      className="w-full pl-2 pr-4 h-full absolute bottom-0 left-1 right-1 bg-background gap-2 flex flex-col items-center justify-center"
                       onSubmit={handleSubmit}
                     >
                       <input

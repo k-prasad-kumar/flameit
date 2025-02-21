@@ -28,6 +28,8 @@ const ActionButtons = ({
   messageText,
   messageUsername,
   messageSenderId,
+  isPost,
+  image,
   handleUnsend,
   handleReact,
   setReplyTo,
@@ -38,6 +40,8 @@ const ActionButtons = ({
   messageText: string;
   messageUsername: string | null;
   messageSenderId: string;
+  isPost: boolean;
+  image: string | null;
   handleUnsend: (id: string) => void;
   handleReact: (id: string, emoji: string) => void;
   setReplyTo: (message: {
@@ -45,6 +49,7 @@ const ActionButtons = ({
     text: string;
     username: string;
     userId: string;
+    image: string | null;
   }) => void;
   isPending: boolean;
   isUnsended: boolean;
@@ -88,9 +93,10 @@ const ActionButtons = ({
               onClick={() =>
                 setReplyTo({
                   id: messageId,
-                  text: messageText,
+                  text: isPost ? "Attachment" : messageText,
                   username: messageUsername as string,
                   userId: messageSenderId,
+                  image: isPost ? image : null,
                 })
               }
             >

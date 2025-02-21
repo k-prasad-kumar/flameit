@@ -258,7 +258,7 @@ type MessagePost = {
   postUserId: string | null;
   messageId: string;
   postId: string | null;
-  image: string | null;
+  image: string;
   imagePublicId: string | null;
   postUser: UserInfo;
 };
