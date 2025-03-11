@@ -3,7 +3,7 @@ import Loading from "./loading";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/current-user-data";
 import ChatPage from "@/components/chat/chat";
-import { getConversation } from "@/lib/actions/realtime.actions";
+import { getConversation } from "@/lib/actions/chat.actions";
 import NotFound from "@/app/not-found";
 import { OneConversationInterface } from "@/types/types";
 

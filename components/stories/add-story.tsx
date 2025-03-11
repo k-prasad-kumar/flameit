@@ -27,7 +27,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const AddStory = ({ userId }: { userId: string }) => {
-  const [text, setText] = useState<string | null>(null);
+  const [text, setText] = useState<string>("");
   const [image, setImage] = useState<{ url: string; public_id: string } | null>(
     null
   );
@@ -45,13 +45,13 @@ const AddStory = ({ userId }: { userId: string }) => {
     if (!image && !text)
       return toast.error("Upload an image or type something");
     if (text === " " || text === "  ") return toast.error("Type something");
-    if (text !== null && text?.length > 150)
+    if (text !== "" && text?.length > 150)
       return toast.error("Maximum text length is 150 characters");
     startTransition(() => {
       addStory({ userId, text, image }).then((data) => {
         if (data?.success) {
           router.push(`/`);
-          setText(null);
+          setText("");
           setImage(null);
         }
       });
@@ -124,7 +124,7 @@ const AddStory = ({ userId }: { userId: string }) => {
                       <div
                         className="cursor-pointer hover:scale-125 text-3xl transform duration-150 ease-in-out"
                         onClick={() => {
-                          setText((prev) => prev + "❤️");
+                          setText((prev) => prev + "😂");
                           setDialogOpen(false);
                         }}
                       >
@@ -133,7 +133,7 @@ const AddStory = ({ userId }: { userId: string }) => {
                       <div
                         className="cursor-pointer hover:scale-125 text-3xl transform duration-150 ease-in-out"
                         onClick={() => {
-                          setText((prev) => prev + "❤️");
+                          setText((prev) => prev + "😮");
                           setDialogOpen(false);
                         }}
                       >
@@ -142,7 +142,7 @@ const AddStory = ({ userId }: { userId: string }) => {
                       <div
                         className="cursor-pointer hover:scale-125 text-3xl transform duration-150 ease-in-out"
                         onClick={() => {
-                          setText((prev) => prev + "❤️");
+                          setText((prev) => prev + "😢");
                           setDialogOpen(false);
                         }}
                       >
@@ -151,7 +151,7 @@ const AddStory = ({ userId }: { userId: string }) => {
                       <div
                         className="cursor-pointer hover:scale-125 text-3xl transform duration-150 ease-in-out"
                         onClick={() => {
-                          setText((prev) => prev + "❤️");
+                          setText((prev) => prev + "😡");
                           setDialogOpen(false);
                         }}
                       >
@@ -160,7 +160,7 @@ const AddStory = ({ userId }: { userId: string }) => {
                       <div
                         className="cursor-pointer hover:scale-125 text-3xl transform duration-150 ease-in-out"
                         onClick={() => {
-                          setText((prev) => prev + "❤️");
+                          setText((prev) => prev + "👍");
                           setDialogOpen(false);
                         }}
                       >
@@ -263,7 +263,7 @@ const AddStory = ({ userId }: { userId: string }) => {
                           <div
                             className="cursor-pointer hover:scale-125 text-3xl transform duration-150 ease-in-out"
                             onClick={() => {
-                              setText((prev) => prev + "❤️");
+                              setText((prev) => prev + "😂");
                               setDialogOpen(false);
                             }}
                           >
@@ -272,7 +272,7 @@ const AddStory = ({ userId }: { userId: string }) => {
                           <div
                             className="cursor-pointer hover:scale-125 text-3xl transform duration-150 ease-in-out"
                             onClick={() => {
-                              setText((prev) => prev + "❤️");
+                              setText((prev) => prev + "😮");
                               setDialogOpen(false);
                             }}
                           >
@@ -281,7 +281,7 @@ const AddStory = ({ userId }: { userId: string }) => {
                           <div
                             className="cursor-pointer hover:scale-125 text-3xl transform duration-150 ease-in-out"
                             onClick={() => {
-                              setText((prev) => prev + "❤️");
+                              setText((prev) => prev + "😢");
                               setDialogOpen(false);
                             }}
                           >
@@ -290,7 +290,7 @@ const AddStory = ({ userId }: { userId: string }) => {
                           <div
                             className="cursor-pointer hover:scale-125 text-3xl transform duration-150 ease-in-out"
                             onClick={() => {
-                              setText((prev) => prev + "❤️");
+                              setText((prev) => prev + "😡");
                               setDialogOpen(false);
                             }}
                           >
@@ -299,7 +299,7 @@ const AddStory = ({ userId }: { userId: string }) => {
                           <div
                             className="cursor-pointer hover:scale-125 text-3xl transform duration-150 ease-in-out"
                             onClick={() => {
-                              setText((prev) => prev + "❤️");
+                              setText((prev) => prev + "👍");
                               setDialogOpen(false);
                             }}
                           >

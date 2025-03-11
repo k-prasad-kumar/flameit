@@ -3,7 +3,6 @@
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -16,6 +15,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 import { Separator } from "../ui/separator";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
@@ -38,18 +43,20 @@ import {
   deleteConversation,
   removeParticipant,
   updateGroupName,
-} from "@/lib/actions/realtime.actions";
+} from "@/lib/actions/chat.actions";
 
 const UpdateGroup = ({
   conversationId,
   userId,
   owner,
   participants,
+  groupImage,
 }: {
   conversationId: string;
   userId: string;
   owner: string;
   participants: Participant[];
+  groupImage: string | null;
 }) => {
   const [change, setChange] = useState<boolean>(false);
   const [group, setGroup] = useState<string[]>([]);
@@ -169,197 +176,232 @@ const UpdateGroup = ({
           <SheetHeader>
             <SheetTitle>Details</SheetTitle>
           </SheetHeader>
-          <Separator className=" my-2 md:my-4" />
-          <div>
-            <div className="flex justify-between">
-              <h3 className="font-semibold">Members</h3>
-              {users?.length > 0 && owner === userId && (
-                <Dialog open={open} onOpenChange={setOpen}>
-                  <DialogTrigger>
-                    <span className="flex gap-1 text-sm text-blue-500">
-                      Add People
-                    </span>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader className="items-center">
-                      <DialogTitle>Create Group</DialogTitle>
-                    </DialogHeader>
-                    <Separator />
-                    <div>
-                      <h2 className="my-2">Suggested</h2>
-                      <ScrollArea className="w-full h-[50vh] md:h-[50vh]">
+          <Separator className="my-2" />
+          <ScrollArea className="w-full h-[calc(100vh-80px)] flex flex-col justify-between">
+            <div className="w-full h-full flex flex-col justify-between">
+              <div>
+                <div className="flex justify-between">
+                  <h3 className="font-semibold">Members</h3>
+                  {users?.length > 0 && owner === userId && (
+                    <Dialog open={open} onOpenChange={setOpen}>
+                      <DialogTrigger>
+                        <span className="flex gap-1 text-sm text-blue-500">
+                          Add People
+                        </span>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader className="items-center">
+                          <DialogTitle>Create Group</DialogTitle>
+                        </DialogHeader>
+                        <Separator />
                         <div>
-                          {users?.map((user) => (
-                            <div
-                              key={user.id}
-                              className="flex justify-between md:px-4 py-2 cursor-pointer md:hover:bg-gray-100 md:dark:hover:bg-gray-800 my-2"
-                              onClick={() => {
-                                setGroup((prev) =>
-                                  prev.includes(user.id)
-                                    ? prev.filter((id) => id !== user.id)
-                                    : [...prev, user.id]
-                                );
-                              }}
-                            >
-                              <div className="flex gap-3 truncate items-center">
-                                <ProfileAvatar
-                                  image={user.image as string}
-                                  alt="profile"
-                                  width="12"
-                                  height="12"
-                                />
-                                <p>{user.username}</p>
-                              </div>
-                              <div className="flex items-center">
-                                {group.includes(user.id) ? (
-                                  <CheckIcon
-                                    className="rounded-full bg-[#0095f6] p-[2px]"
-                                    size={24}
-                                    color="white"
-                                  />
-                                ) : (
-                                  <div className="w-6 h-6 rounded-full border-2"></div>
-                                )}
-                              </div>
+                          <h2 className="my-2">Suggested</h2>
+                          <ScrollArea className="w-full h-[50vh] md:h-[50vh]">
+                            <div>
+                              {users?.map((user) => (
+                                <div
+                                  key={user.id}
+                                  className="flex justify-between md:px-4 py-2 cursor-pointer md:hover:bg-gray-100 md:dark:hover:bg-gray-800 my-2"
+                                  onClick={() => {
+                                    setGroup((prev) =>
+                                      prev.includes(user.id)
+                                        ? prev.filter((id) => id !== user.id)
+                                        : [...prev, user.id]
+                                    );
+                                  }}
+                                >
+                                  <div className="flex gap-3 truncate items-center">
+                                    <ProfileAvatar
+                                      image={user.image as string}
+                                      alt="profile"
+                                      width="12"
+                                      height="12"
+                                    />
+                                    <p>{user.username}</p>
+                                  </div>
+                                  <div className="flex items-center">
+                                    {group.includes(user.id) ? (
+                                      <CheckIcon
+                                        className="rounded-full bg-[#0095f6] p-[2px]"
+                                        size={24}
+                                        color="white"
+                                      />
+                                    ) : (
+                                      <div className="w-6 h-6 rounded-full border-2"></div>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
                             </div>
-                          ))}
+                          </ScrollArea>
+                          <Button className="w-full" onClick={handleAdd}>
+                            Next
+                          </Button>
                         </div>
-                      </ScrollArea>
-                      <Button className="w-full" onClick={handleAdd}>
-                        Next
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              )}
-            </div>
-            <ScrollArea className="w-full h-[50vh] md:h-[55vh] md:max-h-[55vh] my-3">
-              {participants.map((participant) => (
-                <div
-                  key={participant.userId}
-                  className="flex items-center justify-between md:hover:bg-gray-200 md:dark:hover:bg-gray-800 px-0 md:px-2 my-1"
-                >
-                  <Link
-                    href={`/${participant?.user.username}`}
-                    className="w-full"
-                  >
-                    <div className="flex items-center gap-2 md:gap-4 my-2">
-                      <ProfileAvatar
-                        image={participant?.user.image as string}
-                        width="12"
-                        height="12"
-                        alt="profile"
-                      />
-                      <div className="flex flex-col gap-1">
-                        <p className="font-semibold text-sm w-full truncate">
-                          {participant?.user.username}
-                        </p>
-                        {participant?.userId === owner && (
-                          <p className="text-xs opacity-70">Admin</p>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                  {owner === userId && owner !== participant.userId && (
-                    <div
-                      className="cursor-pointer pr-2"
-                      onClick={() => handleRemove(participant.userId)}
-                      aria-disabled={isPending}
-                    >
-                      <X strokeWidth={1} color="red" />
-                    </div>
+                      </DialogContent>
+                    </Dialog>
                   )}
                 </div>
-              ))}
-            </ScrollArea>
-            {owner === userId && (
-              <div className="flex gap-1 mb-2">
-                {change ? (
-                  <div className="flex gap-1 w-full">
-                    <Input
-                      type="text"
-                      name="name"
-                      placeholder="Group name"
-                      className="w-full"
-                      value={groupName}
-                      onChange={(e) => setGroupName(e.target.value)}
-                    />
-                    <Button onClick={() => handleAddName()}>Save</Button>
-                  </div>
-                ) : (
-                  <div className="flex gap-2 w-full">
-                    <p className="w-full truncate">Change group name</p>
-                    <Button
-                      onClick={() => setChange(!change)}
-                      variant={"secondary"}
+                <ScrollArea className="w-full h-[calc(100vh-290px)] max-h-[calc(100vh-290px)] md:h-[calc(100vh-290px)] my-3">
+                  {participants.map((participant) => (
+                    <div
+                      key={participant.userId}
+                      className="flex items-center justify-between md:hover:bg-gray-200 md:dark:hover:bg-gray-800 px-0 md:px-2 my-1"
                     >
-                      Change
-                    </Button>
+                      <Link
+                        href={`/${participant?.user.username}`}
+                        className="w-full"
+                      >
+                        <div className="flex items-center gap-2 md:gap-4 my-2">
+                          <ProfileAvatar
+                            image={participant?.user.image as string}
+                            width="12"
+                            height="12"
+                            alt="profile"
+                          />
+                          <div className="flex flex-col gap-1">
+                            <p className="font-semibold text-sm w-full truncate">
+                              {participant?.user.username}
+                            </p>
+                            {participant?.userId === owner ? (
+                              <p className="text-xs opacity-70">Admin</p>
+                            ) : (
+                              <p className="text-xs opacity-70">Member</p>
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+                      {owner === userId && owner !== participant.userId && (
+                        <div
+                          className="cursor-pointer pr-2"
+                          onClick={() => handleRemove(participant.userId)}
+                          aria-disabled={isPending}
+                        >
+                          <X strokeWidth={1} color="red" />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </ScrollArea>
+              </div>
+              <div className="flex flex-col mb-14 md:mb-0">
+                {owner === userId && (
+                  <div>
+                    <div className="flex justify-between w-full items-center my-2">
+                      <ProfileAvatar
+                        image={groupImage as string}
+                        alt="profile"
+                        width="14"
+                        height="14"
+                      />
+
+                      <Link
+                        href={`/inbox/${conversationId}/group-image`}
+                        className="bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 px-4 py-2 rounded-md text-sm font-medium"
+                      >
+                        Change
+                      </Link>
+                    </div>
+
+                    <div className="flex gap-1 mb-2">
+                      {change ? (
+                        <div className="flex gap-1 w-full">
+                          <Input
+                            type="text"
+                            name="name"
+                            placeholder="Group name"
+                            className="w-full ml-[1px]"
+                            value={groupName}
+                            onChange={(e) => setGroupName(e.target.value)}
+                          />
+                          <Button onClick={() => handleAddName()}>Save</Button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2 w-full">
+                          <p className="w-full truncate">Change group name</p>
+                          <Button
+                            onClick={() => setChange(!change)}
+                            variant={"secondary"}
+                          >
+                            Change
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
-              </div>
-            )}
 
-            <div className="space-y-2">
-              {participants.length > 1 && owner !== userId && (
-                <Button
-                  variant={"link"}
-                  className="p-0 text-red-500"
-                  onClick={() => handleLeave(userId)}
-                >
-                  Leave chat
-                </Button>
-              )}
-              <SheetDescription>
-                You won&apos;t be able to send or receive messages unless
-                someone adds you back to the chat.
-              </SheetDescription>
-              {owner === userId && (
-                <Dialog open={openDelete} onOpenChange={setOpenDelete}>
-                  <DialogTrigger asChild>
-                    <Button variant={"link"} className="p-0 text-red-500">
-                      Delete chat
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>
-                        Are you sure you want to delete this chat?
-                      </DialogTitle>
-                    </DialogHeader>
-                    <DialogDescription>
-                      This action cannot be undone.
-                    </DialogDescription>
-                    <div className="flex justify-end space-x-4">
-                      <Button
-                        variant={"secondary"}
-                        onClick={() => setOpenDelete(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        variant={"destructive"}
-                        onClick={handleDelete}
-                        disabled={isPending}
-                      >
-                        {isPending ? (
-                          <span
-                            className={`justify-center items-center ${
-                              isPending ? "flex" : "hidden"
-                            }`}
+                <div className="space-y-2">
+                  {participants.length > 1 && owner !== userId && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant={"link"}
+                            className="p-0 text-red-500"
+                            onClick={() => handleLeave(userId)}
                           >
-                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
-                          </span>
-                        ) : (
-                          <span>Delete</span>
-                        )}
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              )}
+                            Leave chat
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>
+                            You won&apos;t be able to send or receive messages
+                            unless someone adds you back to the chat.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
+
+                  {owner === userId && (
+                    <Dialog open={openDelete} onOpenChange={setOpenDelete}>
+                      <DialogTrigger asChild>
+                        <Button variant={"link"} className="p-0 text-red-500">
+                          Delete chat
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>
+                            Are you sure you want to delete this chat?
+                          </DialogTitle>
+                        </DialogHeader>
+                        <DialogDescription>
+                          This action cannot be undone.
+                        </DialogDescription>
+                        <div className="flex justify-end space-x-4">
+                          <Button
+                            variant={"secondary"}
+                            onClick={() => setOpenDelete(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            variant={"destructive"}
+                            onClick={handleDelete}
+                            disabled={isPending}
+                          >
+                            {isPending ? (
+                              <span
+                                className={`justify-center items-center ${
+                                  isPending ? "flex" : "hidden"
+                                }`}
+                              >
+                                <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent  motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
+                              </span>
+                            ) : (
+                              <span>Delete</span>
+                            )}
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
+          </ScrollArea>
         </SheetContent>
       </Sheet>
     </div>

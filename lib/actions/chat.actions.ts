@@ -186,16 +186,19 @@ export const sendMessage = async (
       return { error: "Invalid message data" };
     }
 
-    const conversation = await prisma.conversation.findUnique({
-      where: {
-        id: conversationId,
-        participants: { some: { userId: senderId } }, //check senderId is in participants,
-      },
-    });
+    // const conversation = await prisma.conversation.findUnique({
+    //   where: {
+    //     id: conversationId,
+    //     // participants: { some: { userId: senderId } }, //check senderId is in participants,
+    //   },
 
-    if (!conversation) {
-      return { error: "Conversation not found" };
-    }
+    // });
+
+    // //check if prticipant exists in conversation
+
+    // if (!conversation) {
+    //   return { error: "Conversation not found" };
+    // }
 
     // Create message
     const message = await prisma.message.create({
@@ -503,6 +506,25 @@ export const addParticipants = async (
     });
 
     return { success: "Participants added successfully" };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const updateGroupImage = async (
+  conversationId: string,
+  groupImage: string,
+  imagePublicId: string
+) => {
+  try {
+    if (!conversationId || !groupImage) {
+      return { error: "Invalid conversation data" };
+    }
+    await prisma.conversation.update({
+      where: { id: conversationId },
+      data: { groupImage, imagePublicId },
+    });
+    return { success: "Group image updated successfully" };
   } catch (error) {
     console.log(error);
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { addConversation } from "@/lib/actions/realtime.actions";
+import { addConversation } from "@/lib/actions/chat.actions";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import { Loader2Icon } from "lucide-react";
@@ -30,7 +30,7 @@ const AddConversation = ({
   return (
     <Button
       variant={"secondary"}
-      className="w-full"
+      className="w-full mr-4 md:mr-0"
       onClick={handleConversation}
     >
       {messageLoading ? (

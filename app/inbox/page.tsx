@@ -3,7 +3,7 @@ import Loading from "./loading";
 import { getCurrentUser } from "@/lib/current-user-data";
 import { redirect } from "next/navigation";
 import InboxPage from "@/components/chat/inbox";
-import { getAllConversations } from "@/lib/actions/realtime.actions";
+import { getAllConversations } from "@/lib/actions/chat.actions";
 import {
   ConversationForInboxInterface,
   FollowerInterface,
@@ -47,14 +47,17 @@ const Inbox = async () => {
       {!conversations ||
         (conversations?.length === 0 && (
           <Suspense fallback={<Loading />}>
-            <div className="w-full h-screen max-w-screen-sm mx-auto mt-14 md:mt-10">
+            <div className="w-full h-screen max-w-screen-sm mx-auto">
               <div className="px-0 md:px-4 lg:px-14 pt-0 md:pt-6 w-full h-full flex items-center justify-center">
                 <div className="flex flex-col justify-center items-center">
                   <div className="p-5 border-2 rounded-full mb-4">
                     <MessagesSquareIcon size={60} strokeWidth={1} />
                   </div>
-                  <h1 className="text-2xl">No messages yet</h1>
-                  <p>Send a message to start a chat.</p>
+                  <h1 className="text-2xl">No conversations yet</h1>
+                  <p className="px-5 text-center">
+                    Once you&apos;ve started a new conversation, you&apos;ll see
+                    it listed here
+                  </p>
                 </div>
               </div>
             </div>

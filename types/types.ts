@@ -152,6 +152,11 @@ export interface ChangeImageInterface {
   imagePublicId: string;
 }
 
+export interface GroupImageInterface {
+  groupImage: string | null;
+  imagePublicId: string | null;
+}
+
 export interface EditProfileInterface {
   name: string;
   username: string;
@@ -188,6 +193,7 @@ export interface ConversationInterface {
   name: string | null;
   isGroup: boolean;
   groupImage: string | null;
+  imagePublicId: string | null;
   ownerId: string;
   participants: Participant[];
   lastMessage: string | null;
@@ -202,6 +208,7 @@ export interface ConversationForInboxInterface {
   name: string | null;
   isGroup: boolean;
   groupImage: string | null;
+  imagePublicId: string | null;
   ownerId: string;
   participants: Participant[];
   lastMessage: string | null;
@@ -216,6 +223,7 @@ export interface OneConversationInterface {
   name: string | null;
   isGroup: boolean;
   groupImage: string | null;
+  imagePublicId: string | null;
   ownerId: string;
   participants: Participant[];
   lastMessage: string | null;

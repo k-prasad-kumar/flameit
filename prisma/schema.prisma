@@ -205,9 +205,10 @@ model Conversation {
   name          String?     // Name for group chats, null for private chats
   isGroup       Boolean     @default(false) // True if it's a group chat
   groupImage    String?     // Group image for group chats
+  imagePublicId String?     
   owner         User        @relation(name:"ConversationOwner", fields: [ownerId], references: [id])
   ownerId       String      @db.ObjectId
-  participants  Participant[]    // Stores user IDs for all participants
+  participants  Participant[] // Stores user IDs for all participants
   messages      Message[]
   lastMessage   String?     
   lastMessageAt DateTime    @default(now())

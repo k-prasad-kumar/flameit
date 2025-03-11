@@ -330,7 +330,7 @@ export const replayComment = async (
     const comment = await prisma.comment.findUnique({
       where: { id: parentCommentId },
     });
-    console.log("parent comment text ---", comment?.text);
+
     if (userId !== comment?.userId) {
       const data = {
         userId: userId as string,

@@ -26,7 +26,7 @@ import {
   sendMessage,
   markMessagesAsSeen,
   updateReaction,
-} from "@/lib/actions/realtime.actions";
+} from "@/lib/actions/chat.actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useSocket } from "@/context/use.socket";
@@ -309,6 +309,7 @@ const ChatPage = ({
           router.refresh();
         }
         if (data?.error) {
+          toast.error(data?.error);
           if (conversation?.isGroup) {
             toast.error("Group is deleted or you are not a member of it.");
           }
@@ -391,38 +392,49 @@ const ChatPage = ({
 
               {conversation?.isGroup ? (
                 <div className="flex items-center space-x-3">
-                  <div className="relative w-fit mb-3">
-                    <div className="border-2 rounded-full">
+                  {conversation?.groupImage ? (
+                    <div className="w-fit">
                       <ProfileAvatar
-                        image={
-                          conversation.participants[0].user.image as string
-                        }
-                        alt="profile"
-                        width="8"
-                        height="8"
+                        image={conversation.groupImage as string}
+                        alt="group image"
+                        width="12"
+                        height="12"
                       />
                     </div>
-
-                    <div className="absolute top-3 left-3 border-2 rounded-full">
-                      <ProfileAvatar
-                        image={
-                          conversation.participants.length > 1
-                            ? (conversation.participants[1].user
-                                .image as string)
-                            : "https://github.com/shadcn.png"
-                        }
-                        alt="profile"
-                        width="8"
-                        height="8"
-                      />
+                  ) : (
+                    <div className="relative w-fit mb-3">
+                      <div className="border-2 rounded-full">
+                        <ProfileAvatar
+                          image={
+                            conversation.participants[0].user.image as string
+                          }
+                          alt="profile"
+                          width="8"
+                          height="8"
+                        />
+                      </div>
+                      <div className="absolute top-3 left-3 border-2 rounded-full">
+                        <ProfileAvatar
+                          image={
+                            conversation.participants.length > 1
+                              ? (conversation.participants[1].user
+                                  .image as string)
+                              : "https://github.com/shadcn.png"
+                          }
+                          alt="profile"
+                          width="8"
+                          height="8"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
                   <div className="flex flex-col pl-3">
-                    <p className="flex items-center">
-                      {conversation.name}
-                      <ChevronRight size={16} strokeWidth={1} />
+                    <p className="flex items-center">{conversation.name}</p>
+                    <p className="text-xs">
+                      {conversation?.participants.length} members
                     </p>
                   </div>
+                  <ChevronRight size={16} strokeWidth={1} />
                 </div>
               ) : (
                 <Link
@@ -449,6 +461,7 @@ const ChatPage = ({
                 userId={userId}
                 owner={conversation?.ownerId}
                 participants={conversation?.participants}
+                groupImage={conversation?.groupImage}
               />
             ) : (
               <DeleteChat conversationId={conversation?.id} />

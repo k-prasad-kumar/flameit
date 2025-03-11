@@ -10,7 +10,7 @@ import { useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Loader2, X } from "lucide-react";
-import { addConversation } from "@/lib/actions/realtime.actions";
+import { addConversation } from "@/lib/actions/chat.actions";
 
 const FollowActions = ({
   currentUserId,

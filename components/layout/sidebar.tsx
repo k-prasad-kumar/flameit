@@ -5,7 +5,7 @@ import { HomeIcon, MessageCircle, PlusIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { ProfileAvatar } from "../avatar";
 import { useSocket } from "@/context/use.socket";
-import { getUnseenCount } from "@/lib/actions/realtime.actions";
+import { getUnseenCount } from "@/lib/actions/chat.actions";
 import { MessageInterface } from "@/types/types";
 
 const Sidebar = ({

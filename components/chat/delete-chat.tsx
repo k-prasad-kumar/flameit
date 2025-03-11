@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { toast } from "sonner";
-import { deleteConversation } from "@/lib/actions/realtime.actions";
+import { deleteConversation } from "@/lib/actions/chat.actions";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";

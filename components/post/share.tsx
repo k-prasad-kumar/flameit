@@ -23,7 +23,7 @@ import { Separator } from "../ui/separator";
 import {
   getAllOnlyConversations,
   sendMessage,
-} from "@/lib/actions/realtime.actions";
+} from "@/lib/actions/chat.actions";
 import { OneConversationInterface } from "@/types/types";
 import { Button } from "../ui/button";
 import { useSocket } from "@/context/use.socket";

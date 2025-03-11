@@ -296,14 +296,19 @@ const StoriesPage = ({
                   <Link href={"/"}>
                     <MoveLeftIcon strokeWidth={1.5} />
                   </Link>
-                  <ProfileAvatar
-                    image={story?.user.image as string}
-                    width="10"
-                    height="10"
-                    alt="profile"
-                  />
+                  <Link href={`/${story?.user.username}`}>
+                    <ProfileAvatar
+                      image={story?.user.image as string}
+                      width="10"
+                      height="10"
+                      alt="profile"
+                    />
+                  </Link>
+
                   <div>
-                    <p>{story?.user.name}</p>
+                    <Link href={`/${story?.user.username}`}>
+                      <p>{story?.user.name}</p>
+                    </Link>
                     <p className="text-[10px]">
                       {getRelativeTime(story?.createdAt as Date)}
                     </p>

@@ -7,6 +7,7 @@ import "./globals.css";
 import { getCurrentUser } from "@/lib/current-user-data";
 import { Toaster } from "sonner";
 import { SocketProvider } from "@/context/use.socket";
+import ContextMenu from "@/components/disable-contextmenu";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -85,6 +86,7 @@ export default async function RootLayout({
               />
             )}
           </SocketProvider>
+          <ContextMenu />
           <Toaster />
         </ThemeProvider>
       </body>

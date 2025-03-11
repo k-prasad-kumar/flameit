@@ -12,7 +12,7 @@ const Notifications = ({
 }) => {
   const groupedNotifications = groupNotificationsByDate(notifications);
   return (
-    <div className="mx-4 md:mx-0 mb-5">
+    <div className="mx-4 md:mx-0 mb-5 pb-16">
       <h1 className="text-2xl">Notifications</h1>
 
       {groupedNotifications?.Today?.length > 0 && (
@@ -34,7 +34,7 @@ const Notifications = ({
           <div className="w-4/6 flex flex-col gap-1">
             <Link
               href={`/${notification?.user?.username}`}
-              className="truncate"
+              className="text-wrap leading-tight text-sm"
             >
               {" "}
               <span className="font-semibold">
@@ -47,14 +47,17 @@ const Notifications = ({
             </p>
           </div>
           {notification?.postImage && (
-            <Link href={`/p/${notification?.postId}`} className="w-1/6">
+            <Link
+              href={`/p/${notification?.postId}`}
+              className={`${!notification?.postImage && "w-1/6"}`}
+            >
               <Image
                 src={notification?.postImage as string}
                 width={100}
                 height={100}
                 sizes="100%"
                 loading="lazy"
-                className="w-auto h-14 object-cover"
+                className="w-auto h-12 rounded-xl object-cover"
                 alt="post"
               />
             </Link>
@@ -80,7 +83,7 @@ const Notifications = ({
           <div className="w-4/6 flex flex-col gap-1">
             <Link
               href={`/${notification?.user?.username}`}
-              className="truncate"
+              className="text-wrap leading-tight text-sm"
             >
               {" "}
               <span className="font-semibold">
@@ -93,14 +96,17 @@ const Notifications = ({
             </p>
           </div>
           {notification?.postImage && (
-            <Link href={`/p/${notification?.postId}`} className="w-1/6">
+            <Link
+              href={`/p/${notification?.postId}`}
+              className={`${!notification?.postImage && "w-1/6"}`}
+            >
               <Image
                 src={notification?.postImage as string}
                 width={100}
                 height={100}
                 sizes="100%"
                 loading="lazy"
-                className="w-auto h-14 object-cover"
+                className="w-auto h-12 rounded-xl object-cover"
                 alt="post"
               />
             </Link>
@@ -127,7 +133,7 @@ const Notifications = ({
           <div className="w-4/6 flex flex-col gap-1">
             <Link
               href={`/${notification?.user?.username}`}
-              className="truncate"
+              className="text-wrap leading-tight text-sm"
             >
               {" "}
               <span className="font-semibold">
@@ -140,14 +146,17 @@ const Notifications = ({
             </p>
           </div>
           {notification?.postImage && (
-            <Link href={`/p/${notification?.postId}`} className="w-1/6">
+            <Link
+              href={`/p/${notification?.postId}`}
+              className={`${!notification?.postImage && "w-1/6"}`}
+            >
               <Image
                 src={notification?.postImage as string}
                 width={100}
                 height={100}
                 sizes="100%"
                 loading="lazy"
-                className="w-auto h-14 object-cover"
+                className="w-auto h-12 rounded-xl object-cover"
                 alt="post"
               />
             </Link>
@@ -173,7 +182,7 @@ const Notifications = ({
           <div className="w-4/6 flex flex-col gap-1">
             <Link
               href={`/${notification?.user?.username}`}
-              className="truncate"
+              className="text-wrap leading-tight text-sm"
             >
               {" "}
               <span className="font-semibold">
@@ -186,14 +195,17 @@ const Notifications = ({
             </p>
           </div>
           {notification?.postImage && (
-            <Link href={`/p/${notification?.postId}`} className="w-1/6">
+            <Link
+              href={`/p/${notification?.postId}`}
+              className={`${!notification?.postImage && "w-1/6"}`}
+            >
               <Image
                 src={notification?.postImage as string}
                 width={100}
                 height={100}
                 sizes="100%"
                 loading="lazy"
-                className="w-auto h-14 object-cover"
+                className="w-auto h-12 rounded-xl object-cover"
                 alt="post"
               />
             </Link>
@@ -219,7 +231,7 @@ const Notifications = ({
           <div className="w-4/6 flex flex-col gap-1">
             <Link
               href={`/${notification?.user?.username}`}
-              className="truncate"
+              className="text-wrap leading-tight text-sm"
             >
               {" "}
               <span className="font-semibold">
@@ -232,14 +244,17 @@ const Notifications = ({
             </p>
           </div>
           {notification?.postImage && (
-            <Link href={`/p/${notification?.postId}`} className="w-1/6">
+            <Link
+              href={`/p/${notification?.postId}`}
+              className={`${!notification?.postImage && "w-1/6"}`}
+            >
               <Image
                 src={notification?.postImage as string}
                 width={100}
                 height={100}
                 sizes="100%"
                 loading="lazy"
-                className="w-auto h-14 object-cover"
+                className="w-auto h-12 rounded-xl object-cover"
                 alt="post"
               />
             </Link>

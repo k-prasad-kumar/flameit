@@ -3,7 +3,7 @@
 import { ProfileAvatar } from "@/components/avatar";
 import { Input } from "@/components/ui/input";
 import { useSocket } from "@/context/use.socket";
-import { addConversation } from "@/lib/actions/realtime.actions";
+import { addConversation } from "@/lib/actions/chat.actions";
 import {
   UserInfo,
   MessageInterface,
@@ -35,7 +35,8 @@ const InboxPage = ({
   users: UserInfo[];
 }) => {
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
-  const [group, setGroup] = useState<string[]>([]);
+  const [group, setGroup] = useState<string[]>([userId]);
+
   const [groupName, setGroupName] = useState<string>("");
   const socket = useSocket();
   const router = useRouter();
@@ -97,8 +98,8 @@ const InboxPage = ({
       toast.error("Please enter a group name");
       return;
     }
-    if (groupName.length > 25) {
-      toast.error("Maximum group name length is 25 characters");
+    if (groupName.length > 20) {
+      toast.error("Maximum group name length is 20 characters");
       return;
     }
     const res = await addConversation(userId, group, true, groupName);
@@ -179,14 +180,15 @@ const InboxPage = ({
                     ))}
                   </div>
                 </ScrollArea>
-                <div className="mt-4">
+                <div className="mt-4 flex gap-2 items-center border">
                   <Input
                     type="text"
                     placeholder="Group name"
                     value={groupName}
                     onChange={(e) => setGroupName(e.target.value)}
+                    className="w-full"
                   />
-                  <Button className="w-full mt-2" onClick={handleConversation}>
+                  <Button className="w-fit" onClick={handleConversation}>
                     Create group
                   </Button>
                 </div>
@@ -205,36 +207,51 @@ const InboxPage = ({
                 className="flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2"
               >
                 <div className="flex items-center space-x-4 h-fit w-full">
-                  <div className="relative w-fit mb-3">
-                    <div className="border-2 rounded-full">
+                  {conversation?.groupImage ? (
+                    <div className="w-fit">
                       <ProfileAvatar
-                        image={
-                          conversation.participants[0].user.image as string
-                        }
-                        alt="profile"
-                        width="8"
-                        height="8"
+                        image={conversation.groupImage as string}
+                        alt="group image"
+                        width="12"
+                        height="12"
                       />
                     </div>
-                    <div className="absolute top-3 left-3 border-2 rounded-full">
-                      <ProfileAvatar
-                        image={
-                          conversation.participants.length > 1
-                            ? (conversation.participants[1].user
-                                .image as string)
-                            : "https://github.com/shadcn.png"
-                        }
-                        alt="profile"
-                        width="8"
-                        height="8"
-                      />
+                  ) : (
+                    <div className="relative w-fit mb-3">
+                      <div className="border-2 rounded-full">
+                        <ProfileAvatar
+                          image={
+                            conversation.participants[0].user.image as string
+                          }
+                          alt="profile"
+                          width="8"
+                          height="8"
+                        />
+                      </div>
+                      <div className="absolute top-3 left-3 border-2 rounded-full">
+                        <ProfileAvatar
+                          image={
+                            conversation.participants.length > 1
+                              ? (conversation.participants[1].user
+                                  .image as string)
+                              : "https://github.com/shadcn.png"
+                          }
+                          alt="profile"
+                          width="8"
+                          height="8"
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="pl-3 flex items-center justify-between w-full">
+                  )}
+                  <div
+                    className={`${
+                      conversation?.groupImage ? "pl-0" : "pl-3"
+                    } flex items-center justify-between w-full`}
+                  >
                     <div className="w-full">
                       <h2 className="truncate">{conversation.name}</h2>
 
-                      <p className="truncate text-xs">
+                      <p className="truncate w-full text-xs">
                         {(() => {
                           // For group conversations, if any participant (except the logged‑in user)
                           // is online, show that participant's username; otherwise, show the last message.
@@ -244,14 +261,7 @@ const InboxPage = ({
                               onlineUsers.includes(p.userId)
                           );
                           return onlineGroup.length > 0
-                            ? onlineGroup[0].user.username +
-                                ", " +
-                                `${
-                                  onlineGroup[1]?.user.username
-                                    ? onlineGroup[1].user.username
-                                    : ""
-                                }` +
-                                " ... online"
+                            ? `${onlineGroup.length} members online`
                             : conversation.lastMessage || "";
                         })()}
                       </p>
