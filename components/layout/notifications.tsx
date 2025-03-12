@@ -49,7 +49,9 @@ const Notifications = ({
           {notification?.postImage && (
             <Link
               href={`/p/${notification?.postId}`}
-              className={`${!notification?.postImage && "w-1/6"}`}
+              className={`${
+                !notification?.postImage && "w-1/6 border border-red-500"
+              }`}
             >
               <Image
                 src={notification?.postImage as string}
@@ -57,7 +59,7 @@ const Notifications = ({
                 height={100}
                 sizes="100%"
                 loading="lazy"
-                className="w-auto h-12 rounded-xl object-cover"
+                className="w-12 h-12 max-h-12 max-w-12 rounded-xl object-cover"
                 alt="post"
               />
             </Link>
@@ -106,7 +108,7 @@ const Notifications = ({
                 height={100}
                 sizes="100%"
                 loading="lazy"
-                className="w-auto h-12 rounded-xl object-cover"
+                className="w-12 h-12 max-h-12 max-w-12 rounded-xl object-cover"
                 alt="post"
               />
             </Link>
@@ -156,7 +158,7 @@ const Notifications = ({
                 height={100}
                 sizes="100%"
                 loading="lazy"
-                className="w-auto h-12 rounded-xl object-cover"
+                className="w-12 h-12 max-h-12 max-w-12 rounded-xl object-cover"
                 alt="post"
               />
             </Link>
@@ -205,7 +207,7 @@ const Notifications = ({
                 height={100}
                 sizes="100%"
                 loading="lazy"
-                className="w-auto h-12 rounded-xl object-cover"
+                className="w-12 h-12 max-h-12 max-w-12 rounded-xl object-cover"
                 alt="post"
               />
             </Link>
@@ -254,7 +256,7 @@ const Notifications = ({
                 height={100}
                 sizes="100%"
                 loading="lazy"
-                className="w-auto h-12 rounded-xl object-cover"
+                className="w-12 h-12 max-h-12 max-w-12 rounded-xl object-cover"
                 alt="post"
               />
             </Link>
