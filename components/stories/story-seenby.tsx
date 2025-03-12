@@ -133,8 +133,8 @@ const StorySeenBy = ({ seenBy }: { seenBy: StorySeenByInterface[] }) => {
                         >
                           {seen?.user?.username}
                         </Link>
-                        <p className="truncate max-w-[180px] sm:max-w-[280px] text-xs opacity-65">
-                          {seen?.user?.name}
+                        <p className="truncate max-w-full text-xs opacity-65">
+                          {getRelativeTime(seen?.createdAt)}
                         </p>
                       </div>
                     </div>

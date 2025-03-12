@@ -100,13 +100,27 @@ const Followers = ({
               <span className="font-semibold">{followersCount} </span> followers{" "}
             </p>
           </DialogTrigger>
-          <DialogContent className="w-full sm:max-w-[500px]">
+          <DialogContent className="w-full sm:max-w-[500px] h-screen max-h-screens my-2">
             <DialogHeader>
               <DialogTitle className="flex justify-center w-full">
                 Followers
               </DialogTitle>
             </DialogHeader>
             <Separator />
+            <div className="relative mx-4 my-1">
+              <SearchIcon
+                strokeWidth={1.5}
+                size={18}
+                className="absolute top-1/2 -translate-y-1/2 left-3"
+              />
+              <Input
+                type="text"
+                name="search"
+                id="search"
+                placeholder="Search"
+                className="pl-10"
+              />
+            </div>
             <ScrollArea className="w-full h-[80vh] max-h-[80vh] md:h-[80vh] md:max-h-[80vh] py-2">
               {/* Show invite if no data exists */}
               {requestedFollowers.length === 0 && followers.length === 0 && (
@@ -127,24 +141,10 @@ const Followers = ({
               {/* Follower requests */}
               {requestedFollowers.length > 0 && (
                 <>
-                  <div className="relative mx-4 my-4">
-                    <SearchIcon
-                      strokeWidth={1.5}
-                      size={18}
-                      className="absolute top-1/2 -translate-y-1/2 left-3"
-                    />
-                    <Input
-                      type="text"
-                      name="search"
-                      id="search"
-                      placeholder="Search"
-                      className="pl-10"
-                    />
-                  </div>
                   <h2 className="text-lg font-semibold mx-4">
                     Follower requests
                   </h2>
-                  <div className="flex flex-col mx-4 max-w-full">
+                  <div className="flex flex-col mx-4 max-w-full mb-5">
                     {requestedFollowers.map((followerInfo) => (
                       <div
                         className="flex items-center justify-between my-2"
@@ -204,7 +204,7 @@ const Followers = ({
                                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></span>
                               </span>
                             ) : (
-                              <span>Accept</span>
+                              <span>Confirm</span>
                             )}
                           </Button>
                           <Button
@@ -235,20 +235,6 @@ const Followers = ({
               {/* Followers */}
               {followers.length > 0 && (
                 <>
-                  <div className="relative mx-4 my-4">
-                    <SearchIcon
-                      strokeWidth={1.5}
-                      size={18}
-                      className="absolute top-1/2 -translate-y-1/2 left-3"
-                    />
-                    <Input
-                      type="text"
-                      name="search"
-                      id="search"
-                      placeholder="Search"
-                      className="pl-10"
-                    />
-                  </div>
                   <h2 className="text-lg font-semibold mx-4">Followers</h2>
                   <div className="flex flex-col mx-4 max-w-full">
                     {followers.map((followerInfo) => (
@@ -324,6 +310,20 @@ const Followers = ({
               <p className="text-center mt-6 mb-2">Followers</p>
             </DrawerTitle>
             <Separator />
+            <div className="relative mx-4 mt-4 mb-2">
+              <SearchIcon
+                strokeWidth={1.5}
+                size={18}
+                className="absolute top-1/2 -translate-y-1/2 left-3"
+              />
+              <Input
+                type="text"
+                name="search"
+                id="search"
+                placeholder="Search"
+                className="pl-10"
+              />
+            </div>
             <ScrollArea className="w-full h-[80vh] max-h-[80vh] md:h-[80vh] md:max-h-[80vh] py-2">
               {/* Show invite if no data exists */}
               {requestedFollowers.length === 0 && followers.length === 0 && (
@@ -344,24 +344,10 @@ const Followers = ({
               {/* Follower requests */}
               {requestedFollowers.length > 0 && (
                 <>
-                  <div className="relative mx-4 my-4">
-                    <SearchIcon
-                      strokeWidth={1.5}
-                      size={18}
-                      className="absolute top-1/2 -translate-y-1/2 left-3"
-                    />
-                    <Input
-                      type="text"
-                      name="search"
-                      id="search"
-                      placeholder="Search"
-                      className="pl-10"
-                    />
-                  </div>
                   <h2 className="text-lg font-semibold mx-4">
                     Follower requests
                   </h2>
-                  <div className="flex flex-col mx-4 max-w-full">
+                  <div className="flex flex-col mx-4 max-w-full mb-5">
                     {requestedFollowers.map((followerInfo) => (
                       <div
                         className="flex items-center justify-between my-2"
@@ -452,20 +438,6 @@ const Followers = ({
               {/* Followers */}
               {followers.length > 0 && (
                 <>
-                  <div className="relative mx-4 my-4">
-                    <SearchIcon
-                      strokeWidth={1.5}
-                      size={18}
-                      className="absolute top-1/2 -translate-y-1/2 left-3"
-                    />
-                    <Input
-                      type="text"
-                      name="search"
-                      id="search"
-                      placeholder="Search"
-                      className="pl-10"
-                    />
-                  </div>
                   <h2 className="text-lg font-semibold mx-4">Followers</h2>
                   <div className="flex flex-col mx-4 max-w-full">
                     {followers.map((followerInfo) => (

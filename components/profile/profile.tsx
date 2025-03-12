@@ -41,6 +41,7 @@ const ProfileCard = async ({
   isFollowerUser: boolean;
 }) => {
   const isFollowerRequest = await isFollowerRequested(loginUserId, userId);
+  console.log(image);
   return (
     <>
       <div className="w-full mx-auto">
@@ -51,7 +52,11 @@ const ProfileCard = async ({
                 className={`max-w-20 max-h-20 w-20 h-20 md:max-w-36 md:max-h-36 md:w-36 md:h-36`}
               >
                 <AvatarImage
-                  src={image ? image : "https://github.com/shadcn.png"}
+                  src={
+                    image !== null
+                      ? (image as string)
+                      : "https://github.com/shadcn.png"
+                  }
                   alt="profile"
                   className="w-full h-auto"
                 />
