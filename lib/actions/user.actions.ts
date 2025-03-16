@@ -798,6 +798,44 @@ export const getFollowing = async (userId: string) => {
   }
 };
 
+export const fetchFollowing = async (
+  userId: string,
+  q: string,
+  skip: number,
+  take: number
+) => {
+  try {
+    const following = await prisma.follower.findMany({
+      where: {
+        followerId: userId as string, // The user who is following
+        following: {
+          OR: [
+            { username: { contains: q, mode: "insensitive" } },
+            { name: { contains: q, mode: "insensitive" } },
+          ],
+        },
+        isAccepted: true,
+      },
+      include: {
+        following: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            image: true,
+          },
+        }, // Include details about the follower
+      },
+      skip: skip,
+      take: take,
+    });
+    return following;
+  } catch (error) {
+    console.error("Error fetching following:", error);
+    return [];
+  }
+};
+
 export const getFollowingUserId = async (userId: string) => {
   try {
     const following = await prisma.follower.findMany({

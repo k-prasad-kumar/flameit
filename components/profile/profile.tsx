@@ -41,7 +41,7 @@ const ProfileCard = async ({
   isFollowerUser: boolean;
 }) => {
   const isFollowerRequest = await isFollowerRequested(loginUserId, userId);
-  console.log(image);
+
   return (
     <>
       <div className="w-full mx-auto">
@@ -103,7 +103,6 @@ const ProfileCard = async ({
                       <DynamicFollowing
                         userId={userId}
                         loginUserId={loginUserId}
-                        username={username}
                         followingCount={followingCount}
                       />
                     </div>

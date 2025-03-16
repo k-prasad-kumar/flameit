@@ -27,7 +27,6 @@ import {
 import { FollowerInterface } from "@/types/types";
 import HandleMutualFollow from "@/components/profile/mutual-follow";
 import FollowersSkeleton from "../skeletons/followers-skeleton";
-import { Separator } from "../ui/separator";
 import { ScrollArea } from "../ui/scroll-area";
 import { Button } from "../ui/button";
 
@@ -100,27 +99,14 @@ const Followers = ({
               <span className="font-semibold">{followersCount} </span> followers{" "}
             </p>
           </DialogTrigger>
-          <DialogContent className="w-full sm:max-w-[500px] h-screen max-h-screens my-2">
+          <DialogContent className="w-full sm:max-w-[500px] h-[calc(100vh-64px)] max-h-[calc(100vh-64px)]">
             <DialogHeader>
               <DialogTitle className="flex justify-center w-full">
                 Followers
               </DialogTitle>
             </DialogHeader>
-            <Separator />
-            <div className="relative mx-4 my-1">
-              <SearchIcon
-                strokeWidth={1.5}
-                size={18}
-                className="absolute top-1/2 -translate-y-1/2 left-3"
-              />
-              <Input
-                type="text"
-                name="search"
-                id="search"
-                placeholder="Search"
-                className="pl-10"
-              />
-            </div>
+            {/* <Separator /> */}
+
             <ScrollArea className="w-full h-[80vh] max-h-[80vh] md:h-[80vh] md:max-h-[80vh] py-2">
               {/* Show invite if no data exists */}
               {requestedFollowers.length === 0 && followers.length === 0 && (
@@ -135,6 +121,23 @@ const Followers = ({
                     Reach out and connect with people to grow your follower
                     list.
                   </p>
+                </div>
+              )}
+
+              {(requestedFollowers.length > 0 || followersCount > 0) && (
+                <div className="relative mx-4 my-1">
+                  <SearchIcon
+                    strokeWidth={1.5}
+                    size={18}
+                    className="absolute top-1/2 -translate-y-1/2 left-3"
+                  />
+                  <Input
+                    type="text"
+                    name="search"
+                    id="search"
+                    placeholder="Search"
+                    className="pl-10"
+                  />
                 </div>
               )}
 
@@ -309,21 +312,7 @@ const Followers = ({
             <DrawerTitle>
               <p className="text-center mt-6 mb-2">Followers</p>
             </DrawerTitle>
-            <Separator />
-            <div className="relative mx-4 mt-4 mb-2">
-              <SearchIcon
-                strokeWidth={1.5}
-                size={18}
-                className="absolute top-1/2 -translate-y-1/2 left-3"
-              />
-              <Input
-                type="text"
-                name="search"
-                id="search"
-                placeholder="Search"
-                className="pl-10"
-              />
-            </div>
+
             <ScrollArea className="w-full h-[80vh] max-h-[80vh] md:h-[80vh] md:max-h-[80vh] py-2">
               {/* Show invite if no data exists */}
               {requestedFollowers.length === 0 && followers.length === 0 && (
@@ -338,6 +327,23 @@ const Followers = ({
                     Reach out and connect with people to grow your follower
                     list.
                   </p>
+                </div>
+              )}
+
+              {(requestedFollowers.length > 0 || followersCount > 0) && (
+                <div className="relative mx-4 my-1">
+                  <SearchIcon
+                    strokeWidth={1.5}
+                    size={18}
+                    className="absolute top-1/2 -translate-y-1/2 left-3"
+                  />
+                  <Input
+                    type="text"
+                    name="search"
+                    id="search"
+                    placeholder="Search"
+                    className="pl-10"
+                  />
                 </div>
               )}
 

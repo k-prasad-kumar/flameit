@@ -912,14 +912,16 @@ const ChatPage = ({
                         <p className="text-xs opacity-75 truncate w-full mr-5">
                           {replyTo?.text}
                         </p>
-                        <Image
-                          src={replyTo?.image as string}
-                          alt="post"
-                          width={100}
-                          height={100}
-                          sizes="100%"
-                          className="w-12 h-auto object-cover mr-10"
-                        />
+                        {replyTo?.image && (
+                          <Image
+                            src={replyTo?.image as string}
+                            alt="post"
+                            width={100}
+                            height={100}
+                            sizes="100%"
+                            className="w-12 h-auto object-cover mr-10"
+                          />
+                        )}
                       </div>
                     )}
                   </div>

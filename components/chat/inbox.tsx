@@ -34,8 +34,11 @@ const InboxPage = ({
   userId: string;
   users: UserInfo[];
 }) => {
+  const [conversationsList, setConverationsList] =
+    useState<ConversationForInboxInterface[]>(conversations);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [group, setGroup] = useState<string[]>([userId]);
+  const [query, setQuery] = useState<string>("");
 
   const [groupName, setGroupName] = useState<string>("");
   const socket = useSocket();
@@ -57,11 +60,29 @@ const InboxPage = ({
     };
   }, [socket, userId]);
 
+  useEffect(() => {
+    if (!conversations) return;
+    if (!query) return setConverationsList(conversations);
+    const filteredConversations = conversations.filter(
+      (c: ConversationForInboxInterface) => {
+        return c.isGroup
+          ? c.name?.toLowerCase().includes(query.toLowerCase())
+          : c.participants.some(
+              (p) =>
+                p.user.id !== userId &&
+                p.user.username?.toLowerCase().includes(query.toLowerCase())
+            );
+      }
+    );
+    setConverationsList(filteredConversations);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
+
   // Compute unseen count for each conversation based on messages.
   // This assumes conversation.messages is an array of MessageInterface objects.
   const computedConversations = useMemo(() => {
-    if (!conversations) return [];
-    return conversations.map((conv) => {
+    if (!conversationsList) return [];
+    return conversationsList.map((conv) => {
       const unseenCount = conv.messages
         ? (conv.messages as MessageInterface[]).filter(
             (msg) => !msg.seenBy.includes(userId)
@@ -69,7 +90,7 @@ const InboxPage = ({
         : 0;
       return { ...conv, unseenCount };
     });
-  }, [conversations, userId]);
+  }, [conversationsList, userId]);
 
   // Sort conversations: first those with any online participant (other than the logged-in user),
   // then by recency (updatedAt descending)
@@ -126,6 +147,8 @@ const InboxPage = ({
             id="search"
             placeholder="Search"
             className="pl-10"
+            onChange={(e) => setQuery(e.target.value)}
+            value={query}
           />
         </div>
         <div>
@@ -180,7 +203,7 @@ const InboxPage = ({
                     ))}
                   </div>
                 </ScrollArea>
-                <div className="mt-4 flex gap-2 items-center border">
+                <div className="mt-4 flex gap-2 items-center">
                   <Input
                     type="text"
                     placeholder="Group name"
@@ -204,7 +227,7 @@ const InboxPage = ({
             <div className="my-1">
               <Link
                 href={`/inbox/${conversation.id}`}
-                className="flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2"
+                className="flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-800 px-2 md:px-4 py-2"
               >
                 <div className="flex items-center space-x-4 h-fit w-full">
                   {conversation?.groupImage ? (
@@ -282,7 +305,7 @@ const InboxPage = ({
                   {participant.userId !== userId && (
                     <Link
                       href={`/inbox/${conversation.id}`}
-                      className="flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2"
+                      className="flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-800 px-2 md:px-4 py-2"
                     >
                       <div className="flex items-center space-x-4 h-fit w-full">
                         <div className="relative w-fit">
@@ -301,7 +324,7 @@ const InboxPage = ({
                           ></div>
                         </div>
                         <div className="w-5/6 flex justify-between items-center">
-                          <div className="w-full">
+                          <div className="w-[calc(100%-2.5rem)]">
                             <h2 className="truncate">
                               {participant.user.username}
                             </h2>
@@ -312,7 +335,7 @@ const InboxPage = ({
                             </p>
                           </div>
                           {conversation.unseenCount > 0 && (
-                            <div className="bg-red-500 text-white rounded-full text-xs font-bold h-6 w-6 flex items-center justify-center">
+                            <div className="bg-red-500 text-white rounded-full text-xs font-bold h-6 w-6 min-w-6 flex items-center justify-center">
                               {conversation.unseenCount}
                             </div>
                           )}
