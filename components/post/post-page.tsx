@@ -10,6 +10,7 @@ import { Suspense } from "react";
 import PostSkeleton from "../skeletons/post-skeleton";
 import UserPostOptions from "./post-options";
 import dynamic from "next/dynamic";
+import TruncateCaption from "./caption-truncate";
 
 const DynamicPostInfo = dynamic(() => import("./post-info"));
 
@@ -80,6 +81,15 @@ const PostsCard = ({
               isLikes={post?.isLikesCountHide}
               isComments={post?.isCommentsOff}
             />
+
+            {post?.caption && (
+              <div className="px-3 md:px-0 text-sm">
+                <TruncateCaption
+                  username={post?.user?.username as string}
+                  text={post?.caption as string}
+                />
+              </div>
+            )}
 
             <p className="opacity-60 text-xs mt-2 px-3 md:px-0">
               {getRelativeTime(post?.createdAt)}
