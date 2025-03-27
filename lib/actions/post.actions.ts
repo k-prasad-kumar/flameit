@@ -68,7 +68,7 @@ export const updatePost = async (id: string, caption: string) => {
         id: id as string,
       },
       data: {
-        caption: caption as string,
+        caption: caption.replace(/\n/g, "\\n") as string,
       },
     });
     revalidatePath(`/p/${id}`);
