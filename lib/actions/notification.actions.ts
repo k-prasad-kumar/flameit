@@ -122,7 +122,7 @@ export const getNotifications = async (userId: string) => {
 
 export const getNotSeenNotification = async (userId: string) => {
   try {
-    deleteExpiredNotifications();
+    // deleteExpiredNotifications();
     const notifications = await prisma.notification.findMany({
       where: {
         recipientId: userId,
