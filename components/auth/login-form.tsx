@@ -182,6 +182,11 @@ const LoginForm = () => {
     });
   };
 
+  const setFormWarnings = () => {
+    setError(undefined);
+    setSuccess(undefined);
+  };
+
   return (
     <div>
       <Form {...form}>
@@ -230,7 +235,7 @@ const LoginForm = () => {
               open={forgotPasswordOpen}
               onOpenChange={setForgotPasswordOpen}
             >
-              <DialogTrigger className="text-sm">
+              <DialogTrigger className="text-sm" onClick={setFormWarnings}>
                 Forgot Password?
               </DialogTrigger>
               <DialogContent>
