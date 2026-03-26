@@ -128,6 +128,7 @@ Live Demo: https://flameit.vercel.app
 <img src="./public/4.PNG" alt="Chat List" width="200" />
 <img src="./public/5.PNG" alt="Chat" width="200" />
 <img src="./public/6.PNG" alt="Notifications" width="200" />
+<img src="./public/7.PNG" alt="Notifications" width="200" />
 </div>
 
 ### 💡Why This Project- ?
