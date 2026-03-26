@@ -4,8 +4,8 @@ import { getCurrentUser } from "@/lib/current-user-data";
 import { redirect } from "next/navigation";
 import {
   FollowingInterface,
-  PostResponseInterface,
-  StoryUserInfoInterface,
+  // PostResponseInterface,
+  // StoryUserInfoInterface,
   UserInfo,
 } from "@/types/types";
 import { Button } from "@/components/ui/button";
@@ -30,18 +30,23 @@ export default async function Home() {
   const followingIds = following.map((f) => f.followingId);
   followingIds.push(user.id, process.env.OFFICIAL_ACCOUNT as string);
 
-  const stories: StoryUserInfoInterface[] | undefined =
-    await getFollowingStoriesUserInfo(followingIds);
+  const [stories, posts] = await Promise.all([
+    getFollowingStoriesUserInfo(followingIds),
+    getFollowingPosts(followingIds, 0, 5),
+  ]);
 
-  const uniqueUsers: UserInfo[] = Array.from(
+  // const stories: StoryUserInfoInterface[] | undefined =
+  //   await getFollowingStoriesUserInfo(followingIds);
+
+  const uniqueUsersStories: UserInfo[] = Array.from(
     new Map(stories?.map((story) => [story.user.id, story.user])).values()
   );
 
-  const posts: PostResponseInterface[] | undefined = await getFollowingPosts(
-    followingIds,
-    0,
-    5
-  );
+  // const posts: PostResponseInterface[] | undefined = await getFollowingPosts(
+  //   followingIds,
+  //   0,
+  //   5
+  // );
 
   if (!posts || posts.length === 0) {
     return (
@@ -64,7 +69,10 @@ export default async function Home() {
     <Suspense fallback={<Loading />}>
       <div className="w-full max-w-screen-sm mx-auto mt-14 md:mt-10">
         <div className="px-0 md:px-4 lg:px-14 pt-0 md:pt-5">
-          <Stories userImage={user?.image as string} stories={uniqueUsers!} />
+          <Stories
+            userImage={user?.image as string}
+            stories={uniqueUsersStories!}
+          />
           <PostsCard
             posts={posts!}
             userId={user?.id as string}

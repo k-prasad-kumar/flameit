@@ -133,6 +133,7 @@ const LoginForm = () => {
             setResetPasswordEmail(data?.email as string);
             setForgotPasswordOpen(false);
             setVerifyPasswordOpen(true);
+            // setResetPasswordOpen(true);
           }
         })
         .catch((err) => {
