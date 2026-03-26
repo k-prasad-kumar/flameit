@@ -25,7 +25,9 @@ FlameIt is a full-stack social media application inspired by modern platforms li
 - Tailwind CSS  
 
 **Backend**
-- Next.js API Routes  
+- Next.js API Routes
+- Node.js
+- Express.js  
 
 **Database**
 - MongoDB (with Prisma ORM)  
@@ -61,9 +63,28 @@ npm install
 Create a .env file in the root directory and add the following:
 
 ```env
-DATABASE_URL=your_mongodb_connection_string
-NEXTAUTH_SECRET=your_secret_key
+NEXT_PUBLIC_SOCKET_URL="https://flameit-socket.onrender.com"
+NEXT_PUBLIC_URL="http://localhost:3000"
+OFFICIAL_ACCOUNT=67b5df949d7a9afa3510a003
+OG_IMAGE=https://res.cloudinary.com/flameit/image/upload/v1739980937/FlameIt_bwfkto.gif
+NODE_ENV="development"
+
 NEXTAUTH_URL=http://localhost:3000
+AUTH_SECRET=any_random_key_of_min_14_characters
+
+DATABASE_URL=your_mongodb_connection_string
+
+GITHUB_CLIENT_ID=your_client_id
+GITHUB_CLIENT_SECRET=your_secret_key
+
+GOOGLE_CLIENT_ID=your_client_id
+GOOGLE_CLIENT_SECRET=your_secret_key
+
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+NEXT_PUBLIC_CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_secret_key
+
+SENDGRID_API_KEY=your_api_key
 ```
 
 ### 4️⃣ Run the Development Server
@@ -99,15 +120,13 @@ Now open your browser and go to:
 Live Demo: https://flameit.vercel.app
 
 ## Screenshots of this project in mobile version
-
-![A screenshot of the Login Page](./public/0.PNG)
-![A screenshot of the Feed Page](./public/1.PNG)
-![A screenshot of the Profile Page](./public/2.PNG)
-![A screenshot of the Edit Profile Page](./public/3.PNG)
-![A screenshot of the Chat List Page](./public/4.PNG)
-![A screenshot of the Chat Page](./public/5.PNG)
-![A screenshot of the Notifications Page](./public/6.PNG)
-
+<img src="./public/0.PNG" alt="Login" width="200" />
+<img src="./public/1.PNG" alt="Feed" width="200" />
+<img src="./public/2.PNG" alt="Profile" width="200" />
+<img src="./public/3.PNG" alt="Edit Profile" width="200" />
+<img src="./public/4.PNG" alt="Chat List" width="200" />
+<img src="./public/5.PNG" alt="Chat" width="200" />
+<img src="./public/6.PNG" alt="Notifications" width="200" />
 
 ### 💡Why This Project- ?
 ---
