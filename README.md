@@ -120,6 +120,7 @@ Now open your browser and go to:
 Live Demo: https://flameit.vercel.app
 
 ## Screenshots of this project in mobile version
+<div style="display: flex; justify-content: space-around;">
 <img src="./public/0.PNG" alt="Login" width="200" />
 <img src="./public/1.PNG" alt="Feed" width="200" />
 <img src="./public/2.PNG" alt="Profile" width="200" />
@@ -127,6 +128,7 @@ Live Demo: https://flameit.vercel.app
 <img src="./public/4.PNG" alt="Chat List" width="200" />
 <img src="./public/5.PNG" alt="Chat" width="200" />
 <img src="./public/6.PNG" alt="Notifications" width="200" />
+</div>
 
 ### 💡Why This Project- ?
 ---
